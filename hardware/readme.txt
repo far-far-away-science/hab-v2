@@ -1,0 +1,1 @@
+all hardware designs, PCBs, schematics, drawings, specs go into this folder
