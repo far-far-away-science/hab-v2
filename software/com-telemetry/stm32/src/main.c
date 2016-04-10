@@ -16,6 +16,8 @@ void SystemClock_Config(void);
 void MX_GPIO_Init(void);
 void USART2_Init(void);
 
+__IO ITStatus UartReady = RESET;
+
 int main(void) {
     ConfigurateMcu();
 
@@ -26,9 +28,16 @@ int main(void) {
       ErrorHandler();
     }
 
+    while (UartReady != SET) {}
+
     for (;;)
     {
     }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+  UartReady = SET;
 }
 
 void ErrorHandler(void)
@@ -88,12 +97,13 @@ void MX_GPIO_Init(void) {
 }
 
 void USART2_Init(void) {
-    g_copernicusUartHandle.Instance = COPERNICUS_USART;
-    g_copernicusUartHandle.Init.BaudRate = 4800;
+    g_copernicusUartHandle.Instance        = COPERNICUS_USART;
+    g_copernicusUartHandle.Init.BaudRate   = 4800;
     g_copernicusUartHandle.Init.WordLength = UART_WORDLENGTH_8B;
-    g_copernicusUartHandle.Init.StopBits = UART_STOPBITS_1;
-    g_copernicusUartHandle.Init.Parity = UART_PARITY_NONE;
-    g_copernicusUartHandle.Init.Mode = UART_MODE_TX_RX;
+    g_copernicusUartHandle.Init.StopBits   = UART_STOPBITS_1;
+    g_copernicusUartHandle.Init.Parity     = UART_PARITY_NONE;
+    g_copernicusUartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    g_copernicusUartHandle.Init.Mode       = UART_MODE_TX_RX;
 
     if (HAL_UART_Init(&g_copernicusUartHandle) != HAL_OK) {
         ErrorHandler();

@@ -13,7 +13,9 @@ void COPERNICUS_USART_IRQHandler(void) {
     // read g_copernicusUartHandle.Instance->RDR
     //
     HAL_UART_IRQHandler(&g_copernicusUartHandle);
+    /*
     g_copernicusUartHandle.Instance->RDR = 0;
     g_copernicusUartHandle.ErrorCode = HAL_UART_ERROR_NONE;
     g_copernicusUartHandle.State = HAL_UART_STATE_BUSY_RX;
+    */
 }
