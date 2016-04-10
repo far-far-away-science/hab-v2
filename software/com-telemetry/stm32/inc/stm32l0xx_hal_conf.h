@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    stm32l0xx_hal_conf.h
-  * @brief   HAL configuration file.             
+  * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
   *
@@ -30,7 +30,7 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_CONF_H
@@ -47,30 +47,30 @@
 
 /* ########################## Module Selection ############################## */
 /**
-  * @brief This is the list of modules to be used in the HAL driver 
+  * @brief This is the list of modules to be used in the HAL driver
   */
 #define HAL_MODULE_ENABLED  
-//#define HAL_ADC_MODULE_ENABLED   
-//#define HAL_COMP_MODULE_ENABLED   
-//#define HAL_CRC_MODULE_ENABLED   
-//#define HAL_CRYP_MODULE_ENABLED   
-//#define HAL_DAC_MODULE_ENABLED   
-//#define HAL_I2S_MODULE_ENABLED   
-//#define HAL_IWDG_MODULE_ENABLED   
-//#define HAL_LCD_MODULE_ENABLED   
-//#define HAL_LPTIM_MODULE_ENABLED   
-//#define HAL_RNG_MODULE_ENABLED   
-//#define HAL_RTC_MODULE_ENABLED   
-//#define HAL_SPI_MODULE_ENABLED   
-//#define HAL_TIM_MODULE_ENABLED   
-//#define HAL_TSC_MODULE_ENABLED   
-//#define HAL_UART_MODULE_ENABLED   
-//#define HAL_USART_MODULE_ENABLED   
-//#define HAL_IRDA_MODULE_ENABLED   
-//#define HAL_SMARTCARD_MODULE_ENABLED   
-//#define HAL_SMBUS_MODULE_ENABLED   
-//#define HAL_WWDG_MODULE_ENABLED   
-//#define HAL_PCD_MODULE_ENABLED   
+//#define HAL_ADC_MODULE_ENABLED
+//#define HAL_COMP_MODULE_ENABLED
+//#define HAL_CRC_MODULE_ENABLED
+//#define HAL_CRYP_MODULE_ENABLED
+//#define HAL_DAC_MODULE_ENABLED
+//#define HAL_I2S_MODULE_ENABLED
+//#define HAL_IWDG_MODULE_ENABLED
+//#define HAL_LCD_MODULE_ENABLED
+//#define HAL_LPTIM_MODULE_ENABLED
+//#define HAL_RNG_MODULE_ENABLED
+//#define HAL_RTC_MODULE_ENABLED
+//#define HAL_SPI_MODULE_ENABLED
+//#define HAL_TIM_MODULE_ENABLED
+//#define HAL_TSC_MODULE_ENABLED
+#define HAL_UART_MODULE_ENABLED
+//#define HAL_USART_MODULE_ENABLED
+//#define HAL_IRDA_MODULE_ENABLED
+//#define HAL_SMARTCARD_MODULE_ENABLED
+//#define HAL_SMBUS_MODULE_ENABLED
+//#define HAL_WWDG_MODULE_ENABLED
+//#define HAL_PCD_MODULE_ENABLED
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
@@ -83,7 +83,7 @@
 /**
   * @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
   *        This value is used by the RCC HAL module to compute the system frequency
-  *        (when HSE is used as system clock source, directly or through the PLL).  
+  *        (when HSE is used as system clock source, directly or through the PLL).
   */
 #if !defined  (HSE_VALUE) 
   #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz */
