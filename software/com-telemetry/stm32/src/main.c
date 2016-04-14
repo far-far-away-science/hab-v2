@@ -97,7 +97,7 @@ void MX_GPIO_Init(void) {
 }
 
 void USART2_Init(void) {
-    g_copernicusUartHandle.Instance        = COPERNICUS_USART;
+    g_copernicusUartHandle.Instance        = COPERNICUS_UART;
     g_copernicusUartHandle.Init.BaudRate   = 4800;
     g_copernicusUartHandle.Init.WordLength = UART_WORDLENGTH_8B;
     g_copernicusUartHandle.Init.StopBits   = UART_STOPBITS_1;
