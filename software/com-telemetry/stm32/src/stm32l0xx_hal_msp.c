@@ -11,7 +11,7 @@ void HAL_MspInit(void) {
 
 void HAL_UART_MspInit(UART_HandleTypeDef *huart) {
     if (huart->Instance == COPERNICUS_UART) {
-        GPIO_InitTypeDef GPIO_InitStruct;
+        GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
         COPERNICUS_GPIO_CLK_ENABLE();
         COPERNICUS_UART_CLK_ENABLE();
@@ -30,6 +30,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart) {
 
 void HAL_UART_MspDeInit(UART_HandleTypeDef *huart) {
     if (huart->Instance == COPERNICUS_UART) {
+        COPERNICUS_UART_CLK_DISABLE();
         COPERNICUS_UART_FORCE_RESET();
         COPERNICUS_UART_RELEASE_RESET();
         HAL_GPIO_DeInit(COPERNICUS_GPIO, COPERNICUS_UART_TX_Pin | COPERNICUS_UART_RX_Pin);
