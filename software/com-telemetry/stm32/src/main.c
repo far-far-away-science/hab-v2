@@ -7,7 +7,9 @@
 #include "stm32l0xx_hal_uart_ex.h"
 
 #include "uart.h"
+#include "gps\nmeaBuffer.h"
 
+NmeaRingBuffer g_nmeaRingBuffer;
 UART_HandleTypeDef g_copernicusUartHandle;
 
 void ErrorHandler(void);

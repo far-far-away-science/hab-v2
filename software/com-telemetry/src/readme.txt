@@ -1,1 +1,1 @@
-code we write goes here.
+non-MCU specific code (portable) goes here.
