@@ -7,7 +7,9 @@
 #include "stm32l0xx_hal_uart_ex.h"
 
 #include "uart.h"
-#include "gps\nmeaBuffer.h"
+#include "gps/nmeaBuffer.h"
+
+#include "test/test.h"
 
 NmeaRingBuffer g_nmeaRingBuffer;
 UART_HandleTypeDef g_copernicusUartHandle;
@@ -24,9 +26,17 @@ void Copernicus_Uart_Init(void);
 int main(void) {
     ConfigurateMcu();
 
+#ifdef TEST
+    EXECUTE_TESTS();
+
     for (;;)
     {
     }
+#else
+    for (;;)
+    {
+    }
+#endif
 }
 
 void ConfigurateMcu(void) {

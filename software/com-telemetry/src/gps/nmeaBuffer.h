@@ -18,7 +18,6 @@ typedef enum NmeaRingBufferStatus_t
 {
     NRBS_FULL                      = 0x01,
     NRBS_WAIT_UNTIL_NEXT_MESSAGE   = 0x02,
-    NRBS_PREVIOUS_CHARACTER_WAS_CR = 0x04,
 } NmeaRingBufferStatus;
 
 typedef struct NmeaRingBuffer_t
@@ -29,7 +28,7 @@ typedef struct NmeaRingBuffer_t
     NmeaMessage buffer[NMEA_RING_BUFFER_MAX_MESSAGES_COUNT];
 } NmeaRingBuffer;
 
-uint8_t advanceUint8Index(uint8_t currentValue, uint8_t maxLen);
+uint8_t advanceUint8Index(uint8_t currentValue, uint8_t ringBufferLength);
 
 void nmeaReceiveCharacter(NmeaRingBuffer* pNmeaRingBuffer, uint8_t character, bool errorEncountered);
 

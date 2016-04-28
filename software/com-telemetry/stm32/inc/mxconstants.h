@@ -1,5 +1,8 @@
 #pragma once
 
+#include "stm32l073xx.h"
+#include "stm32l0xx_hal_gpio.h"
+
 #define COPERNICUS_GPIO               GPIOB
 #define COPERNICUS_UART               LPUART1
 #define COPERNICUS_UART_TX_Pin        GPIO_PIN_10

@@ -4,9 +4,9 @@
 
 #include "errors.h"
 
-uint8_t advanceUint8Index(uint8_t currentValue, uint8_t maxLen) {
+uint8_t advanceUint8Index(uint8_t currentValue, uint8_t ringBufferLength) {
     ++currentValue;
-    if (currentValue >= maxLen) {
+    if (currentValue >= ringBufferLength) {
         currentValue = 0;
     }
     return currentValue;
@@ -74,16 +74,7 @@ void nmeaReceiveCharacter(NmeaRingBuffer* pNmeaRingBuffer, uint8_t character, bo
         ERROR_NMEA_BUFFER_OVERFLOW();
     }
 
-    if ((pNmeaRingBuffer->statusMask & NRBS_WAIT_UNTIL_NEXT_MESSAGE) &&
-        (pNmeaRingBuffer->statusMask & NRBS_PREVIOUS_CHARACTER_WAS_CR) &&
-        character == '\x0A')
-    {
+    if ((pNmeaRingBuffer->statusMask & NRBS_WAIT_UNTIL_NEXT_MESSAGE) && character == '\x0A') {
         pNmeaRingBuffer->statusMask &= ~NRBS_WAIT_UNTIL_NEXT_MESSAGE;
-    }
-
-    if (character == '\x0D') {
-        pNmeaRingBuffer->statusMask |= NRBS_PREVIOUS_CHARACTER_WAS_CR;
-    } else {
-        pNmeaRingBuffer->statusMask &= ~NRBS_PREVIOUS_CHARACTER_WAS_CR;
     }
 }
