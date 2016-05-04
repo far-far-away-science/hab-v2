@@ -2,9 +2,9 @@
 
 #include <string.h>
 
-#include "gps/tests/nmeaBuffer_nmeaReadMessage.h"
-#include "gps/tests/nmeaBuffer_advanceUint8Index.h"
-#include "gps/tests/nmeaBuffer_nmeaReceiveCharacter.h"
+#include <gps/tests/nmea_buffer_advanceUint8Index.h>
+#include <gps/tests/nmea_buffer_nmeaReadMessage.h>
+#include <gps/tests/nmea_buffer_nmeaReceiveCharacter.h>
 
 void ASSERT_IS_TRUE(bool value)
 {
