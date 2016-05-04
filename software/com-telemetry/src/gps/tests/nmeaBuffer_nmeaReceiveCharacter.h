@@ -2,9 +2,8 @@
 
 #include <string.h>
 
-#include "test\test.h"
-
-#include "..\nmeaBuffer.h"
+#include "test/test.h"
+#include "gps/nmea_buffer.h"
 
 TEST_CLASS(nmeaBuffer_nmeaReceiveCharacter,
 {

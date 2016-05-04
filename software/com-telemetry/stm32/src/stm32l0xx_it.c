@@ -1,10 +1,11 @@
-#include <gps/nmeaBuffer.h>
 #include "stm32l0xx_hal.h"
 #include "stm32l0xx.h"
 #include "stm32l0xx_it.h"
 
 #include "uart.h"
 #include "errors.h"
+
+#include "gps/nmea_buffer.h"
 
 extern UART_HandleTypeDef g_copernicusUartHandle;
 extern NmeaRingBuffer g_nmeaRingBuffer;

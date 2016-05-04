@@ -1,5 +1,4 @@
-#include "nmeaBuffer.h"
-
+#include <gps/nmea_buffer.h>
 #include <string.h>
 
 #include "errors.h"
