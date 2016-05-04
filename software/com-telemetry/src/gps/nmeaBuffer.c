@@ -12,7 +12,7 @@ uint8_t advanceUint8Index(uint8_t currentValue, uint8_t ringBufferLength) {
     return currentValue;
 }
 
-bool readMessage(NmeaRingBuffer* pNmeaRingBuffer, NmeaMessage* pResultBuffer) {
+bool nmeaReadMessage(NmeaRingBuffer* pNmeaRingBuffer, NmeaMessage* pResultBuffer) {
     // if buffer is empty and interrupt kicks in after we check '!pChannelData->readBuffer.isFull' we are still fine
     // as buffer can only get fuller by interrupt
     if (!(pNmeaRingBuffer->statusMask & NRBS_FULL) && pNmeaRingBuffer->endIdx == pNmeaRingBuffer->startIdx) {

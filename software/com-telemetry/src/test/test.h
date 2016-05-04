@@ -30,8 +30,10 @@
     #endif
 
     void ASSERT_IS_TRUE(bool value);
+    void ASSERT_IS_FALSE(bool value);
 
     void ASSERT_ARE_EQUAL(uint8_t expected, uint8_t actual);
+    void ASSERT_ARE_STR_EQUAL(uint8_t* pExpected, uint8_t* pActual, uint16_t size);
 
     void executeTests(void);
 

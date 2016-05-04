@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define NMEA_RING_BUFFER_MAX_MESSAGES_COUNT 3
-#define NMEA_MESSAGE_MAX_LEN                 128
+#define NMEA_MESSAGE_MAX_LEN                128
 
 typedef struct NmeaMessage_t
 {
@@ -32,4 +32,4 @@ uint8_t advanceUint8Index(uint8_t currentValue, uint8_t ringBufferLength);
 
 void nmeaReceiveCharacter(NmeaRingBuffer* pNmeaRingBuffer, uint8_t character, bool errorEncountered);
 
-bool readMessage(NmeaRingBuffer* pNmeaRingBuffer, NmeaMessage* pResultBuffer);
+bool nmeaReadMessage(NmeaRingBuffer* pNmeaRingBuffer, NmeaMessage* pResultBuffer);
