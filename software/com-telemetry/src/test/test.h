@@ -1,13 +1,14 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "errors.h"
-
-#define TEST
+// uncomment below to enable tests
+// #define TEST
 
 #if defined(TEST)
+    #include <stdint.h>
+    #include <stdbool.h>
+
+    #include "errors.h"
+
     #define TEST_CLASS(name, body) \
         void name(void) \
         body
@@ -41,6 +42,7 @@
         executeTests();
 
 #else
+    #define HANG()
     #define TEST_CLASS(name, body)
     #define TEST_METHOD(name, body)
     #define RUN_TEST_CLASS(name)

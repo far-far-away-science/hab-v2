@@ -8,11 +8,35 @@
 #include "gps/nmea_buffer.h"
 
 extern UART_HandleTypeDef g_copernicusUartHandle;
+extern DAC_HandleTypeDef g_hx1DacHandle;
 extern NmeaRingBuffer g_nmeaRingBuffer;
+
+void HardFault_Handler(void) {
+    TurnOnGreenLed();
+    while (1) {
+    }
+}
+
+void MemManage_Handler(void) {
+    TurnOnGreenLed();
+    while (1) {
+    }
+}
+
+void BusFault_Handler(void) {
+    TurnOnGreenLed();
+    while (1) {
+    }
+}
+
+void UsageFault_Handler(void) {
+    TurnOnGreenLed();
+    while (1) {
+    }
+}
 
 void SysTick_Handler(void) {
     HAL_IncTick();
-    HAL_SYSTICK_IRQHandler();
 }
 
 void COPERNICUS_LPUART_IRQHandler(void) {
@@ -35,4 +59,8 @@ void COPERNICUS_LPUART_IRQHandler(void) {
             g_copernicusUartHandle.ErrorCode = HAL_UART_ERROR_NONE;
         }
     }
+}
+
+void HX1_DMA_IRQHandler(void) {
+    HAL_DMA_IRQHandler(g_hx1DacHandle.DMA_Handle1);
 }
