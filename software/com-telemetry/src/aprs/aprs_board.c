@@ -36,39 +36,28 @@ const Callsign CALLSIGN_DESTINATION_2 =
            // ^^^ some reserved values and command/response
 };
 
-bool sendAprsMessage(const GpsData* pGpsData)
+void advanceBitstreamBit(BitstreamSize* pResultBitstreamSize)
 {
-    return false; // TODO
-}
-
-bool sendTelemetryMessage(const Telemetry* pTelemetry)
-{
-    return false; // TODO
-}
-
-void advanceBitstreamBit(BitstreamPos* pResultBitstreamSize)
-{
-    if (pResultBitstreamSize->bitstreamCharBitIdx >= 7)
+    if (pResultBitstreamSize->lastCharBitsCount >= 7)
     {
-        ++pResultBitstreamSize->bitstreamCharIdx;
-        pResultBitstreamSize->bitstreamCharBitIdx = 0;
+        ++pResultBitstreamSize->charsCount;
+        pResultBitstreamSize->lastCharBitsCount = 0;
     }
     else
     {
-        ++pResultBitstreamSize->bitstreamCharBitIdx;
+        ++pResultBitstreamSize->lastCharBitsCount;
     }
 }
 
-bool encodeAndAppendBits(uint8_t* pBitstreamBuffer,
-                         uint16_t maxBitstreamBufferLen,
-                         EncodingData* pEncodingData,
-                         const uint8_t* pMessageData,
+bool encodeAndAppendBits(const uint8_t* pMessageData,
                          uint16_t messageDataSize,
                          STUFFING_TYPE stuffingType,
                          FCS_TYPE fcsType,
-                         SHIFT_ONE_LEFT_TYPE shiftOneLeftType)
+                         SHIFT_ONE_LEFT_TYPE shiftOneLeftType,
+                         AprsEncodedMessage* pResultAprsEncodedMessage,
+                         EncodingContext* pEncodingContext)
 {
-    if (!pBitstreamBuffer || !pEncodingData || maxBitstreamBufferLen < messageDataSize)
+    if (!pResultAprsEncodedMessage || !pEncodingContext || MAX_APRS_MESSAGE_LENGTH < messageDataSize)
     {
         return false;
     }
@@ -98,88 +87,89 @@ bool encodeAndAppendBits(uint8_t* pBitstreamBuffer,
             // add FCS calculation based on tables
             // to improve speed (need to migrate to GCC due to 
             // 32Kb application size limit in Keil)
+            // STM32 has CRC hardware can reuse that
 
             if (fcsType == FCS_CALCULATE)
             {
-                const uint16_t shiftBit = pEncodingData->fcs & 0x0001;
-                pEncodingData->fcs = pEncodingData->fcs >> 1;
+                const uint16_t shiftBit = pEncodingContext->fcs & 0x0001;
+                pEncodingContext->fcs = pEncodingContext->fcs >> 1;
                 if (shiftBit != ((currentByte >> iBit) & 0x01))
                 {
-                    pEncodingData->fcs ^= FCS_POLYNOMIAL;
+                    pEncodingContext->fcs ^= FCS_POLYNOMIAL;
                 }
             }
 
             if (currentBit)
             {
-                if (pEncodingData->bitstreamSize.bitstreamCharIdx >= maxBitstreamBufferLen)
+                if (pResultAprsEncodedMessage->size.charsCount >= MAX_APRS_MESSAGE_LENGTH)
                 {
                     return false;
                 }
                 // as we are encoding 1 keep current bit as is
-                if (pEncodingData->lastBit)
+                if (pEncodingContext->lastBit)
                 {
-                    pBitstreamBuffer[pEncodingData->bitstreamSize.bitstreamCharIdx] |= 1 << (pEncodingData->bitstreamSize.bitstreamCharBitIdx);
+                    pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.charsCount] |= 1 << (pResultAprsEncodedMessage->size.lastCharBitsCount);
                 }
                 else
                 {
-                    pBitstreamBuffer[pEncodingData->bitstreamSize.bitstreamCharIdx] &= ~(1 << (pEncodingData->bitstreamSize.bitstreamCharBitIdx));
+                    pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.charsCount] &= ~(1 << (pResultAprsEncodedMessage->size.lastCharBitsCount));
                 }
 
-                advanceBitstreamBit(&pEncodingData->bitstreamSize);
+                advanceBitstreamBit(&pResultAprsEncodedMessage->size);
 
                 if (stuffingType == ST_PERFORM_STUFFING)
                 {
-                    ++pEncodingData->numberOfOnes;
+                    ++pEncodingContext->numberOfOnes;
                     
-                    if (pEncodingData->numberOfOnes == 5)
+                    if (pEncodingContext->numberOfOnes == 5)
                     {
-                        if (pEncodingData->bitstreamSize.bitstreamCharIdx >= maxBitstreamBufferLen)
+                        if (pResultAprsEncodedMessage->size.charsCount >= MAX_APRS_MESSAGE_LENGTH)
                         {
                             return false;
                         }
 
                         // we need to insert 0 after 5 consecutive ones
-                        if (pEncodingData->lastBit)
+                        if (pEncodingContext->lastBit)
                         {
-                            pBitstreamBuffer[pEncodingData->bitstreamSize.bitstreamCharIdx] &= ~(1 << (pEncodingData->bitstreamSize.bitstreamCharBitIdx));
-                            pEncodingData->lastBit = 0;
+                            pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.charsCount] &= ~(1 << (pResultAprsEncodedMessage->size.lastCharBitsCount));
+                            pEncodingContext->lastBit = 0;
                         }
                         else
                         {
-                            pBitstreamBuffer[pEncodingData->bitstreamSize.bitstreamCharIdx] |= 1 << (pEncodingData->bitstreamSize.bitstreamCharBitIdx);
-                            pEncodingData->lastBit = 1;
+                            pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.charsCount] |= 1 << (pResultAprsEncodedMessage->size.lastCharBitsCount);
+                            pEncodingContext->lastBit = 1;
                         }
                         
-                        pEncodingData->numberOfOnes = 0;
+                        pEncodingContext->numberOfOnes = 0;
                         
-                        advanceBitstreamBit(&pEncodingData->bitstreamSize); // insert zero as we had 5 ones
+                        advanceBitstreamBit(&pResultAprsEncodedMessage->size); // insert zero as we had 5 ones
                     }
                 }
             }
             else
             {
-                if (pEncodingData->bitstreamSize.bitstreamCharIdx >= maxBitstreamBufferLen)
+                if (pResultAprsEncodedMessage->size.charsCount >= MAX_APRS_MESSAGE_LENGTH)
                 {
                     return false;
                 }
                 
                 // as we are encoding 0 we need to flip bit
-                if (pEncodingData->lastBit)
+                if (pEncodingContext->lastBit)
                 {
-                    pBitstreamBuffer[pEncodingData->bitstreamSize.bitstreamCharIdx] &= ~(1 << (pEncodingData->bitstreamSize.bitstreamCharBitIdx));
-                    pEncodingData->lastBit = 0;
+                    pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.charsCount] &= ~(1 << (pResultAprsEncodedMessage->size.lastCharBitsCount));
+                    pEncodingContext->lastBit = 0;
                 }
                 else
                 {
-                    pBitstreamBuffer[pEncodingData->bitstreamSize.bitstreamCharIdx] |= 1 << (pEncodingData->bitstreamSize.bitstreamCharBitIdx);
-                    pEncodingData->lastBit = 1;
+                    pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.charsCount] |= 1 << (pResultAprsEncodedMessage->size.lastCharBitsCount);
+                    pEncodingContext->lastBit = 1;
                 }
 
-                advanceBitstreamBit(&pEncodingData->bitstreamSize);
+                advanceBitstreamBit(&pResultAprsEncodedMessage->size);
 
                 if (stuffingType == ST_PERFORM_STUFFING)
                 {
-                    pEncodingData->numberOfOnes = 0;
+                    pEncodingContext->numberOfOnes = 0;
                 }
             }
         }
@@ -188,13 +178,28 @@ bool encodeAndAppendBits(uint8_t* pBitstreamBuffer,
     if (stuffingType == ST_NO_STUFFING)
     {
         // reset ones as we didn't do any stuffing while sending this data
-        pEncodingData->numberOfOnes = 0;
+        pEncodingContext->numberOfOnes = 0;
     }
 
     return true;
 }
 
-bool fillInAmplitudesBuffer(uint16_t* pBuffer, uint32_t bufferSize)
+bool isAprsMessageEmtpy(const AprsEncodedMessage* pMessage)
 {
-    return true; // TODO KPL fill in
+    return true; // TODO
+}
+
+bool encodeGpsAprsMessage(const Callsign callsign, const GpsData* pGpsData, AprsEncodedMessage* pEncdedMessage)
+{
+    return false; // TODO
+}
+
+bool encodeTelemetryAprsMessage(const Callsign callsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncdedMessage)
+{
+    return false; // TODO
+}
+
+bool fillInAmplitudesBuffer(const AprsEncodedMessage* pMessage, uint16_t* pOutputBuffer, uint32_t outputBufferSize)
+{
+    return false; // TODO
 }

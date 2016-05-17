@@ -17,13 +17,15 @@
 #define HALF_BUFFER_LENGTH 16
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
+GpsData g_gpsData;
+NmeaRingBuffer g_nmeaRingBuffer;
 UART_HandleTypeDef g_copernicusUartHandle;
-TIM_HandleTypeDef g_hx1TimerHandle;
+
+bool g_aprsMessageTransmitting;
 DAC_HandleTypeDef g_hx1DacHandle;
 DAC_ChannelConfTypeDef g_hx1DacConfig;
-uint16_t g_DacBuffer[FULL_BUFFER_LENGTH] = { 0 };
-
-NmeaRingBuffer g_nmeaRingBuffer;
+AprsEncodedMessage g_aprsEncodedMessage;
+uint16_t g_DacBuffer[FULL_BUFFER_LENGTH];
 
 void ErrorHandler(void);
 
@@ -34,10 +36,11 @@ void MX_GPIO_Init(void);
 void MX_STLink_Init(void);
 void Copernicus_Uart_Init(void);
 
+void stopHX1(void);
 void HX1_Timer_Init(void);
 void HX1_Dac_Init(void);
 
-void TransmitAprsMessage(void);
+void transmitAprsMessage(void);
 
 int main(void) {
     ConfigurateMcu();
@@ -49,9 +52,31 @@ int main(void) {
     {
     }
 #else
-    TransmitAprsMessage();
-    for (;;)
-    {
+    bool hasGpsMessage = true;
+    NmeaMessage nmeaMessage = { 0 };
+
+    for (;;) {
+        // TODO distinguish between modes:
+        // - ascending close to the ground
+        // - ascending close to balloon popping event
+        // - descending close to the ground
+        // - landed not moving
+        // - landed moving (water landing or on the truck :) )
+
+        if (nmeaReadMessage(&g_nmeaRingBuffer, &nmeaMessage)) {
+            hasGpsMessage = true;
+            parseNmeaMessageIfValid(&nmeaMessage, &g_gpsData);
+        }
+
+        // TODO get/parse telemetry data
+
+        if (!g_aprsMessageTransmitting && hasGpsMessage) {
+            if (encodeGpsAprsMessage(CALLSIGN_SOURCE, &g_gpsData, &g_aprsEncodedMessage)) {
+                transmitAprsMessage();
+            }
+        }
+
+        // TODO send aprs telemetry message
     }
 #endif
 }
@@ -164,33 +189,58 @@ void HX1_Timer_Init(void) {
     const uint32_t period = APRS_SIGNAL_GENERATION_FREQUENCY;
     const uint32_t prescalerValue = (uint32_t) (SystemCoreClock / period) - 1;
 
-    g_hx1TimerHandle.Instance           = HX1_TIMER;
-    g_hx1TimerHandle.Init.Period        = period - 1;
-    g_hx1TimerHandle.Init.Prescaler     = prescalerValue;
-    g_hx1TimerHandle.Init.ClockDivision = 0;
-    g_hx1TimerHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
-    HAL_TIM_Base_Init(&g_hx1TimerHandle);
+    static TIM_HandleTypeDef hx1TimerHandle;
+
+    hx1TimerHandle.Instance           = HX1_TIMER;
+    hx1TimerHandle.Init.Period        = period - 1;
+    hx1TimerHandle.Init.Prescaler     = prescalerValue;
+    hx1TimerHandle.Init.ClockDivision = 0;
+    hx1TimerHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
+    HAL_TIM_Base_Init(&hx1TimerHandle);
 
     TIM_MasterConfigTypeDef masterConfig = { 0 };
     masterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     masterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-    HAL_TIMEx_MasterConfigSynchronization(&g_hx1TimerHandle, &masterConfig);
+    HAL_TIMEx_MasterConfigSynchronization(&hx1TimerHandle, &masterConfig);
 
-    HAL_TIM_Base_Start(&g_hx1TimerHandle);
+    HAL_TIM_Base_Start(&hx1TimerHandle);
+}
+
+void stopHX1(void) {
+    HAL_DAC_DeInit(&g_hx1DacHandle);
+    g_aprsMessageTransmitting = false;
 }
 
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
+    if (g_aprsMessageTransmitting) {
+        // fill in 1st half of the buffer
+        g_aprsMessageTransmitting = fillInAmplitudesBuffer(&g_aprsEncodedMessage, g_DacBuffer, HALF_BUFFER_LENGTH);
+        // continue transmission as we filled 2nd half of the buffer (this is 1/2 completion event after all)
+    } else {
+        stopHX1();
+    }
 }
 
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* pDdac) {
+    if (g_aprsMessageTransmitting) {
+        // fill in 2nd half of the buffer
+        g_aprsMessageTransmitting = fillInAmplitudesBuffer(&g_aprsEncodedMessage, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
+        // continue transmission as we filled 1st half of the buffer
+    } else {
+        stopHX1();
+    }
 }
 
 void HX1_Dac_Init(void) {
     g_hx1DacHandle.Instance = HX1_DAC;
 }
 
-void TransmitAprsMessage(void) {
-    HAL_DAC_DeInit(&g_hx1DacHandle);
+void transmitAprsMessage(void) {
+    stopHX1();
+
+    if (isAprsMessageEmtpy(&g_aprsEncodedMessage)) {
+        return;
+    }
 
     if (HAL_DAC_Init(&g_hx1DacHandle) != HAL_OK) {
         ErrorHandler();
@@ -203,9 +253,13 @@ void TransmitAprsMessage(void) {
         ErrorHandler();
     }
 
-    if (fillInAmplitudesBuffer(g_DacBuffer, FULL_BUFFER_LENGTH)) {
+    if (fillInAmplitudesBuffer(&g_aprsEncodedMessage, g_DacBuffer, FULL_BUFFER_LENGTH)) {
         if (HAL_DAC_Start_DMA(&g_hx1DacHandle, HX1_DAC_CHANNEL, (uint32_t*) g_DacBuffer, FULL_BUFFER_LENGTH, HX1_DAC_ALIGN) != HAL_OK) {
+            stopHX1();
             ErrorHandler();
         }
+        g_aprsMessageTransmitting = true;
+    } else {
+        stopHX1();
     }
 }

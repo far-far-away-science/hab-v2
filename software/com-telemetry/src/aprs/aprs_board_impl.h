@@ -12,7 +12,7 @@
 #define APRS_BITSTREAM_MAX_LEN (APRS_PAYLOAD_LEN + APRS_PAYLOAD_LEN / 5 + 1)
 
 // should be around 0.5ms for HX-1 warm-up (10 / 1200 = 8ms)
-#define LEADING_WARMUP_AMPLITUDE_DC_PULSES_COUNT 10
+#define LEADING_WARMUP_AMPLITUDE_DC_PULSES_COUNT     10
 // to abort previous frame send at least 15 ones without any stuffing (putting zeroes in between)
 #define LEADING_ONES_COUNT_TO_CANCEL_PREVIOUS_PACKET 48
 
@@ -20,8 +20,8 @@
  * FCS
  */
  
-#define FCS_POLYNOMIAL 0x8408
-#define FCS_INITIAL_VALUE 0xFFFF
+#define FCS_POLYNOMIAL                0x8408
+#define FCS_INITIAL_VALUE             0xFFFF
 #define FCS_POST_PROCESSING_XOR_VALUE 0xFFFF
 
 typedef enum FCS_TYPE_t
@@ -42,27 +42,19 @@ typedef enum SHIFT_ONE_LEFT_TYPE_t
     SHIFT_ONE_LEFT,
 } SHIFT_ONE_LEFT_TYPE;
 
-typedef struct BitstreamPos_t
-{
-    uint16_t bitstreamCharIdx;
-    uint8_t bitstreamCharBitIdx;
-} BitstreamPos;
-
-typedef struct EncodingData_t
+typedef struct EncodingContext_t
 {
     uint16_t fcs;
     uint8_t lastBit;
     uint8_t numberOfOnes;
-    BitstreamPos bitstreamSize;
-} EncodingData;
+} EncodingContext;
 
-void advanceBitstreamBit(BitstreamPos* pResultBitstreamSize);
+void advanceBitstreamBit(BitstreamSize* pResultBitstreamSize);
 
-bool encodeAndAppendBits(uint8_t* pBitstreamBuffer,
-                         uint16_t maxBitstreamBufferLen,
-                         EncodingData* pEncodingData,
-                         const uint8_t* pMessageData,
+bool encodeAndAppendBits(const uint8_t* pMessageData,
                          uint16_t messageDataSize,
                          STUFFING_TYPE stuffingType,
                          FCS_TYPE fcsType,
-                         SHIFT_ONE_LEFT_TYPE shiftOneLeftType);
+                         SHIFT_ONE_LEFT_TYPE shiftOneLeftType,
+                         AprsEncodedMessage* pResultAprsEncodedMessage,
+                         EncodingContext* pEncodingContext);

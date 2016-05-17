@@ -14,6 +14,11 @@ int32_t angularCoordinateToInt32Degrees(AngularCoordinate coord)
     }
 }
 
+void parseNmeaMessageIfValid(const NmeaMessage* pGpggaMessage, GpsData* pResult)
+{
+    // TODO
+}
+
 void parseGpggaMessageIfValid(const NmeaMessage* pGpggaMessage, GpsData* pResult)
 {
     if (!pGpggaMessage || !pResult)

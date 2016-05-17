@@ -88,5 +88,6 @@ typedef struct GpsData_t
 // degrees times 10^6
 int32_t angularCoordinateToInt32Degrees(AngularCoordinate lat);
 
+void parseNmeaMessageIfValid(const NmeaMessage* pGpggaMessage, GpsData* pResult);
 void parseGpggaMessageIfValid(const NmeaMessage* pGpggaMessage, GpsData* pResult);
 void parseGpvtgMessageIfValid(const NmeaMessage* pGpvtgMessage, GpsData* pResult);
