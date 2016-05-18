@@ -5,7 +5,7 @@
 #define PREFIX_FLAGS_COUNT 1
 #define SUFFIX_FLAGS_COUNT 10
 
-#define APRS_PAYLOAD_LEN 128
+#define MAX_APRS_PAYLOAD_LENGTH 128
 
 // bit stream will have extra bits in it so it must be larger than message buffer
 // in worst case we will insert extra 0 for every 5 bits
@@ -56,5 +56,10 @@ bool encodeAndAppendBits(const uint8_t* pMessageData,
                          STUFFING_TYPE stuffingType,
                          FCS_TYPE fcsType,
                          SHIFT_ONE_LEFT_TYPE shiftOneLeftType,
-                         AprsEncodedMessage* pResultAprsEncodedMessage,
-                         EncodingContext* pEncodingContext);
+                         EncodingContext* pEncodingContext,
+                         AprsEncodedMessage* pResultAprsEncodedMessage);
+
+bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuffer, uint8_t aprsPayloadBufferLen, AprsEncodedMessage* pEncdedMessage);
+
+uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength);
+uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength);

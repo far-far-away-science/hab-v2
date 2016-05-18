@@ -17,6 +17,8 @@
 #define HALF_BUFFER_LENGTH 16
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
+#define APRS_SIGNAL_GENERATION_FREQUENCY 100000
+
 GpsData g_gpsData;
 NmeaRingBuffer g_nmeaRingBuffer;
 UART_HandleTypeDef g_copernicusUartHandle;
@@ -70,9 +72,11 @@ int main(void) {
 
         // TODO get/parse telemetry data
 
-        if (!g_aprsMessageTransmitting && hasGpsMessage) {
-            if (encodeGpsAprsMessage(CALLSIGN_SOURCE, &g_gpsData, &g_aprsEncodedMessage)) {
-                transmitAprsMessage();
+        if (!g_aprsMessageTransmitting) {
+            if (hasGpsMessage) {
+                if (encodeGpsAprsMessage(&CALLSIGN_SOURCE, &g_gpsData, &g_aprsEncodedMessage)) {
+                    transmitAprsMessage();
+                }
             }
         }
 
@@ -214,7 +218,7 @@ void stopHX1(void) {
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
     if (g_aprsMessageTransmitting) {
         // fill in 1st half of the buffer
-        g_aprsMessageTransmitting = fillInAmplitudesBuffer(&g_aprsEncodedMessage, g_DacBuffer, HALF_BUFFER_LENGTH);
+        g_aprsMessageTransmitting = encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 2nd half of the buffer (this is 1/2 completion event after all)
     } else {
         stopHX1();
@@ -224,7 +228,7 @@ void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* pDdac) {
     if (g_aprsMessageTransmitting) {
         // fill in 2nd half of the buffer
-        g_aprsMessageTransmitting = fillInAmplitudesBuffer(&g_aprsEncodedMessage, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
+        g_aprsMessageTransmitting = encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 1st half of the buffer
     } else {
         stopHX1();
@@ -242,6 +246,9 @@ void transmitAprsMessage(void) {
         return;
     }
 
+    // TODO enable HX1
+    // TODO wait 5ms for HX1 to power up
+
     if (HAL_DAC_Init(&g_hx1DacHandle) != HAL_OK) {
         ErrorHandler();
     }
@@ -253,7 +260,7 @@ void transmitAprsMessage(void) {
         ErrorHandler();
     }
 
-    if (fillInAmplitudesBuffer(&g_aprsEncodedMessage, g_DacBuffer, FULL_BUFFER_LENGTH)) {
+    if (encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer, FULL_BUFFER_LENGTH)) {
         if (HAL_DAC_Start_DMA(&g_hx1DacHandle, HX1_DAC_CHANNEL, (uint32_t*) g_DacBuffer, FULL_BUFFER_LENGTH, HX1_DAC_ALIGN) != HAL_OK) {
             stopHX1();
             ErrorHandler();

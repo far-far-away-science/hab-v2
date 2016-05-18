@@ -3,8 +3,7 @@
 #include <gps/nmea_messages.h>
 #include <telemetry/telemetry.h>
 
-#define MAX_APRS_MESSAGE_LENGTH          384
-#define APRS_SIGNAL_GENERATION_FREQUENCY 100000
+#define MAX_APRS_MESSAGE_LENGTH 384
 
 typedef struct Callsign_t
 {
@@ -30,12 +29,12 @@ extern const Callsign CALLSIGN_DESTINATION_2;
 
 bool isAprsMessageEmtpy(const AprsEncodedMessage* pMessage);
 
-bool encodeGpsAprsMessage(const Callsign callsign, const GpsData* pGpsData, AprsEncodedMessage* pEncdedMessage);
-bool encodeTelemetryAprsMessage(const Callsign callsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncdedMessage);
+bool encodeGpsAprsMessage(const Callsign* pCallsign, const GpsData* pGpsData, AprsEncodedMessage* pEncdedMessage);
+bool encodeTelemetryAprsMessage(const Callsign* pCallsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncdedMessage);
 
 /*
  * Should fill full requested length of the buffer. If no data available add Zeroes.
  *
  * returns true if data was filled in
  */
-bool fillInAmplitudesBuffer(const AprsEncodedMessage* pMessage, uint16_t* pOutputBuffer, uint32_t outputBufferSize);
+bool encodeAprsMessageAsAfsk(const AprsEncodedMessage* pMessage, uint16_t* pOutputBuffer, uint32_t outputBufferSize);

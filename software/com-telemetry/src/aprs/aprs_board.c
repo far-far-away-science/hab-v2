@@ -9,6 +9,10 @@
 #define COSINE_G_THAN_0(v) (cosf(v) >= 0)
 #define INVERSE_SINE(v)    asinf(v)
 
+#define APRS_PAYLOAD_BUFFER_MAX_LENGTH 128
+
+static uint8_t g_aprsPayloadBuffer[APRS_PAYLOAD_BUFFER_MAX_LENGTH];
+
 const Callsign CALLSIGN_SOURCE = 
 {
     {"HABHAB"},
@@ -54,8 +58,8 @@ bool encodeAndAppendBits(const uint8_t* pMessageData,
                          STUFFING_TYPE stuffingType,
                          FCS_TYPE fcsType,
                          SHIFT_ONE_LEFT_TYPE shiftOneLeftType,
-                         AprsEncodedMessage* pResultAprsEncodedMessage,
-                         EncodingContext* pEncodingContext)
+                         EncodingContext* pEncodingContext,
+                         AprsEncodedMessage* pResultAprsEncodedMessage)
 {
     if (!pResultAprsEncodedMessage || !pEncodingContext || MAX_APRS_MESSAGE_LENGTH < messageDataSize)
     {
@@ -186,20 +190,149 @@ bool encodeAndAppendBits(const uint8_t* pMessageData,
 
 bool isAprsMessageEmtpy(const AprsEncodedMessage* pMessage)
 {
-    return true; // TODO
+    if (!pMessage)
+    {
+        return true;
+    }
+
+    return pMessage->size.charsCount > 0 || pMessage->size.lastCharBitsCount > 0;
 }
 
-bool encodeGpsAprsMessage(const Callsign callsign, const GpsData* pGpsData, AprsEncodedMessage* pEncdedMessage)
+bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuffer, uint8_t aprsPayloadBufferLen, AprsEncodedMessage* pEncdedMessage)
 {
-    return false; // TODO
+    if (!pCallsign || !aprsPayloadBuffer || !aprsPayloadBufferLen || !pEncdedMessage)
+    {
+        return false;
+    }
+
+    EncodingContext encodingCtx = { 0 };
+    encodingCtx.lastBit = 1;
+    encodingCtx.fcs = FCS_INITIAL_VALUE;
+
+    for (uint8_t i = 0; i < PREFIX_FLAGS_COUNT; ++i)
+    {
+        encodeAndAppendBits((const uint8_t*) "\x7E", 1, ST_NO_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    }
+
+    // addresses to and from
+
+    encodeAndAppendBits(CALLSIGN_DESTINATION_1.callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(&CALLSIGN_DESTINATION_1.ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(pCallsign->callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(&pCallsign->ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(CALLSIGN_DESTINATION_2.callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(&CALLSIGN_DESTINATION_2.ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+
+    // control bytes
+
+    encodeAndAppendBits((const uint8_t*) "\x03", 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits((const uint8_t*) "\xF0", 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+
+    // packet contents
+
+    encodeAndAppendBits(aprsPayloadBuffer, aprsPayloadBufferLen, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+
+    // FCS
+
+    encodingCtx.fcs ^= FCS_POST_PROCESSING_XOR_VALUE;
+    uint8_t fcsByte = encodingCtx.fcs & 0x00FF; // get low byte
+    encodeAndAppendBits(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    fcsByte = (encodingCtx.fcs >> 8) & 0x00FF; // get high byte
+    encodeAndAppendBits(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+
+    // suffix flags
+
+    for (uint8_t i = 0; i < SUFFIX_FLAGS_COUNT; ++i)
+    {
+        encodeAndAppendBits((const uint8_t*) "\x7E", 1, ST_NO_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    }
+
+    return true;
 }
 
-bool encodeTelemetryAprsMessage(const Callsign callsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncdedMessage)
+uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)
 {
-    return false; // TODO
+    uint8_t bufferStartIdx = 0;
+
+    if (pGpsData->gpggaData.latitude.isValid && pGpsData->gpggaData.longitude.isValid)
+    {
+        if (pGpsData->gpggaData.utcTime.isValid)
+        {
+            if (bufferStartIdx + 8 > aprsPayloadBufferMaxLength)
+            {
+                return 0;
+            }
+
+            bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
+                                      "@%02u%02u%02uz",
+                                      pGpsData->gpggaData.utcTime.hours,
+                                      pGpsData->gpggaData.utcTime.minutes,
+                                      pGpsData->gpggaData.utcTime.seconds / 100);
+        }
+        else
+        {
+            if (bufferStartIdx + 1 > aprsPayloadBufferMaxLength)
+            {
+                return 0;
+            }
+
+            g_aprsPayloadBuffer[bufferStartIdx++] = '!';
+        }
+
+        if (bufferStartIdx + 19 > aprsPayloadBufferMaxLength)
+        {
+            return 0;
+        }
+
+        const unsigned int latMinutesWhole = pGpsData->gpggaData.latitude.minutes / 1000000;
+        const unsigned int latMinutesFraction = (pGpsData->gpggaData.latitude.minutes - latMinutesWhole * 1000000) / 10000;
+
+        const unsigned int lonMinutesWhole = pGpsData->gpggaData.longitude.minutes / 1000000;
+        const unsigned int lonMinutesFraction = (pGpsData->gpggaData.longitude.minutes - lonMinutesWhole * 1000000) / 10000;
+
+        bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
+                                  "%02u%02u.%02u%1c/%03u%02u.%02u%1c",
+                                  pGpsData->gpggaData.latitude.degrees,
+                                  latMinutesWhole,
+                                  latMinutesFraction,
+                                  pGpsData->gpggaData.latitude.hemisphere,
+                                  pGpsData->gpggaData.longitude.degrees,
+                                  lonMinutesWhole,
+                                  lonMinutesFraction,
+                                  pGpsData->gpggaData.longitude.hemisphere);
+
+        if (bufferStartIdx + 7 > aprsPayloadBufferMaxLength)
+        {
+            return 0;
+        }
+
+        bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
+                                  ">%03u/%03u",
+                                  (unsigned int) (pGpsData->gpvtgData.trueCourseDegrees / 10),
+                                  (unsigned int) (pGpsData->gpvtgData.speedKph / 10));
+    }
+
+    return bufferStartIdx;
 }
 
-bool fillInAmplitudesBuffer(const AprsEncodedMessage* pMessage, uint16_t* pOutputBuffer, uint32_t outputBufferSize)
+bool encodeGpsAprsMessage(const Callsign* pCallsign, const GpsData* pGpsData, AprsEncodedMessage* pEncdedMessage)
+{
+    uint8_t aprsPayloadBufferDataLength = createGpsAprsPayload(pGpsData, g_aprsPayloadBuffer, APRS_PAYLOAD_BUFFER_MAX_LENGTH);
+    return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, aprsPayloadBufferDataLength, pEncdedMessage);
+}
+
+uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)
+{
+    return 0; // TODO
+}
+
+bool encodeTelemetryAprsMessage(const Callsign* pCallsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncdedMessage)
+{
+    uint8_t aprsPayloadBufferDataLength = createTelemetryAprsPayload(pTelemetry, g_aprsPayloadBuffer, APRS_PAYLOAD_BUFFER_MAX_LENGTH);
+    return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, aprsPayloadBufferDataLength, pEncdedMessage);
+}
+
+bool encodeAprsMessageAsAfsk(const AprsEncodedMessage* pMessage, uint16_t* pOutputBuffer, uint32_t outputBufferSize)
 {
     return false; // TODO
 }
