@@ -4,11 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// TODO replace with tables (we have plenty of data memory so we can make large tables for high precision)
-#define SINE(v)            sinf(v)
-#define COSINE_G_THAN_0(v) (cosf(v) >= 0)
-#define INVERSE_SINE(v)    asinf(v)
-
 #define APRS_PAYLOAD_BUFFER_MAX_LENGTH 128
 
 static uint8_t g_aprsPayloadBuffer[APRS_PAYLOAD_BUFFER_MAX_LENGTH];
@@ -279,7 +274,7 @@ uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffe
             g_aprsPayloadBuffer[bufferStartIdx++] = '!';
         }
 
-        if (bufferStartIdx + 19 > aprsPayloadBufferMaxLength)
+        if (bufferStartIdx + 20 > aprsPayloadBufferMaxLength)
         {
             return 0;
         }
@@ -291,7 +286,7 @@ uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffe
         const unsigned int lonMinutesFraction = (pGpsData->gpggaData.longitude.minutes - lonMinutesWhole * 1000000) / 10000;
 
         bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
-                                  "%02u%02u.%02u%1c/%03u%02u.%02u%1c",
+                                  "%02u%02u.%02u%1c/%03u%02u.%02u%1cO",
                                   pGpsData->gpggaData.latitude.degrees,
                                   latMinutesWhole,
                                   latMinutesFraction,
@@ -310,6 +305,15 @@ uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffe
                                   ">%03u/%03u",
                                   (unsigned int) (pGpsData->gpvtgData.trueCourseDegrees / 10),
                                   (unsigned int) (pGpsData->gpvtgData.speedKph / 10));
+
+        if (bufferStartIdx + 7 > aprsPayloadBufferMaxLength)
+        {
+            return 0;
+        }
+
+        bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
+                                  "@%05um",
+                                  (unsigned int) pGpsData->gpggaData.altitudeMslMeters / 10);
     }
 
     return bufferStartIdx;
