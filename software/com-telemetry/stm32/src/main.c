@@ -14,10 +14,8 @@
 #include "gps/nmea_buffer.h"
 #include "aprs/aprs_board.h"
 
-#define HALF_BUFFER_LENGTH 16
+#define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
-
-#define APRS_SIGNAL_GENERATION_FREQUENCY 100000
 
 GpsData g_gpsData;
 NmeaRingBuffer g_nmeaRingBuffer;
@@ -190,14 +188,13 @@ void Copernicus_Uart_Init(void) {
 }
 
 void HX1_Timer_Init(void) {
-    const uint32_t period = APRS_SIGNAL_GENERATION_FREQUENCY;
-    const uint32_t prescalerValue = (uint32_t) (SystemCoreClock / period) - 1;
+    const uint32_t period = (uint32_t) (SystemCoreClock / APRS_SIGNAL_GENERATION_FREQUENCY) - 1;
 
     static TIM_HandleTypeDef hx1TimerHandle;
 
     hx1TimerHandle.Instance           = HX1_TIMER;
     hx1TimerHandle.Init.Period        = period - 1;
-    hx1TimerHandle.Init.Prescaler     = prescalerValue;
+    hx1TimerHandle.Init.Prescaler     = 0;
     hx1TimerHandle.Init.ClockDivision = 0;
     hx1TimerHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
     HAL_TIM_Base_Init(&hx1TimerHandle);
@@ -220,6 +217,14 @@ void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
         // fill in 1st half of the buffer
         g_aprsMessageTransmitting = encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 2nd half of the buffer (this is 1/2 completion event after all)
+        g_DacBuffer[0] = 1000;
+        g_DacBuffer[1] = 1000;
+        g_DacBuffer[2] = 1000;
+        g_DacBuffer[3] = 1000;
+        g_DacBuffer[0] = 0;
+        g_DacBuffer[1] = 0;
+        g_DacBuffer[2] = 0;
+        g_DacBuffer[3] = 0;
     } else {
         stopHX1();
     }
@@ -230,6 +235,14 @@ void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* pDdac) {
         // fill in 2nd half of the buffer
         g_aprsMessageTransmitting = encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 1st half of the buffer
+        g_DacBuffer[4] = 3095;
+        g_DacBuffer[5] = 3095;
+        g_DacBuffer[6] = 3095;
+        g_DacBuffer[7] = 3095;
+        g_DacBuffer[4] = 4095;
+        g_DacBuffer[5] = 4095;
+        g_DacBuffer[6] = 4095;
+        g_DacBuffer[7] = 4095;
     } else {
         stopHX1();
     }
@@ -247,7 +260,6 @@ void transmitAprsMessage(void) {
     }
 
     // TODO enable HX1
-    // TODO wait 5ms for HX1 to power up
 
     if (HAL_DAC_Init(&g_hx1DacHandle) != HAL_OK) {
         ErrorHandler();

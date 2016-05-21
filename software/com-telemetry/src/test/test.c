@@ -1,11 +1,13 @@
-#if defined(TEST)
-    #include "test.h"
+#include "test.h"
 
+#if defined(TEST)
     #include <string.h>
 
     #include <gps/tests/nmea_buffer_advanceUint8Index.h>
     #include <gps/tests/nmea_buffer_nmeaReadMessage.h>
     #include <gps/tests/nmea_buffer_nmeaReceiveCharacter.h>
+
+    #include <aprs/tests/aprs_board_encodeAprsMessageAsAfsk_perf.h>
 
     void ASSERT_IS_TRUE(bool value)
     {
@@ -36,6 +38,7 @@
         RUN_TEST_CLASS(nmeaBuffer_advanceUint8Index);
         RUN_TEST_CLASS(nmeaBuffer_nmeaReadMessage);
         RUN_TEST_CLASS(nmeaBuffer_nmeaReceiveCharacter);
+        RUN_TEST_CLASS(aprs_board_encodeAprsMessageAsAfsk_perf);
     }
 
 #endif
