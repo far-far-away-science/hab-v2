@@ -46,13 +46,8 @@
 								<option id="gnu.cpp.compiler.option.debugging.level.831518245" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.6214221" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker">
-								<option id="gnu.c.link.option.libs.447061030" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="c"/>
-									<listOptionValue builtIn="false" value="m"/>
-								</option>
-								<option id="gnu.c.link.option.paths.1142242794" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;C:/Program Files (x86)/GNU Tools ARM Embedded/5.2 2015q4/arm-none-eabi/lib/thumb&quot;"/>
-								</option>
+								<option id="gnu.c.link.option.libs.447061030" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
+								<option id="gnu.c.link.option.paths.1142242794" name="Library search path (-L)" superClass="gnu.c.link.option.paths"/>
 								<option id="gnu.c.link.option.ldflags.174643802" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.498414446" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

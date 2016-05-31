@@ -210,6 +210,7 @@ void HX1_Timer_Init(void) {
 void stopHX1(void) {
     HAL_DAC_DeInit(&g_hx1DacHandle);
     g_aprsMessageTransmitting = false;
+    // TODO disable HX1
 }
 
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
@@ -217,14 +218,6 @@ void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
         // fill in 1st half of the buffer
         g_aprsMessageTransmitting = encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 2nd half of the buffer (this is 1/2 completion event after all)
-        g_DacBuffer[0] = 1000;
-        g_DacBuffer[1] = 1000;
-        g_DacBuffer[2] = 1000;
-        g_DacBuffer[3] = 1000;
-        g_DacBuffer[0] = 0;
-        g_DacBuffer[1] = 0;
-        g_DacBuffer[2] = 0;
-        g_DacBuffer[3] = 0;
     } else {
         stopHX1();
     }
@@ -235,14 +228,6 @@ void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* pDdac) {
         // fill in 2nd half of the buffer
         g_aprsMessageTransmitting = encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 1st half of the buffer
-        g_DacBuffer[4] = 3095;
-        g_DacBuffer[5] = 3095;
-        g_DacBuffer[6] = 3095;
-        g_DacBuffer[7] = 3095;
-        g_DacBuffer[4] = 4095;
-        g_DacBuffer[5] = 4095;
-        g_DacBuffer[6] = 4095;
-        g_DacBuffer[7] = 4095;
     } else {
         stopHX1();
     }

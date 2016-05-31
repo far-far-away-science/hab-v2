@@ -1,2 +1,6 @@
 .metadata
 RemoteSystemsTempFiles
+__pycache__
+.suo
+*.suo
+.vs

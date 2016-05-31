@@ -35,8 +35,9 @@ TEST_CLASS(aprs_board_encodeAprsMessageAsAfsk_perf,
         const uint32_t endTimeMilliseconds = HAL_GetTick();
         const float actualRuntimeMilliseconds = (endTimeMilliseconds - startTimeMilliseconds) / (float) trialsCount;
         const float expectedRuntimeMilliseconds = 1000.0f * DAC_BUFFER_SIZE / APRS_SIGNAL_GENERATION_FREQUENCY;
-        const float speedUpFactor = expectedRuntimeMilliseconds / actualRuntimeMilliseconds;
+        const float speedUpFactor = actualRuntimeMilliseconds / expectedRuntimeMilliseconds;
 
+        ASSERT_IS_TRUE(speedUpFactor <= 1.0f);
         ASSERT_IS_TRUE(expectedRuntimeMilliseconds >= actualRuntimeMilliseconds);
     })
 })

@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <aprs/trigonometry/trigonometry.h>
-
 static uint8_t g_aprsPayloadBuffer[APRS_PAYLOAD_BUFFER_MAX_LENGTH];
 
 const Callsign CALLSIGN_SOURCE = 
@@ -197,10 +195,13 @@ void resetAfskContext(AfskContext* pAfskContext)
 {
     pAfskContext->currentF1200Quant = 0;
     pAfskContext->currentF2200Quant = 0;
+    pAfskContext->currentF1200Amplitude = START_AMPLITUDE;
+    pAfskContext->currentF2200Amplitude = START_AMPLITUDE;
     pAfskContext->currentFrequencyIsF1200 = true;
-    pAfskContext->currentSymbolQuant = F1200_QUANTS_COUNT_PER_SYMBOL;
+    pAfskContext->currentSymbolQuant = QUANTS_COUNT_PER_SYMBOL_F1200;
     pAfskContext->leadingOneBitsLeft = LEADING_ONES_COUNT_TO_CANCEL_PREVIOUS_PACKET;
     pAfskContext->leadingWarmUpQuantsLeft = LEADING_WARMUP_QUANTS_COUNT;
+    pAfskContext->lastCharacterGenerated = false;
     pAfskContext->pos.chars = 0;
     pAfskContext->pos.lastCharBits = 0;
 }
@@ -263,7 +264,7 @@ uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffe
 {
     uint8_t bufferStartIdx = 0;
 
-    //if (pGpsData->gpggaData.latitude.isValid && pGpsData->gpggaData.longitude.isValid)
+    if (pGpsData->gpggaData.latitude.isValid && pGpsData->gpggaData.longitude.isValid)
     {
         if (pGpsData->gpggaData.utcTime.isValid)
         {
@@ -350,19 +351,6 @@ bool encodeTelemetryAprsMessage(const Callsign* pCallsign, const Telemetry* pTel
     return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, aprsPayloadBufferDataLength, pEncdedMessage);
 }
 
-float normalizePulseWidth(float width)
-{
-    if (width < QUANT_MIN_VALUE)
-    {
-        return QUANT_MIN_VALUE;
-    }
-    else if (width > QUANT_MAX_VALUE)
-    {
-        return QUANT_MAX_VALUE;
-    }
-    return width;
-}
-
 bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuffer, uint32_t outputBufferSize)
 {
     for (uint32_t i = 0; i < outputBufferSize; ++i)
@@ -375,16 +363,23 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
         }
         else
         {
-            if (pMessage->afskContext.currentSymbolQuant >= F1200_QUANTS_COUNT_PER_SYMBOL)
+            if (pMessage->afskContext.currentSymbolQuant >= QUANTS_COUNT_PER_SYMBOL_F1200)
             {
                 pMessage->afskContext.currentSymbolQuant = 0;
 
                 if (pMessage->afskContext.pos.chars >= pMessage->size.chars &&
                     pMessage->afskContext.pos.lastCharBits >= pMessage->size.lastCharBits)
                 {
-                    // nothing else to send but we can continue putting minimum values to make sure DAC buffer is properly filled in
-                    pOutputBuffer[i] = QUANT_MIN_VALUE;
-                    continue;
+                    if (pMessage->afskContext.lastCharacterGenerated == false)
+                    {
+                        pMessage->afskContext.lastCharacterGenerated = true;
+                    }
+                    else
+                    {
+                        // nothing else to send but we can continue putting minimum values to make sure DAC buffer is properly filled in
+                        pOutputBuffer[i] = QUANT_MIN_VALUE;
+                        continue;
+                    }
                 }
                 else if (pMessage->afskContext.leadingOneBitsLeft)
                 {
@@ -400,47 +395,15 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
                     // make sure new 'zero' bit frequency is 2200
                     if (!isOne && pMessage->afskContext.currentFrequencyIsF1200)
                     {
-                        const float triagArg = ANGULAR_FREQUENCY_F1200 * pMessage->afskContext.currentF1200Quant;
-                        const float pulseWidth1200 = normalizePulseWidth(AMPLITUDE_SCALED_AND_SHIFTED_SINE(triagArg));
-                        const bool pulse1200Positive = COSINE_G_THAN_0(triagArg);
-
-                        if (pulse1200Positive)
-                        {
-                            pMessage->afskContext.currentF2200Quant = RECIPROCAL_ANGULAR_FREQUENCY_F2200 * INVERSE_SINE(RECIPROCAL_AMPLITUDE_SCALER * (pulseWidth1200 - AMPLITUDE_SHIFT));
-                        }
-                        else
-                        {
-                            pMessage->afskContext.currentF2200Quant = HALF_PERIOD_F2200 - RECIPROCAL_ANGULAR_FREQUENCY_F2200 * INVERSE_SINE(RECIPROCAL_AMPLITUDE_SCALER * (pulseWidth1200 - AMPLITUDE_SHIFT));
-                        }
-
-                        if (pMessage->afskContext.currentF2200Quant < 0)
-                        {
-                            pMessage->afskContext.currentF2200Quant += F2200_QUANTS_COUNT_PER_SYMBOL;
-                        }
-
+                        pMessage->afskContext.currentF2200Quant = CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(pMessage->afskContext.currentF1200Quant,
+                                                                                                                 pMessage->afskContext.currentF1200Amplitude);
                         pMessage->afskContext.currentFrequencyIsF1200 = false;
                     }
                     // make sure new 'one' bit frequency is 1200
                     else if (isOne && !pMessage->afskContext.currentFrequencyIsF1200)
                     {
-                        const float trigArg = ANGULAR_FREQUENCY_F2200 * pMessage->afskContext.currentF2200Quant;
-                        const float pulseWidth2200 = normalizePulseWidth(AMPLITUDE_SCALED_AND_SHIFTED_SINE(trigArg));
-                        const bool pulse2200Positive = COSINE_G_THAN_0(trigArg);
-
-                        if (pulse2200Positive)
-                        {
-                            pMessage->afskContext.currentF1200Quant = RECIPROCAL_ANGULAR_FREQUENCY_F1200 * INVERSE_SINE(RECIPROCAL_AMPLITUDE_SCALER * (pulseWidth2200 - AMPLITUDE_SHIFT));
-                        }
-                        else
-                        {
-                            pMessage->afskContext.currentF1200Quant = HALF_PERIOD_F1200 - RECIPROCAL_ANGULAR_FREQUENCY_F1200 * INVERSE_SINE(RECIPROCAL_AMPLITUDE_SCALER * (pulseWidth2200 - AMPLITUDE_SHIFT));
-                        }
-
-                        if (pMessage->afskContext.currentF1200Quant < 0)
-                        {
-                            pMessage->afskContext.currentF1200Quant += F1200_QUANTS_COUNT_PER_SYMBOL;
-                        }
-
+                        pMessage->afskContext.currentF1200Quant = CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(pMessage->afskContext.currentF2200Quant,
+                                                                                                                 pMessage->afskContext.currentF2200Amplitude);
                         pMessage->afskContext.currentFrequencyIsF1200 = true;
                     }
 
@@ -450,26 +413,26 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
 
             if (pMessage->afskContext.currentFrequencyIsF1200)
             {
-                const uint16_t pulseWidth = (uint16_t) AMPLITUDE_SCALED_AND_SHIFTED_SINE(ANGULAR_FREQUENCY_F1200 * pMessage->afskContext.currentF1200Quant);
+                pMessage->afskContext.currentF1200Amplitude = CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext.currentF1200Quant);
                 pMessage->afskContext.currentF1200Quant += QUANT_STEP_SIZE;
-                if (pMessage->afskContext.currentF1200Quant >= F1200_QUANTS_COUNT_PER_SYMBOL)
+                if (pMessage->afskContext.currentF1200Quant >= QUANTS_COUNT_PER_SYMBOL_F1200)
                 {
-                    pMessage->afskContext.currentF1200Quant -= F1200_QUANTS_COUNT_PER_SYMBOL;
+                    pMessage->afskContext.currentF1200Quant -= QUANTS_COUNT_PER_SYMBOL_F1200;
                 }
-                pOutputBuffer[i] = pulseWidth;
+                pOutputBuffer[i] = CONVERT_TO_OUTPUT_AMPLITUDE(pMessage->afskContext.currentF1200Amplitude);
             }
             else
             {
-                const uint16_t pulseWidth = (uint16_t) AMPLITUDE_SCALED_AND_SHIFTED_SINE(ANGULAR_FREQUENCY_F2200 * pMessage->afskContext.currentF2200Quant);
+                pMessage->afskContext.currentF2200Amplitude = CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
                 pMessage->afskContext.currentF2200Quant += QUANT_STEP_SIZE;
-                if (pMessage->afskContext.currentF2200Quant >= F2200_QUANTS_COUNT_PER_SYMBOL)
+                if (pMessage->afskContext.currentF2200Quant >= QUANTS_COUNT_PER_SYMBOL_F2200)
                 {
-                    pMessage->afskContext.currentF2200Quant -= F2200_QUANTS_COUNT_PER_SYMBOL;
+                    pMessage->afskContext.currentF2200Quant -= QUANTS_COUNT_PER_SYMBOL_F2200;
                 }
-                pOutputBuffer[i] = pulseWidth;
+                pOutputBuffer[i] = CONVERT_TO_OUTPUT_AMPLITUDE(pMessage->afskContext.currentF1200Amplitude);
             }
 
-            ++pMessage->afskContext.currentSymbolQuant;
+            pMessage->afskContext.currentSymbolQuant += QUANT_STEP_SIZE;
         }
     }
 

@@ -3,8 +3,9 @@
 #include <gps/nmea_messages.h>
 #include <telemetry/telemetry.h>
 
-#define MAX_APRS_MESSAGE_LENGTH          384
-#define APRS_SIGNAL_GENERATION_FREQUENCY 96000 /* Hz */
+#include "generated/afsk.h"
+
+#define MAX_APRS_MESSAGE_LENGTH 200
 
 typedef struct Callsign_t
 {
@@ -21,12 +22,15 @@ typedef struct BitstreamSize_t
 typedef struct AfskContext_t
 {
     BitstreamSize pos;
-    float currentF1200Quant;
-    float currentF2200Quant;
-    bool currentFrequencyIsF1200;
-    uint16_t currentSymbolQuant;
     uint16_t leadingOneBitsLeft;
     uint16_t leadingWarmUpQuantsLeft;
+    bool currentFrequencyIsF1200;
+    uint32_t currentF1200Quant;
+    uint32_t currentF1200Amplitude;
+    uint32_t currentF2200Quant;
+    uint32_t currentF2200Amplitude;
+    uint32_t currentSymbolQuant;
+    bool lastCharacterGenerated;
 } AfskContext;
 
 typedef struct AprsEncodedMessage_t
