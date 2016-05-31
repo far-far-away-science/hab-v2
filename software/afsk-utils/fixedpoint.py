@@ -73,4 +73,16 @@ class FixedPointNumber:
             raise OverflowError("fixed point number supports only positive numbers. attempted " + str(self.value) + " - " + str(other.value))
         return FixedPointNumber(numpy.uint32(self.value - other.value), self.precision)
 
+    def __str__(self):
+        scaler = numpy.uint32(10 ** self.precision)
+        whole = numpy.uint32(self.value / scaler)
+        fractional = self.value - whole * scaler
+        if self.precision != 0:
+            return str(whole) + '.' + ('{:0>' + str(self.precision) + '}').format(str(fractional)) + ' {v=' + str(self.value) + ',p=' + str(self.precision) + '}'
+        else:
+            return str(whole) + ' {v=' + str(self.value) + ',p=' + str(self.precision) + '}'
+
+    def __repr__(self):
+        return str(self)
+
 Zero = FixedPointNumber(0, 0)

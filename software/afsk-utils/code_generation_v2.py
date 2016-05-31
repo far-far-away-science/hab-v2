@@ -1,10 +1,10 @@
 import definitions
-import afskModulation
 import definitions_derived
+import afsk_modulation_fixedpoint
 
 class Generator:
     def __init__(self):
-        self.modulation = afskModulation.AfskModulationFixedPoint([0x65], 3)
+        self.modulation = afsk_modulation_fixedpoint.AfskModulationFixedPoint([0x65], 3)
         self.modulation.afskModulate()
 
     def generateDefinitionsHeader(self, filePath):

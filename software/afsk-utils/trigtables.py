@@ -1,8 +1,8 @@
 import numpy
+
 import fixedpoint
 import definitions
 import definitions_derived
-import matplotlib.pyplot as plot
 
 class TrigTables:
     def __init__(self, sineTableSize, arcSineTableSize):

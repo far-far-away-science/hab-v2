@@ -1,5 +1,6 @@
 import math
 import numpy
+
 import definitions
 
 AMPLITUDE_SCALER = (numpy.float64(definitions.QUANT_MAX_VALUE) - numpy.float64(definitions.QUANT_MIN_VALUE)) / numpy.float64(2.0)

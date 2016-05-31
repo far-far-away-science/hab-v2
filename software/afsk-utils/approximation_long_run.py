@@ -1,6 +1,8 @@
 import numpy
-import afskModulation
+
+import afsk_modulation
 import data_generation
+import afsk_modulation_fixedpoint
 
 bitsCount = int(128 * 8 + 128 / 5 * 8 + 1)
 
@@ -10,13 +12,13 @@ worstMaxError = float('-inf')
 for i in range(200):
     data = data_generation.generateBytes(bitsCount)
 
-    floatingPointModulation = afskModulation.AfskModulation(data, bitsCount)
+    floatingPointModulation = afsk_modulation.AfskModulation(data, bitsCount)
     afskSignalData = floatingPointModulation.afskModulate()
 
     x = numpy.linspace(1, len(afskSignalData), len(afskSignalData))
     y = numpy.array(afskSignalData)
 
-    fixedPointModulation = afskModulation.AfskModulationFixedPoint(data, bitsCount)
+    fixedPointModulation = afsk_modulation_fixedpoint.AfskModulationFixedPoint(data, bitsCount)
     afskSignalDataFixedPoint = fixedPointModulation.afskModulate()
     yFixedPoint = numpy.array(afskSignalDataFixedPoint)
 
