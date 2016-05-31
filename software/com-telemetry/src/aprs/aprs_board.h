@@ -26,9 +26,7 @@ typedef struct AfskContext_t
     uint16_t leadingWarmUpQuantsLeft;
     bool currentFrequencyIsF1200;
     uint32_t currentF1200Quant;
-    uint32_t currentF1200Amplitude;
     uint32_t currentF2200Quant;
-    uint32_t currentF2200Amplitude;
     uint32_t currentSymbolQuant;
     bool lastCharacterGenerated;
 } AfskContext;

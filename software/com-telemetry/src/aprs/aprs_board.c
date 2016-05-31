@@ -195,8 +195,6 @@ void resetAfskContext(AfskContext* pAfskContext)
 {
     pAfskContext->currentF1200Quant = 0;
     pAfskContext->currentF2200Quant = 0;
-    pAfskContext->currentF1200Amplitude = START_AMPLITUDE;
-    pAfskContext->currentF2200Amplitude = START_AMPLITUDE;
     pAfskContext->currentFrequencyIsF1200 = true;
     pAfskContext->currentSymbolQuant = QUANTS_COUNT_PER_SYMBOL_F1200;
     pAfskContext->leadingOneBitsLeft = LEADING_ONES_COUNT_TO_CANCEL_PREVIOUS_PACKET;
@@ -395,15 +393,13 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
                     // make sure new 'zero' bit frequency is 2200
                     if (!isOne && pMessage->afskContext.currentFrequencyIsF1200)
                     {
-                        pMessage->afskContext.currentF2200Quant = CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(pMessage->afskContext.currentF1200Quant,
-                                                                                                                 pMessage->afskContext.currentF1200Amplitude);
+                        pMessage->afskContext.currentF2200Quant = CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(pMessage->afskContext.currentF1200Quant);
                         pMessage->afskContext.currentFrequencyIsF1200 = false;
                     }
                     // make sure new 'one' bit frequency is 1200
                     else if (isOne && !pMessage->afskContext.currentFrequencyIsF1200)
                     {
-                        pMessage->afskContext.currentF1200Quant = CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(pMessage->afskContext.currentF2200Quant,
-                                                                                                                 pMessage->afskContext.currentF2200Amplitude);
+                        pMessage->afskContext.currentF1200Quant = CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
                         pMessage->afskContext.currentFrequencyIsF1200 = true;
                     }
 
@@ -413,23 +409,21 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
 
             if (pMessage->afskContext.currentFrequencyIsF1200)
             {
-                pMessage->afskContext.currentF1200Amplitude = CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext.currentF1200Quant);
+                pOutputBuffer[i] = CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext.currentF1200Quant);
                 pMessage->afskContext.currentF1200Quant += QUANT_STEP_SIZE;
                 if (pMessage->afskContext.currentF1200Quant >= QUANTS_COUNT_PER_SYMBOL_F1200)
                 {
                     pMessage->afskContext.currentF1200Quant -= QUANTS_COUNT_PER_SYMBOL_F1200;
                 }
-                pOutputBuffer[i] = CONVERT_TO_OUTPUT_AMPLITUDE(pMessage->afskContext.currentF1200Amplitude);
             }
             else
             {
-                pMessage->afskContext.currentF2200Amplitude = CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
+                pOutputBuffer[i] = CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
                 pMessage->afskContext.currentF2200Quant += QUANT_STEP_SIZE;
                 if (pMessage->afskContext.currentF2200Quant >= QUANTS_COUNT_PER_SYMBOL_F2200)
                 {
                     pMessage->afskContext.currentF2200Quant -= QUANTS_COUNT_PER_SYMBOL_F2200;
                 }
-                pOutputBuffer[i] = CONVERT_TO_OUTPUT_AMPLITUDE(pMessage->afskContext.currentF1200Amplitude);
             }
 
             pMessage->afskContext.currentSymbolQuant += QUANT_STEP_SIZE;

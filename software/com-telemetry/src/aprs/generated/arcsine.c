@@ -1,6 +1,6 @@
 #include "afsk.h"
 
-const uint32_t scaledArcSineValueFromTable[] =
+const uint16_t scaledArcSineValueFromTable[] =
 {
     4712,
     4748,
