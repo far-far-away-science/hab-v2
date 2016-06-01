@@ -22,11 +22,12 @@ typedef struct BitstreamSize_t
 typedef struct AfskContext_t
 {
     BitstreamSize pos;
-    uint16_t leadingOneBitsLeft;
     uint16_t leadingWarmUpQuantsLeft;
     bool currentFrequencyIsF1200;
     uint32_t currentF1200Quant;
+    uint32_t currentF1200TrigArg;
     uint32_t currentF2200Quant;
+    uint32_t currentF2200TrigArg;
     uint32_t currentSymbolQuant;
     bool lastCharacterGenerated;
 } AfskContext;

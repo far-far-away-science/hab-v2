@@ -20,7 +20,8 @@
 #define SUFFIX_FLAGS_COUNT 10
 
 // to abort previous frame send at least 15 ones without any stuffing (putting zeroes in between to break ones sequences longer than 5)
-#define LEADING_ONES_COUNT_TO_CANCEL_PREVIOUS_PACKET 48
+// this parameter is N * 8 ones (only full bytes are supported but more ones is even a bit more reliable)
+#define LEADING_FF_BYTES_COUNT_TO_CANCEL_PREVIOUS_PACKET 6
 
 typedef enum FCS_TYPE_t
 {

@@ -71,7 +71,8 @@ int main(void) {
         // TODO get/parse telemetry data
 
         if (!g_aprsMessageTransmitting) {
-            if (hasGpsMessage) {
+            if (hasGpsMessage)
+            {
                 if (encodeGpsAprsMessage(&CALLSIGN_SOURCE, &g_gpsData, &g_aprsEncodedMessage)) {
                     transmitAprsMessage();
                 }
@@ -210,6 +211,7 @@ void HX1_Timer_Init(void) {
 void stopHX1(void) {
     HAL_DAC_DeInit(&g_hx1DacHandle);
     g_aprsMessageTransmitting = false;
+
     // TODO disable HX1
 }
 

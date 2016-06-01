@@ -194,19 +194,20 @@ bool isAprsMessageEmtpy(const AprsEncodedMessage* pMessage)
 void resetAfskContext(AfskContext* pAfskContext)
 {
     pAfskContext->currentF1200Quant = 0;
+    pAfskContext->currentF1200TrigArg = 0;
     pAfskContext->currentF2200Quant = 0;
+    pAfskContext->currentF2200TrigArg = 0;
     pAfskContext->currentFrequencyIsF1200 = true;
     pAfskContext->currentSymbolQuant = QUANTS_COUNT_PER_SYMBOL_F1200;
-    pAfskContext->leadingOneBitsLeft = LEADING_ONES_COUNT_TO_CANCEL_PREVIOUS_PACKET;
     pAfskContext->leadingWarmUpQuantsLeft = LEADING_WARMUP_QUANTS_COUNT;
     pAfskContext->lastCharacterGenerated = false;
     pAfskContext->pos.chars = 0;
     pAfskContext->pos.lastCharBits = 0;
 }
 
-bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuffer, uint8_t aprsPayloadBufferLen, AprsEncodedMessage* pEncdedMessage)
+bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuffer, uint8_t aprsPayloadBufferLen, AprsEncodedMessage* pEncodedMessage)
 {
-    if (!pCallsign || !aprsPayloadBuffer || !aprsPayloadBufferLen || !pEncdedMessage)
+    if (!pCallsign || !aprsPayloadBuffer || !aprsPayloadBufferLen || !pEncodedMessage)
     {
         return false;
     }
@@ -215,45 +216,51 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
     encodingCtx.lastBit = 1;
     encodingCtx.fcs = FCS_INITIAL_VALUE;
 
+    for (uint8_t i = 0; i < LEADING_FF_BYTES_COUNT_TO_CANCEL_PREVIOUS_PACKET; ++i)
+    {
+        pEncodedMessage->buffer[i] = 0xFF;
+        ++pEncodedMessage->size.chars;
+    }
+
     for (uint8_t i = 0; i < PREFIX_FLAGS_COUNT; ++i)
     {
-        encodeAndAppendBits((const uint8_t*) "\x7E", 1, ST_NO_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+        encodeAndAppendBits((const uint8_t*) "\x7E", 1, ST_NO_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
     }
 
     // addresses to and from
 
-    encodeAndAppendBits(CALLSIGN_DESTINATION_1.callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncdedMessage);
-    encodeAndAppendBits(&CALLSIGN_DESTINATION_1.ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
-    encodeAndAppendBits(pCallsign->callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncdedMessage);
-    encodeAndAppendBits(&pCallsign->ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
-    encodeAndAppendBits(CALLSIGN_DESTINATION_2.callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncdedMessage);
-    encodeAndAppendBits(&CALLSIGN_DESTINATION_2.ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(CALLSIGN_DESTINATION_1.callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncodedMessage);
+    encodeAndAppendBits(&CALLSIGN_DESTINATION_1.ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
+    encodeAndAppendBits(pCallsign->callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncodedMessage);
+    encodeAndAppendBits(&pCallsign->ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
+    encodeAndAppendBits(CALLSIGN_DESTINATION_2.callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pEncodedMessage);
+    encodeAndAppendBits(&CALLSIGN_DESTINATION_2.ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
 
     // control bytes
 
-    encodeAndAppendBits((const uint8_t*) "\x03", 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
-    encodeAndAppendBits((const uint8_t*) "\xF0", 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits((const uint8_t*) "\x03", 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
+    encodeAndAppendBits((const uint8_t*) "\xF0", 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
 
     // packet contents
 
-    encodeAndAppendBits(aprsPayloadBuffer, aprsPayloadBufferLen, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(aprsPayloadBuffer, aprsPayloadBufferLen, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
 
     // FCS
 
     encodingCtx.fcs ^= FCS_POST_PROCESSING_XOR_VALUE;
     uint8_t fcsByte = encodingCtx.fcs & 0x00FF; // get low byte
-    encodeAndAppendBits(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
     fcsByte = (encodingCtx.fcs >> 8) & 0x00FF; // get high byte
-    encodeAndAppendBits(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+    encodeAndAppendBits(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
 
     // suffix flags
 
     for (uint8_t i = 0; i < SUFFIX_FLAGS_COUNT; ++i)
     {
-        encodeAndAppendBits((const uint8_t*) "\x7E", 1, ST_NO_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncdedMessage);
+        encodeAndAppendBits((const uint8_t*) "\x7E", 1, ST_NO_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
     }
 
-    resetAfskContext(&pEncdedMessage->afskContext);
+    resetAfskContext(&pEncodedMessage->afskContext);
 
     return true;
 }
@@ -332,10 +339,10 @@ uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffe
     return bufferStartIdx;
 }
 
-bool encodeGpsAprsMessage(const Callsign* pCallsign, const GpsData* pGpsData, AprsEncodedMessage* pEncdedMessage)
+bool encodeGpsAprsMessage(const Callsign* pCallsign, const GpsData* pGpsData, AprsEncodedMessage* pEncodedMessage)
 {
     uint8_t aprsPayloadBufferDataLength = createGpsAprsPayload(pGpsData, g_aprsPayloadBuffer, APRS_PAYLOAD_BUFFER_MAX_LENGTH);
-    return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, aprsPayloadBufferDataLength, pEncdedMessage);
+    return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, aprsPayloadBufferDataLength, pEncodedMessage);
 }
 
 uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)
@@ -343,93 +350,90 @@ uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPa
     return 0; // TODO
 }
 
-bool encodeTelemetryAprsMessage(const Callsign* pCallsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncdedMessage)
+bool encodeTelemetryAprsMessage(const Callsign* pCallsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncodedMessage)
 {
     uint8_t aprsPayloadBufferDataLength = createTelemetryAprsPayload(pTelemetry, g_aprsPayloadBuffer, APRS_PAYLOAD_BUFFER_MAX_LENGTH);
-    return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, aprsPayloadBufferDataLength, pEncdedMessage);
+    return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, aprsPayloadBufferDataLength, pEncodedMessage);
 }
 
 bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuffer, uint32_t outputBufferSize)
 {
-    for (uint32_t i = 0; i < outputBufferSize; ++i)
-    {
-        if (pMessage->afskContext.leadingWarmUpQuantsLeft > 0)
-        {
-            --pMessage->afskContext.leadingWarmUpQuantsLeft;
-            // make sure HX1 has a chance to warm up
-            pOutputBuffer[i] = QUANT_MIN_VALUE;
-        }
-        else
-        {
-            if (pMessage->afskContext.currentSymbolQuant >= QUANTS_COUNT_PER_SYMBOL_F1200)
-            {
-                pMessage->afskContext.currentSymbolQuant = 0;
+    uint32_t i = 0;
+    bool someStuffIsLeftToGenerate = true;
 
-                if (pMessage->afskContext.pos.chars >= pMessage->size.chars &&
-                    pMessage->afskContext.pos.lastCharBits >= pMessage->size.lastCharBits)
+    for (; i < outputBufferSize && pMessage->afskContext.leadingWarmUpQuantsLeft > 0; ++i, --pMessage->afskContext.leadingWarmUpQuantsLeft)
+    {
+        // make sure HX1 has a chance to warm up
+        pOutputBuffer[i] = QUANT_MIN_VALUE;
+    }
+
+    for (; i < outputBufferSize; ++i)
+    {
+        if (pMessage->afskContext.currentSymbolQuant >= QUANTS_COUNT_PER_SYMBOL)
+        {
+            pMessage->afskContext.currentSymbolQuant = 0;
+
+            if (pMessage->afskContext.pos.chars >= pMessage->size.chars &&
+                pMessage->afskContext.pos.lastCharBits >= pMessage->size.lastCharBits)
+            {
+                if (pMessage->afskContext.lastCharacterGenerated == false)
                 {
-                    if (pMessage->afskContext.lastCharacterGenerated == false)
-                    {
-                        pMessage->afskContext.lastCharacterGenerated = true;
-                    }
-                    else
-                    {
-                        // nothing else to send but we can continue putting minimum values to make sure DAC buffer is properly filled in
-                        pOutputBuffer[i] = QUANT_MIN_VALUE;
-                        continue;
-                    }
-                }
-                else if (pMessage->afskContext.leadingOneBitsLeft)
-                {
-                    // send ones to stabilize HX1 and cancel any previously not-fully received APRS packets
-                    pMessage->afskContext.currentFrequencyIsF1200 = true;
-                    --pMessage->afskContext.leadingOneBitsLeft;
+                    // make sure we finish current symbol correctly by generating one more quant
+                    pMessage->afskContext.lastCharacterGenerated = true;
                 }
                 else
                 {
-                    // bit stream is already AFSK encoded so we simply send ones and zeroes as is
-                    const bool isOne = pMessage->buffer[pMessage->afskContext.pos.chars] & (1 << pMessage->afskContext.pos.lastCharBits);
-
-                    // make sure new 'zero' bit frequency is 2200
-                    if (!isOne && pMessage->afskContext.currentFrequencyIsF1200)
-                    {
-                        pMessage->afskContext.currentF2200Quant = CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(pMessage->afskContext.currentF1200Quant);
-                        pMessage->afskContext.currentFrequencyIsF1200 = false;
-                    }
-                    // make sure new 'one' bit frequency is 1200
-                    else if (isOne && !pMessage->afskContext.currentFrequencyIsF1200)
-                    {
-                        pMessage->afskContext.currentF1200Quant = CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
-                        pMessage->afskContext.currentFrequencyIsF1200 = true;
-                    }
-
-                    advanceBitstreamBit(&pMessage->afskContext.pos);
-                }
-            }
-
-            if (pMessage->afskContext.currentFrequencyIsF1200)
-            {
-                pOutputBuffer[i] = CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext.currentF1200Quant);
-                pMessage->afskContext.currentF1200Quant += QUANT_STEP_SIZE;
-                if (pMessage->afskContext.currentF1200Quant >= QUANTS_COUNT_PER_SYMBOL_F1200)
-                {
-                    pMessage->afskContext.currentF1200Quant -= QUANTS_COUNT_PER_SYMBOL_F1200;
+                    someStuffIsLeftToGenerate = false;
+                    // nothing else to send but we can continue putting minimum values to make sure DAC buffer is properly filled in
+                    pOutputBuffer[i] = QUANT_MIN_VALUE;
+                    continue;
                 }
             }
             else
             {
-                pOutputBuffer[i] = CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
-                pMessage->afskContext.currentF2200Quant += QUANT_STEP_SIZE;
-                if (pMessage->afskContext.currentF2200Quant >= QUANTS_COUNT_PER_SYMBOL_F2200)
-                {
-                    pMessage->afskContext.currentF2200Quant -= QUANTS_COUNT_PER_SYMBOL_F2200;
-                }
-            }
+                // bit stream is already AFSK encoded so we simply send ones and zeroes as is
+                const bool isOne = pMessage->buffer[pMessage->afskContext.pos.chars] & (1 << pMessage->afskContext.pos.lastCharBits);
 
-            pMessage->afskContext.currentSymbolQuant += QUANT_STEP_SIZE;
+                // make sure new 'zero' bit frequency is 2200
+                if (!isOne && pMessage->afskContext.currentFrequencyIsF1200)
+                {
+                    pMessage->afskContext.currentF2200Quant = CALCULATE_F2200_QUANT_IDX_FROM_F1200_TRIG_ARG(pMessage->afskContext.currentF1200TrigArg);
+                    pMessage->afskContext.currentFrequencyIsF1200 = false;
+                }
+                // make sure new 'one' bit frequency is 1200
+                else if (isOne && !pMessage->afskContext.currentFrequencyIsF1200)
+                {
+                    pMessage->afskContext.currentF1200Quant = CALCULATE_F1200_QUANT_IDX_FROM_F2200_TRIG_ARG(pMessage->afskContext.currentF2200TrigArg);
+                    pMessage->afskContext.currentFrequencyIsF1200 = true;
+                }
+
+                advanceBitstreamBit(&pMessage->afskContext.pos);
+            }
         }
+
+        if (pMessage->afskContext.currentFrequencyIsF1200)
+        {
+            pMessage->afskContext.currentF1200TrigArg = CALCULATE_F1200_TRIG_ARG_FROM_QUANT_IDX(pMessage->afskContext.currentF1200Quant);
+            pOutputBuffer[i] = CALCULATE_F1200_AMPLITUDE_FROM_TRIG_ARG(pMessage->afskContext.currentF1200TrigArg);
+            pMessage->afskContext.currentF1200Quant += QUANT_STEP_SIZE;
+            if (pMessage->afskContext.currentF1200Quant >= QUANTS_COUNT_PER_SYMBOL_F1200)
+            {
+                pMessage->afskContext.currentF1200Quant -= QUANTS_COUNT_PER_SYMBOL_F1200;
+            }
+        }
+        else
+        {
+            pMessage->afskContext.currentF2200TrigArg = CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
+            pOutputBuffer[i] = CALCULATE_F2200_AMPLITUDE_FROM_TRIG_ARG(pMessage->afskContext.currentF2200TrigArg);
+            pMessage->afskContext.currentF2200Quant += QUANT_STEP_SIZE;
+            if (pMessage->afskContext.currentF2200Quant >= QUANTS_COUNT_PER_SYMBOL_F2200)
+            {
+                pMessage->afskContext.currentF2200Quant -= QUANTS_COUNT_PER_SYMBOL_F2200;
+            }
+        }
+
+        ++pMessage->afskContext.currentSymbolQuant;
     }
 
-    return pMessage->afskContext.pos.chars < pMessage->size.chars ||
-           (pMessage->afskContext.pos.chars == pMessage->size.chars && pMessage->afskContext.pos.lastCharBits < pMessage->size.lastCharBits);
+    return someStuffIsLeftToGenerate;
 }
