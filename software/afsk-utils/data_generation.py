@@ -1,6 +1,8 @@
 import random
 
 def generateByte():
+    # sequence of zeroes is the worst accumulator of errors.
+    # but it seems this error is reset by the appearance of one bit.
     return random.randint(0, 255)
 
 def generateBytes(bitsCount):

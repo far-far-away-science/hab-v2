@@ -6,7 +6,7 @@
     <ProjectGuid>30d94e14-7ee8-4b52-ab98-8f3ff1a2939c</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>code_generation_v2.py</StartupFile>
+    <StartupFile>approximation_visualization.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

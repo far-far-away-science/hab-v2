@@ -20,7 +20,7 @@ TEST_CLASS(aprs_board_encodeAprsMessageAsAfsk_perf,
         g_aprsEncodedMessage.size.lastCharBits = 0;
         for (uint32_t i = 0; i < MAX_APRS_MESSAGE_LENGTH; ++i)
         {
-            g_aprsEncodedMessage.buffer[i] = 0xFF; // TODO 0xAA;
+            g_aprsEncodedMessage.buffer[i] = 0xAA;
         }
 
         uint16_t trialsCount = 0;
@@ -37,7 +37,8 @@ TEST_CLASS(aprs_board_encodeAprsMessageAsAfsk_perf,
         const float expectedRuntimeMilliseconds = 1000.0f * DAC_BUFFER_SIZE / APRS_SIGNAL_GENERATION_FREQUENCY;
         const float speedUpFactor = actualRuntimeMilliseconds / expectedRuntimeMilliseconds;
 
-        ASSERT_IS_TRUE(speedUpFactor <= 1.0f);
-        ASSERT_IS_TRUE(expectedRuntimeMilliseconds >= actualRuntimeMilliseconds);
+        // this is the time it takes on RELEASE build at 16MHz on STM32L073.
+        // DEBUG is too slow (~1.15 or so) not sure what else to do on debug.
+        ASSERT_IS_TRUE(speedUpFactor <= 0.86f);
     })
 })
