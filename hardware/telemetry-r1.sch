@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.4.0">
+<eagle version="7.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -10395,11 +10395,6 @@ Ground</text>
 <wire x1="345.44" y1="7.62" x2="345.44" y2="17.78" width="0.1524" layer="91"/>
 <label x="345.44" y="7.62" size="1.778" layer="95" rot="R90"/>
 </segment>
-<segment>
-<pinref part="IC4" gate="G$1" pin="PA2"/>
-<wire x1="35.56" y1="50.8" x2="45.72" y2="50.8" width="0.1524" layer="91"/>
-<label x="35.56" y="50.8" size="1.778" layer="95"/>
-</segment>
 </net>
 <net name="HXEN" class="0">
 <segment>
@@ -10769,6 +10764,13 @@ Ground</text>
 <wire x1="419.1" y1="119.38" x2="431.8" y2="119.38" width="0.1524" layer="91"/>
 <pinref part="R22" gate="G$1" pin="2"/>
 <label x="424.18" y="119.38" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="PHOTO" class="0">
+<segment>
+<pinref part="IC4" gate="G$1" pin="PA2"/>
+<wire x1="35.56" y1="50.8" x2="45.72" y2="50.8" width="0.1524" layer="91"/>
+<label x="35.56" y="50.8" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
