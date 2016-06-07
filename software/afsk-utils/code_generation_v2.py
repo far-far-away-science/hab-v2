@@ -13,6 +13,10 @@ class Generator:
 #include <stdint.h>
 #include <stdbool.h>
 
+#define RESET_CONTEXT_GENERATED_PART(pAfskContext) \
+    pAfskContext->currentF1200TrigArg = 0; \
+    pAfskContext->currentF2200TrigArg = 0;
+
 //
 // To figure out what those values mean see afsk-utils Python project,
 // code_generation_v2.py file
@@ -75,19 +79,28 @@ uint32_t calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(uint32_t othe
 #define CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX(currentF2200Quant) \\
     REDUCE_PRECISION(TRIG_PARAM_SCALER_F2200 * (currentF2200Quant), PRECISION_TRIG_PARAM_ROUND_SUMMAND, PRECISION_TRIG_PARAM_DIVISOR)
 
-#define CALCULATE_F1200_AMPLITUDE_FROM_TRIG_ARG(currentF1200TrigArg) \\
-    amplitudeFromTable[currentF1200TrigArg]
+#define CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(afskCtx) \\
+    amplitudeFromTable[afskCtx.currentF1200TrigArg = CALCULATE_F1200_TRIG_ARG_FROM_QUANT_IDX(afskCtx.currentF1200Quant)]
 
-#define CALCULATE_F2200_AMPLITUDE_FROM_TRIG_ARG(currentF2200TrigArg) \\
-    amplitudeFromTable[currentF2200TrigArg]
+#define CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(afskCtx) \\
+    amplitudeFromTable[afskCtx.currentF2200TrigArg = CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX(afskCtx.currentF2200Quant)]
 
-#define CALCULATE_F1200_QUANT_IDX_FROM_F2200_TRIG_ARG(currentF2200TrigArg) \\
-    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(currentF2200TrigArg, RECIPROCAL_ANGULAR_FREQUENCY_F1200, HALF_PERIOD_F1200, QUANTS_COUNT_PER_SYMBOL_F1200)
+#define CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(afskCtx) \\
+    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(afskCtx.currentF2200TrigArg, RECIPROCAL_ANGULAR_FREQUENCY_F1200, HALF_PERIOD_F1200, QUANTS_COUNT_PER_SYMBOL_F1200)
 
-#define CALCULATE_F2200_QUANT_IDX_FROM_F1200_TRIG_ARG(currentF1200TrigArg) \\
-    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(currentF1200TrigArg, RECIPROCAL_ANGULAR_FREQUENCY_F2200, HALF_PERIOD_F2200, QUANTS_COUNT_PER_SYMBOL_F2200)
+#define CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(afskCtx) \\
+    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(afskCtx.currentF1200TrigArg, RECIPROCAL_ANGULAR_FREQUENCY_F2200, HALF_PERIOD_F2200, QUANTS_COUNT_PER_SYMBOL_F2200)
 
 '''
+
+        with open(filePath, 'w+') as f:
+            f.write(text)
+
+    def generateContextGeneratedHeader(self, filePath):
+        text = '''#pragma once
+
+uint32_t currentF1200TrigArg;
+uint32_t currentF2200TrigArg;'''
 
         with open(filePath, 'w+') as f:
             f.write(text)
@@ -166,6 +179,7 @@ const uint16_t amplitudeFromTable[] =
 
 generator = Generator()
 generator.generateDefinitionsHeader("../com-telemetry/src/aprs/generated/afsk.h")
+generator.generateContextGeneratedHeader("../com-telemetry/src/aprs/generated/afsk_context_generated.h")
 generator.generateDefinitionsSource("../com-telemetry/src/aprs/generated/afsk.c")
 generator.generateSineTableSource("../com-telemetry/src/aprs/generated/sine.c")
 generator.generateArcSineTableSource("../com-telemetry/src/aprs/generated/arcsine.c")

@@ -194,15 +194,14 @@ bool isAprsMessageEmtpy(const AprsEncodedMessage* pMessage)
 void resetAfskContext(AfskContext* pAfskContext)
 {
     pAfskContext->currentF1200Quant = 0;
-    pAfskContext->currentF1200TrigArg = 0;
     pAfskContext->currentF2200Quant = 0;
-    pAfskContext->currentF2200TrigArg = 0;
     pAfskContext->currentFrequencyIsF1200 = true;
     pAfskContext->currentSymbolQuant = QUANTS_COUNT_PER_SYMBOL_F1200;
     pAfskContext->leadingWarmUpQuantsLeft = LEADING_WARMUP_QUANTS_COUNT;
     pAfskContext->lastCharacterGenerated = false;
     pAfskContext->pos.chars = 0;
     pAfskContext->pos.lastCharBits = 0;
+    RESET_CONTEXT_GENERATED_PART(pAfskContext);
 }
 
 bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuffer, uint8_t aprsPayloadBufferLen, AprsEncodedMessage* pEncodedMessage)
@@ -397,13 +396,13 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
                 // make sure new 'zero' bit frequency is 2200
                 if (!isOne && pMessage->afskContext.currentFrequencyIsF1200)
                 {
-                    pMessage->afskContext.currentF2200Quant = CALCULATE_F2200_QUANT_IDX_FROM_F1200_TRIG_ARG(pMessage->afskContext.currentF1200TrigArg);
+                    pMessage->afskContext.currentF2200Quant = CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(pMessage->afskContext);
                     pMessage->afskContext.currentFrequencyIsF1200 = false;
                 }
                 // make sure new 'one' bit frequency is 1200
                 else if (isOne && !pMessage->afskContext.currentFrequencyIsF1200)
                 {
-                    pMessage->afskContext.currentF1200Quant = CALCULATE_F1200_QUANT_IDX_FROM_F2200_TRIG_ARG(pMessage->afskContext.currentF2200TrigArg);
+                    pMessage->afskContext.currentF1200Quant = CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(pMessage->afskContext);
                     pMessage->afskContext.currentFrequencyIsF1200 = true;
                 }
 
@@ -413,8 +412,7 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
 
         if (pMessage->afskContext.currentFrequencyIsF1200)
         {
-            pMessage->afskContext.currentF1200TrigArg = CALCULATE_F1200_TRIG_ARG_FROM_QUANT_IDX(pMessage->afskContext.currentF1200Quant);
-            pOutputBuffer[i] = CALCULATE_F1200_AMPLITUDE_FROM_TRIG_ARG(pMessage->afskContext.currentF1200TrigArg);
+            pOutputBuffer[i] = CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext);
             pMessage->afskContext.currentF1200Quant += QUANT_STEP_SIZE;
             if (pMessage->afskContext.currentF1200Quant >= QUANTS_COUNT_PER_SYMBOL_F1200)
             {
@@ -424,7 +422,7 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
         else
         {
             pMessage->afskContext.currentF2200TrigArg = CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
-            pOutputBuffer[i] = CALCULATE_F2200_AMPLITUDE_FROM_TRIG_ARG(pMessage->afskContext.currentF2200TrigArg);
+            pOutputBuffer[i] = CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext);
             pMessage->afskContext.currentF2200Quant += QUANT_STEP_SIZE;
             if (pMessage->afskContext.currentF2200Quant >= QUANTS_COUNT_PER_SYMBOL_F2200)
             {

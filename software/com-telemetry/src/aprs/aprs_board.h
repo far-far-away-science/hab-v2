@@ -7,12 +7,6 @@
 
 #define MAX_APRS_MESSAGE_LENGTH 200
 
-typedef struct Callsign_t
-{
-    const uint8_t callsign[7];
-    const uint8_t ssid;
-} Callsign;
-
 typedef struct BitstreamSize_t
 {
     uint16_t chars;
@@ -25,12 +19,17 @@ typedef struct AfskContext_t
     uint16_t leadingWarmUpQuantsLeft;
     bool currentFrequencyIsF1200;
     uint32_t currentF1200Quant;
-    uint32_t currentF1200TrigArg;
     uint32_t currentF2200Quant;
-    uint32_t currentF2200TrigArg;
     uint32_t currentSymbolQuant;
     bool lastCharacterGenerated;
+#include "generated/afsk_context_generated.h"
 } AfskContext;
+
+typedef struct Callsign_t
+{
+    const uint8_t callsign[7];
+    const uint8_t ssid;
+} Callsign;
 
 typedef struct AprsEncodedMessage_t
 {
