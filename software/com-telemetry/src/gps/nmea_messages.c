@@ -1,6 +1,7 @@
 #include "nmea_messages_impl.h"
 
 #include <math.h>
+#include <string.h>
 
 int32_t angularCoordinateToInt32Degrees(AngularCoordinate coord)
 {
@@ -16,7 +17,16 @@ int32_t angularCoordinateToInt32Degrees(AngularCoordinate coord)
 
 void parseNmeaMessageIfValid(const NmeaMessage* pGpggaMessage, GpsData* pResult)
 {
-    // TODO
+    if (memcmp(pGpggaMessage->message + 3, "GGA", 3) == 0)
+    {
+        // Global Positioning System fix
+        parseGpggaMessageIfValid(pGpggaMessage, pResult);
+    }
+    else if (memcmp(pGpggaMessage->message + 3, "VTG", 3) == 0)
+    {
+        // Track made good and ground speed
+        parseGpvtgMessageIfValid(pGpggaMessage, pResult);
+    }
 }
 
 void parseGpggaMessageIfValid(const NmeaMessage* pGpggaMessage, GpsData* pResult)

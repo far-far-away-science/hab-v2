@@ -40,5 +40,7 @@ TEST_CLASS(aprs_board_encodeAprsMessageAsAfsk_perf,
         // this is the time it takes on RELEASE build at 16MHz on STM32L073.
         // DEBUG is too slow (~1.15 or so) not sure what else to do on debug.
         ASSERT_IS_TRUE(speedUpFactor <= 0.86f);
+        // approximating division by (((v >> 6) * 67) >> 20)
+        // ASSERT_IS_TRUE(speedUpFactor <= 0.40f);
     })
 })
