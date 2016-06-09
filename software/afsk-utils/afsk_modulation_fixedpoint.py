@@ -37,21 +37,21 @@ class AfskModulationFixedPoint(afsk_modulation.AfskModulation):
              valueName == 'CONST_AMPLITUDE_SHIFT':
             return fixedpoint.FixedPointNumber(value, definitions.PRECISION_AMPLITUDE)
 
-    def calculateAmplitude(self, isF1200, currentQuant):
+    def calculateTrigArg(self, isF1200, currentQuant):
         if isF1200:
             (trigArg, self.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_TRIG_PARAM_DIVISOR) = (self.CONST_TRIG_PARAM_SCALER_F1200 * currentQuant).convert2Precision(definitions.PRECISION_TRIG_ARG)
         else:
             (trigArg, self.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_TRIG_PARAM_DIVISOR) = (self.CONST_TRIG_PARAM_SCALER_F2200 * currentQuant).convert2Precision(definitions.PRECISION_TRIG_ARG)
-        result = self.trigTables.getScaledSineValue(trigArg)
+        return trigArg
+
+    def calculateAmplitude(self, isF1200, currentQuant):
+        result = self.trigTables.getScaledSineValue(self.calculateTrigArg(isF1200, currentQuant))
         if result > self.CONST_AMPLITUDE:
             raise RuntimeError(str(result) + 'is not a valid result for calculateAmplitude')
         return result
 
     def cosineGreaterThanOrEqualTo0(self, isF1200, currentQuant):
-        if isF1200:
-            (trigArg, self.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_TRIG_PARAM_DIVISOR) = (self.CONST_TRIG_PARAM_SCALER_F1200 * currentQuant).convert2Precision(definitions.PRECISION_TRIG_ARG)
-        else:
-            (trigArg, self.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_TRIG_PARAM_DIVISOR) = (self.CONST_TRIG_PARAM_SCALER_F2200 * currentQuant).convert2Precision(definitions.PRECISION_TRIG_ARG)
+        trigArg = self.calculateTrigArg(isF1200, currentQuant)
         if (trigArg >= fixedpoint.Zero and trigArg <= self.CONST_PI_OVER_TWO) or \
            (trigArg >= self.CONST_THREE_HALFS_PI and trigArg <= self.CONST_TWO_PI):
             return True
@@ -59,6 +59,11 @@ class AfskModulationFixedPoint(afsk_modulation.AfskModulation):
             return False
         else:
             raise RuntimeError(str(trigArg) + " is not valid for cosineGreaterThanOrEqualTo0")
+
+    def calculateQuantIdxFromAmplitude(self, reciprocalAngularFrequency, amplitude):
+        (inverseTrigArg, self.CONST_PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR) = (amplitude * self.CONST_INVERSE_TRIG_SCALER).convert2Precision(definitions.PRECISION_INVERSE_TRIG_ARG)
+        (result, self.CONST_PRECISION_QUANT_ROUND_SUMMAND, self.CONST_PRECISION_QUANT_DIVISOR) = (self.trigTables.getScaledArcSineValue(inverseTrigArg) * reciprocalAngularFrequency).convert2Precision(definitions.PRECISION_QUANT)
+        return result
 
     def calculateQuantIdx(self, isSourceF1200, sourceCurrentQuant, isTargetF1200):
         amplitude = self.calculateAmplitude(isSourceF1200, sourceCurrentQuant)
@@ -69,9 +74,7 @@ class AfskModulationFixedPoint(afsk_modulation.AfskModulation):
         else:
             halfPeriod = self.CONST_HALF_PERIOD_F2200
             reciprocalAngularFrequency = self.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F2200
-
-        (inverseTrigArg, self.CONST_PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR) = (amplitude * self.CONST_INVERSE_TRIG_SCALER).convert2Precision(definitions.PRECISION_INVERSE_TRIG_ARG)
-        (result, self.CONST_PRECISION_QUANT_ROUND_SUMMAND, self.CONST_PRECISION_QUANT_DIVISOR) = (self.trigTables.getScaledArcSineValue(inverseTrigArg) * reciprocalAngularFrequency).convert2Precision(definitions.PRECISION_QUANT)
+        result = self.calculateQuantIdxFromAmplitude(isTargetF1200, reciprocalAngularFrequency, amplitude)
         if not isSlopePositive:
             if result > halfPeriod:
                 if isTargetF1200:
@@ -81,6 +84,10 @@ class AfskModulationFixedPoint(afsk_modulation.AfskModulation):
                 result = quantsCount + halfPeriod - result
             else:
                 result = halfPeriod - result
-        if result < fixedpoint.Zero or result > self.CONST_F1200_QUANTS_COUNT_PER_SYMBOL:
-            raise RuntimeError(str(result) + 'is not a valid result for calculateQuantIdx')
+        if isTargetF1200:
+            if result < fixedpoint.Zero or result > self.CONST_F1200_QUANTS_COUNT_PER_SYMBOL:
+                raise RuntimeError(str(result) + 'is not a valid result for calculateQuantIdx')
+        else:
+            if result < fixedpoint.Zero or result > self.CONST_F2200_QUANTS_COUNT_PER_SYMBOL:
+                raise RuntimeError(str(result) + 'is not a valid result for calculateQuantIdx')
         return result

@@ -6,6 +6,19 @@ import afsk_modulation
 import data_generation
 import definitions_derived
 import afsk_modulation_fixedpoint
+import afsk_modulation_fixedpoint_fast_div
+
+def filterData(errorData, startIdx, endIdx, numberOfSymbolsAroundMaxError):
+    errorData = errorData[int(startIdx) : int(endIdx)]
+    errorIdx = errorData.index(numpy.max(errorData))
+    errorBitStartIdx = int(errorIdx / int(definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL)) * int(definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL)
+    startIdx = errorBitStartIdx - int(numberOfSymbolsAroundMaxError * definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL)
+    if startIdx < 0:
+        startIdx = 0
+        endIdx = errorBitStartIdx + int((numberOfSymbolsAroundMaxError + 1) * definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL) + 1
+    else:
+        endIdx = errorBitStartIdx + int((numberOfSymbolsAroundMaxError + 1) * definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL) + 1
+    return (startIdx, endIdx, errorIdx)
 
 bitsCount = int(128 * 8 + 128 / 5 * 8 + 1)
 
@@ -15,7 +28,7 @@ floatingPointModulation = afsk_modulation.AfskModulation(data, bitsCount)
 afskSignalData = floatingPointModulation.afskModulate()
 y = numpy.array(afskSignalData)
 
-fixedPointModulation = afsk_modulation_fixedpoint.AfskModulationFixedPoint(data, bitsCount)
+fixedPointModulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(data, bitsCount)
 afskSignalDataFixedPoint = fixedPointModulation.afskModulate()
 yFixedPoint = numpy.array(afskSignalDataFixedPoint)
 
@@ -32,14 +45,7 @@ print("min error = " + str(minError))
 print("max error = " + str(maxError))
 print()
 
-errorIdx = yError.index(maxError)
-errorBitStartIdx = int(errorIdx / int(definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL)) * int(definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL)
-startIdx = errorBitStartIdx - int(2 * definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL)
-if startIdx < 0:
-    startIdx = 0
-    endIdx = errorBitStartIdx + int(5 * definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL) + 1
-else:
-    endIdx = errorBitStartIdx + int(3 * definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL) + 1
+(startIdx, endIdx, errorIdx) = filterData(yError, 0, len(yError), 2)
 
 plot.plot(x[startIdx:endIdx], y[startIdx:endIdx], color = 'b')
 plot.plot(x[startIdx:endIdx], yFixedPoint[startIdx:endIdx], color = 'r')

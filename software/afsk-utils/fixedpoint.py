@@ -16,11 +16,7 @@ class FixedPointNumber:
             summand = numpy.uint32(scaler / 2)
             return (FixedPointNumber(numpy.uint32((self.value + summand) / scaler), precision), summand, scaler)
         else:
-            scaler = numpy.uint32(10 ** (precision * self.precision))
-            newValue = self.value * scaler
-            if result > numpy.iinfo(numpy.uin32).max:
-                raise OverflowError("unable to convert 2 precision " + str(precision) + " as it results in overflow")
-            return (FixedPointNumber(numpy.uint32(newValue), precision), 0, scaler)
+            raise RuntimeError('increasing precision is not supported')
 
     def getInternalRepresentation(self):
         return self.value

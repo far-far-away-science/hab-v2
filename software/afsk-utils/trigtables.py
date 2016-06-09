@@ -31,13 +31,15 @@ class TrigTables:
         return result
 
     def getScaledSineValue(self, idx):
-        idx = idx.getInternalRepresentation()
+        if type(idx) == fixedpoint.FixedPointNumber:
+            idx = idx.getInternalRepresentation()
         if idx < 0 or idx >= len(self.sineValues):
             raise RuntimeError(str(idx) + ' index is out of range [' + str(0) + ',' + str(len(self.sineValues)) + ']')
         return self.sineValues[idx]
 
     def getScaledArcSineValue(self, idx):
-        idx = idx.getInternalRepresentation()
+        if type(idx) == fixedpoint.FixedPointNumber:
+            idx = idx.getInternalRepresentation()
         if idx < 0 or idx >= len(self.arcSineValues):
             raise RuntimeError(str(idx) + ' index is out of range [' + str(0) + ',' + str(len(self.arcSineValues)) + ']')
         return self.arcSineValues[idx]
