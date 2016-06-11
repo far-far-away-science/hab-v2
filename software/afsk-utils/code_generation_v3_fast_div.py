@@ -10,15 +10,15 @@ import afsk_modulation_fixedpoint_fast_div
 
 class Generator:
     def __init__(self):
-        self.modulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv([0x65], 3)
+        self.modulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv([0x65], 8)
         self.modulation.afskModulate()
 
-    def formatBestFastDivision(self, precisionSummand, precisionDivisor, maxValue):
-        (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo) = self.modulation.findBestFastDivision(precisionDivisor, maxValue + precisionSummand)
+    def formatBestFastDivision(self, fastDivisionAlias):
+        (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo, precisionSummand, clampValue) = self.modulation.getBestFastDivision(fastDivisionAlias)
         if firstDivisorPowerOfTwo != 0:
-            return '((((value + ' + str(precisionSummand) + ') >> ' + str(firstDivisorPowerOfTwo) + ') * ' + str(multiplier) + ') >> ' + str(lastDivisorPowerOfTwo) + ')'
+            return 'CLAMP(((((value + ' + str(precisionSummand) + ') >> ' + str(firstDivisorPowerOfTwo) + ') * ' + str(multiplier) + ') >> ' + str(lastDivisorPowerOfTwo) + '), ' + str(clampValue) + ')'
         else:
-            return '(((value + ' + str(precisionSummand) + ') * ' + str(multiplier) + ') >> ' + str(lastDivisorPowerOfTwo) + ')'
+            return 'CLAMP((((value + ' + str(precisionSummand) + ') * ' + str(multiplier) + ') >> ' + str(lastDivisorPowerOfTwo) + ')' + str(clampValue) + ')'
 
     def generateDefinitionsHeader(self, filePath):
         text = '''#pragma once
@@ -26,8 +26,11 @@ class Generator:
 #include <stdint.h>
 #include <stdbool.h>
 
-#define RESET_CONTEXT_GENERATED_PART(pAfskContext) \
-    pAfskContext->currentF1200TrigArg = 0; \
+#define CLAMP(value, maxValue) \\
+    ((value) > (maxValue) ? (maxValue) : (value))
+
+#define RESET_CONTEXT_GENERATED_PART(pAfskContext) \\
+    pAfskContext->currentF1200TrigArg = 0; \\
     pAfskContext->currentF2200TrigArg = 0;
 
 //
@@ -49,31 +52,16 @@ class Generator:
 #define QUANTS_COUNT_PER_SYMBOL_F1200 ''' + str(self.modulation.CONST_F1200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()) + '''
 #define QUANTS_COUNT_PER_SYMBOL_F2200 ''' + str(self.modulation.CONST_F2200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()) + '''
 
-#define PRECISION_CONVERTER_QUANT_IDX_F1200(value) \\
-    ''' + self.formatBestFastDivision(self.modulation.CONST_PRECISION_QUANT_ROUND_SUMMAND, \
-                                      self.modulation.CONST_PRECISION_QUANT_DIVISOR, \
-                                      max(self.modulation.trigTables.arcSineValues).getInternalRepresentation() * self.modulation.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F1200.getInternalRepresentation()) + '''
-#define PRECISION_CONVERTER_QUANT_IDX_F2200(value) \\
-    ''' + self.formatBestFastDivision(self.modulation.CONST_PRECISION_QUANT_ROUND_SUMMAND, \
-                                      self.modulation.CONST_PRECISION_QUANT_DIVISOR, \
-                                      max(self.modulation.trigTables.arcSineValues).getInternalRepresentation() * self.modulation.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F2200.getInternalRepresentation()) + '''
+#define PRECISION_CONVERTER_QUANT_IDX_F1200(value) ''' + self.formatBestFastDivision('CONST_PRECISION_QUANT_DIVISOR_F1200') + '''
+#define PRECISION_CONVERTER_QUANT_IDX_F2200(value) ''' + self.formatBestFastDivision('CONST_PRECISION_QUANT_DIVISOR_F2200') + '''
 
 #define TRIG_PARAM_SCALER_F1200 ''' + str(self.modulation.CONST_TRIG_PARAM_SCALER_F1200.getInternalRepresentation()) + '''
 #define TRIG_PARAM_SCALER_F2200 ''' + str(self.modulation.CONST_TRIG_PARAM_SCALER_F2200.getInternalRepresentation()) + '''
-#define PRECISION_CONVERTER_TRIG_PARAM_F1200(value) \\
-    ''' + self.formatBestFastDivision(self.modulation.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND, \
-                                      self.modulation.CONST_PRECISION_TRIG_PARAM_DIVISOR, \
-                                      self.modulation.CONST_TRIG_PARAM_SCALER_F1200.getInternalRepresentation() * self.modulation.CONST_F1200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()) + '''
-#define PRECISION_CONVERTER_TRIG_PARAM_F2200(value) \\
-    ''' + self.formatBestFastDivision(self.modulation.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND, \
-                                      self.modulation.CONST_PRECISION_TRIG_PARAM_DIVISOR, \
-                                      self.modulation.CONST_TRIG_PARAM_SCALER_F2200.getInternalRepresentation() * self.modulation.CONST_F2200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()) + '''
+#define PRECISION_CONVERTER_TRIG_PARAM_F1200(value) ''' + self.formatBestFastDivision('CONST_PRECISION_TRIG_PARAM_DIVISOR_F1200') + '''
+#define PRECISION_CONVERTER_TRIG_PARAM_F2200(value) ''' + self.formatBestFastDivision('CONST_PRECISION_TRIG_PARAM_DIVISOR_F2200') + '''
 
 #define INVERSE_TRIG_PARAM_SCALER ''' + str(self.modulation.CONST_INVERSE_TRIG_SCALER.getInternalRepresentation()) + '''
-#define PRECISION_CONVERTER_INVERSE_TRIG_PARAM(value) \\
-    ''' + self.formatBestFastDivision(self.modulation.CONST_PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND, \
-                                      self.modulation.CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR, \
-                                      max(self.modulation.trigTables.sineValues).getInternalRepresentation() * self.modulation.CONST_INVERSE_TRIG_SCALER.getInternalRepresentation()) + '''
+#define PRECISION_CONVERTER_INVERSE_TRIG_PARAM(value) ''' + self.formatBestFastDivision('CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR') + '''
 
 #define QUANTS_COUNT_PER_SYMBOL ''' + str(int(definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL)) + '''
 
@@ -87,7 +75,7 @@ extern const uint32_t scaledSineValueFromTable[];
 extern const uint16_t scaledArcSineValueFromTable[];
 
 uint32_t calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(uint32_t otherFrequencyCurrentTrigArg,
-                                                                   uint32_t targetFrequencyReciprocalAngularFrequency,
+                                                                   bool isTargetFrequency1200,
                                                                    uint32_t targetFrequencyHalfPeriod,
                                                                    uint32_t targetFrequencyQuantsCountPerSymbol);
 
@@ -127,12 +115,8 @@ uint32_t currentF2200TrigArg;'''
 
     def generateDefinitionsSource(self, filePath):
         maxArcSine = max(self.modulation.trigTables.arcSineValues).getInternalRepresentation()
-        str1200 = self.formatBestFastDivision(self.modulation.CONST_PRECISION_QUANT_ROUND_SUMMAND, \
-                                              self.modulation.CONST_PRECISION_QUANT_DIVISOR, \
-                                              maxArcSine * self.modulation.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F1200.getInternalRepresentation())
-        str2200 = self.formatBestFastDivision(self.modulation.CONST_PRECISION_QUANT_ROUND_SUMMAND, \
-                                              self.modulation.CONST_PRECISION_QUANT_DIVISOR, \
-                                              maxArcSine * self.modulation.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F2200.getInternalRepresentation())
+        str1200 = self.formatBestFastDivision('CONST_PRECISION_QUANT_DIVISOR_F1200')
+        str2200 = self.formatBestFastDivision('CONST_PRECISION_QUANT_DIVISOR_F2200')
         if str1200 == str2200:
             raise RuntimeError('you should consider handling F1200 and F2200 cases in the same way as they have same division approximation')
 

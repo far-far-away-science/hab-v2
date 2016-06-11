@@ -1,15 +1,20 @@
 import numpy
+import random
+import matplotlib.pyplot as plot
 
 import afsk_modulation
 import data_generation
-import afsk_modulation_fixedpoint
+import afsk_modulation_fixedpoint_fast_div
 
 bitsCount = int(128 * 8 + 128 / 5 * 8 + 1)
 
-worstMinError = float('-inf')
+errors = []
+bestMaxError = float('+inf')
 worstMaxError = float('-inf')
 
-for i in range(200):
+ITERATIONS_COUNT = 500
+
+for i in range(ITERATIONS_COUNT):
     data = data_generation.generateBytes(bitsCount)
 
     floatingPointModulation = afsk_modulation.AfskModulation(data, bitsCount)
@@ -18,29 +23,34 @@ for i in range(200):
     x = numpy.linspace(1, len(afskSignalData), len(afskSignalData))
     y = numpy.array(afskSignalData)
 
-    fixedPointModulation = afsk_modulation_fixedpoint.AfskModulationFixedPoint(data, bitsCount)
+    fixedPointModulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(data, bitsCount)
     afskSignalDataFixedPoint = fixedPointModulation.afskModulate()
     yFixedPoint = numpy.array(afskSignalDataFixedPoint)
 
     yError = []
-    for i in range(len(afskSignalData)):
-        yError.append(numpy.abs(afskSignalData[i] - afskSignalDataFixedPoint[i]))
+    for j in range(len(afskSignalData)):
+        yError.append(numpy.abs(afskSignalData[j] - afskSignalDataFixedPoint[j]))
 
-    minError = numpy.min(yError)
     maxError = numpy.max(yError)
 
-    if minError > worstMinError:
-        worstMinError = minError
-        data_generation.saveBytes(data, "data-worst-min-" + str(worstMinError) + ".txt")
+    errors.append(maxError)
+
+    if maxError < bestMaxError:
+        bestMaxError = maxError
+        data_generation.saveBytes(data, "data-best-max-{:0>4}.txt".format(bestMaxError))
 
     if maxError > worstMaxError:
         worstMaxError = maxError
-        data_generation.saveBytes(data, "data-worst-max-" + str(worstMaxError) + ".txt")
+        data_generation.saveBytes(data, "data-worst-max-{:0>4}.txt".format(worstMaxError))
 
-    print("min error = " + str(minError))
-    print("max error = " + str(maxError))
-    print()
+    print("iteration " + str(i) + " out of " + str(ITERATIONS_COUNT) + ", max error = " + str(maxError))
 
-print("worst min error = " + str(worstMinError))
+data_generation.saveBytes(errors, "errors.txt")
+
+print("best max error = " + str(bestMaxError))
 print("worst max error = " + str(worstMaxError))
 print()
+
+plot.hist(errors, 40, (0, 4100), label = "best max error = " + str(bestMaxError) + " worst max error = " + str(worstMaxError))
+plot.grid(True)
+plot.show()

@@ -1,11 +1,9 @@
 import numpy
-import random
 import matplotlib.pyplot as plot
 
 import afsk_modulation
 import data_generation
 import definitions_derived
-import afsk_modulation_fixedpoint
 import afsk_modulation_fixedpoint_fast_div
 
 def filterData(errorData, startIdx, endIdx, numberOfSymbolsAroundMaxError):
