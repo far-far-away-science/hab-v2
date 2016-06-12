@@ -16,9 +16,9 @@ class Generator:
     def formatBestFastDivision(self, fastDivisionAlias):
         (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo, precisionSummand, clampValue) = self.modulation.getBestFastDivision(fastDivisionAlias)
         if firstDivisorPowerOfTwo != 0:
-            return 'CLAMP(((((value + ' + str(precisionSummand) + ') >> ' + str(firstDivisorPowerOfTwo) + ') * ' + str(multiplier) + ') >> ' + str(lastDivisorPowerOfTwo) + '), ' + str(clampValue) + ')'
+            return 'CLAMP((((((value) + ' + str(precisionSummand) + ') >> ' + str(firstDivisorPowerOfTwo) + ') * ' + str(multiplier) + ') >> ' + str(lastDivisorPowerOfTwo) + '), ' + str(clampValue) + ')'
         else:
-            return 'CLAMP((((value + ' + str(precisionSummand) + ') * ' + str(multiplier) + ') >> ' + str(lastDivisorPowerOfTwo) + ')' + str(clampValue) + ')'
+            return 'CLAMP(((((value) + ' + str(precisionSummand) + ') * ' + str(multiplier) + ') >> ' + str(lastDivisorPowerOfTwo) + ')' + str(clampValue) + ')'
 
     def generateDefinitionsHeader(self, filePath):
         text = '''#pragma once
@@ -26,12 +26,16 @@ class Generator:
 #include <stdint.h>
 #include <stdbool.h>
 
-#define CLAMP(value, maxValue) \\
-    ((value) > (maxValue) ? (maxValue) : (value))
+inline uint32_t CLAMP(uint32_t value, uint32_t maxValue)
+{
+    return value > maxValue ? maxValue : value;
+}
 
 #define RESET_CONTEXT_GENERATED_PART(pAfskContext) \\
-    pAfskContext->currentF1200TrigArg = 0; \\
-    pAfskContext->currentF2200TrigArg = 0;
+    { \\
+        pAfskContext->currentF1200TrigArg = 0; \\
+        pAfskContext->currentF2200TrigArg = 0; \\
+    }
 
 //
 // To figure out what those values mean see afsk-utils Python project,

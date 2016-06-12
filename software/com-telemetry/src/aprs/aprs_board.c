@@ -421,7 +421,6 @@ bool encodeAprsMessageAsAfsk(AprsEncodedMessage* pMessage, uint16_t* pOutputBuff
         }
         else
         {
-            pMessage->afskContext.currentF2200TrigArg = CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX(pMessage->afskContext.currentF2200Quant);
             pOutputBuffer[i] = CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(pMessage->afskContext);
             pMessage->afskContext.currentF2200Quant += QUANT_STEP_SIZE;
             if (pMessage->afskContext.currentF2200Quant >= QUANTS_COUNT_PER_SYMBOL_F2200)

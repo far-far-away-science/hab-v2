@@ -3,12 +3,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define CLAMP(value, maxValue) \
-    ((value) > (maxValue) ? (maxValue) : (value))
+inline uint32_t CLAMP(uint32_t value, uint32_t maxValue)
+{
+    return value > maxValue ? maxValue : value;
+}
 
 #define RESET_CONTEXT_GENERATED_PART(pAfskContext) \
-    pAfskContext->currentF1200TrigArg = 0; \
-    pAfskContext->currentF2200TrigArg = 0;
+    { \
+        pAfskContext->currentF1200TrigArg = 0; \
+        pAfskContext->currentF2200TrigArg = 0; \
+    }
 
 //
 // To figure out what those values mean see afsk-utils Python project,
@@ -29,16 +33,16 @@
 #define QUANTS_COUNT_PER_SYMBOL_F1200 800000
 #define QUANTS_COUNT_PER_SYMBOL_F2200 436364
 
-#define PRECISION_CONVERTER_QUANT_IDX_F1200(value) CLAMP(((((value + 500) >> 3) * 33) >> 12), 800000)
-#define PRECISION_CONVERTER_QUANT_IDX_F2200(value) CLAMP(((((value + 500) >> 3) * 66) >> 13), 436364)
+#define PRECISION_CONVERTER_QUANT_IDX_F1200(value) CLAMP((((((value) + 500) >> 3) * 33) >> 12), 800000)
+#define PRECISION_CONVERTER_QUANT_IDX_F2200(value) CLAMP((((((value) + 500) >> 3) * 66) >> 13), 436364)
 
 #define TRIG_PARAM_SCALER_F1200 3840
 #define TRIG_PARAM_SCALER_F2200 7040
-#define PRECISION_CONVERTER_TRIG_PARAM_F1200(value) CLAMP(((((value + 500000) >> 6) * 67) >> 20), 3072)
-#define PRECISION_CONVERTER_TRIG_PARAM_F2200(value) CLAMP(((((value + 500000) >> 6) * 67) >> 20), 3072)
+#define PRECISION_CONVERTER_TRIG_PARAM_F1200(value) CLAMP((((((value) + 500000) >> 6) * 67) >> 20), 3072)
+#define PRECISION_CONVERTER_TRIG_PARAM_F2200(value) CLAMP((((((value) + 500000) >> 6) * 67) >> 20), 3072)
 
 #define INVERSE_TRIG_PARAM_SCALER 750
-#define PRECISION_CONVERTER_INVERSE_TRIG_PARAM(value) CLAMP(((((value + 500000) >> 6) * 67) >> 20), 3072)
+#define PRECISION_CONVERTER_INVERSE_TRIG_PARAM(value) CLAMP((((((value) + 500000) >> 6) * 67) >> 20), 3072)
 
 #define QUANTS_COUNT_PER_SYMBOL 80
 

@@ -13,9 +13,11 @@ class Generator:
 #include <stdint.h>
 #include <stdbool.h>
 
-#define RESET_CONTEXT_GENERATED_PART(pAfskContext) \
-    pAfskContext->currentF1200TrigArg = 0; \
-    pAfskContext->currentF2200TrigArg = 0;
+#define RESET_CONTEXT_GENERATED_PART(pAfskContext) \\
+    { \\
+        pAfskContext->currentF1200TrigArg = 0; \\
+        pAfskContext->currentF2200TrigArg = 0; \\
+    }
 
 //
 // To figure out what those values mean see afsk-utils Python project,

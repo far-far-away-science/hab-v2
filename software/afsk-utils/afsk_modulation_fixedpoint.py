@@ -60,7 +60,7 @@ class AfskModulationFixedPoint(afsk_modulation.AfskModulation):
         else:
             raise RuntimeError(str(trigArg) + " is not valid for cosineGreaterThanOrEqualTo0")
 
-    def calculateQuantIdxFromAmplitude(self, reciprocalAngularFrequency, amplitude):
+    def calculateQuantIdxFromAmplitude(self, isF1200, reciprocalAngularFrequency, amplitude):
         (inverseTrigArg, self.CONST_PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR) = (amplitude * self.CONST_INVERSE_TRIG_SCALER).convert2Precision(definitions.PRECISION_INVERSE_TRIG_ARG)
         (result, self.CONST_PRECISION_QUANT_ROUND_SUMMAND, self.CONST_PRECISION_QUANT_DIVISOR) = (self.trigTables.getScaledArcSineValue(inverseTrigArg) * reciprocalAngularFrequency).convert2Precision(definitions.PRECISION_QUANT)
         return result
