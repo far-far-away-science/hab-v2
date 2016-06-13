@@ -3,10 +3,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-inline uint32_t CLAMP(uint32_t value, uint32_t maxValue)
-{
-    return value > maxValue ? maxValue : value;
-}
+#ifndef DEBUG
+    inline uint32_t CLAMP(uint32_t value, uint32_t maxValue)
+    {
+        return value > maxValue ? maxValue : value;
+    }
+#else
+    uint32_t CLAMP(uint32_t value, uint32_t maxValue);
+#endif
 
 #define RESET_CONTEXT_GENERATED_PART(pAfskContext) \
     { \

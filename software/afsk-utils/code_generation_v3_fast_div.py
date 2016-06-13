@@ -26,10 +26,14 @@ class Generator:
 #include <stdint.h>
 #include <stdbool.h>
 
-inline uint32_t CLAMP(uint32_t value, uint32_t maxValue)
-{
-    return value > maxValue ? maxValue : value;
-}
+#ifndef DEBUG
+    inline uint32_t CLAMP(uint32_t value, uint32_t maxValue)
+    {
+        return value > maxValue ? maxValue : value;
+    }
+#else
+    uint32_t CLAMP(uint32_t value, uint32_t maxValue);
+#endif
 
 #define RESET_CONTEXT_GENERATED_PART(pAfskContext) \\
     { \\
@@ -125,6 +129,13 @@ uint32_t currentF2200TrigArg;'''
             raise RuntimeError('you should consider handling F1200 and F2200 cases in the same way as they have same division approximation')
 
         text = '''#include "afsk.h"
+
+#ifdef DEBUG
+    uint32_t CLAMP(uint32_t value, uint32_t maxValue)
+    {
+        return value > maxValue ? maxValue : value;
+    }
+#endif
 
 uint32_t calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(uint32_t otherFrequencyCurrentTrigArg,
                                                                    bool isTargetFrequency1200,

@@ -1,5 +1,12 @@
 #include "afsk.h"
 
+#ifdef DEBUG
+    uint32_t CLAMP(uint32_t value, uint32_t maxValue)
+    {
+        return value > maxValue ? maxValue : value;
+    }
+#endif
+
 uint32_t calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(uint32_t otherFrequencyCurrentTrigArg,
                                                                    bool isTargetFrequency1200,
                                                                    uint32_t targetFrequencyHalfPeriod,

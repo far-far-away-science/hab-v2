@@ -1,7 +1,7 @@
 import numpy
-import random
 import matplotlib.pyplot as plot
 
+import definitions
 import afsk_modulation
 import data_generation
 import afsk_modulation_fixedpoint_fast_div
@@ -12,7 +12,8 @@ errors = []
 bestMaxError = float('+inf')
 worstMaxError = float('-inf')
 
-ITERATIONS_COUNT = 500
+ITERATIONS_COUNT = 1000
+BUCKETS_COUNT = int(ITERATIONS_COUNT / 10)
 
 for i in range(ITERATIONS_COUNT):
     data = data_generation.generateBytes(bitsCount)
@@ -51,6 +52,7 @@ print("best max error = " + str(bestMaxError))
 print("worst max error = " + str(worstMaxError))
 print()
 
-plot.hist(errors, 40, (0, 4100), label = "best max error = " + str(bestMaxError) + " worst max error = " + str(worstMaxError))
+plot.title("trig size = " + str(definitions.TRIG_TABLE_SIZE) + ", inverse trig size = " + str(definitions.INVERSE_TRIG_TABLE_SIZE))
+plot.hist(errors, BUCKETS_COUNT, (0, 4100))
 plot.grid(True)
 plot.show()

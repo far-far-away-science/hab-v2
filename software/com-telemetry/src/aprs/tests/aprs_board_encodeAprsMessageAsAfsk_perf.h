@@ -37,10 +37,11 @@ TEST_CLASS(aprs_board_encodeAprsMessageAsAfsk_perf,
         const float expectedRuntimeMilliseconds = 1000.0f * DAC_BUFFER_SIZE / APRS_SIGNAL_GENERATION_FREQUENCY;
         const float speedUpFactor = actualRuntimeMilliseconds / expectedRuntimeMilliseconds;
 
-        // this is the time it takes on RELEASE build at 16MHz on STM32L073.
-        // DEBUG is too slow (~1.15 or so) not sure what else to do on debug.
+        // the following data is for 16MHz
+#ifndef DEBUG
+        ASSERT_IS_TRUE(speedUpFactor <= 0.38f);
+#else
         ASSERT_IS_TRUE(speedUpFactor <= 0.86f);
-        // approximating division by (((v >> 6) * 67) >> 20)
-        // ASSERT_IS_TRUE(speedUpFactor <= 0.40f);
+#endif
     })
 })
