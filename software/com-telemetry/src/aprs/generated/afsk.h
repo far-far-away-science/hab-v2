@@ -14,8 +14,8 @@
 
 #define RESET_CONTEXT_GENERATED_PART(pAfskContext) \
     { \
-        pAfskContext->currentF1200TrigArg = 0; \
-        pAfskContext->currentF2200TrigArg = 0; \
+        (pAfskContext)->currentF1200TrigArg = 0; \
+        (pAfskContext)->currentF2200TrigArg = 0; \
     }
 
 //
@@ -65,7 +65,7 @@ uint32_t calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(uint32_t othe
                                                                    uint32_t targetFrequencyQuantsCountPerSymbol);
 
 #define IS_COSINE_GREATER_OR_EQUAL_TO_ZERO(value) \
-    (!(value > SCALED_PI_OVER_TWO && value < SCALED_THREE_HALFS_PI))
+    (!((value) > SCALED_PI_OVER_TWO && (value) < SCALED_THREE_HALFS_PI))
 
 #define CALCULATE_F1200_TRIG_ARG_FROM_QUANT_IDX(currentF1200Quant) \
     PRECISION_CONVERTER_TRIG_PARAM_F1200(TRIG_PARAM_SCALER_F1200 * (currentF1200Quant))
@@ -74,13 +74,13 @@ uint32_t calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(uint32_t othe
     PRECISION_CONVERTER_TRIG_PARAM_F2200(TRIG_PARAM_SCALER_F2200 * (currentF2200Quant))
 
 #define CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(afskCtx) \
-    amplitudeFromTable[afskCtx.currentF1200TrigArg = CALCULATE_F1200_TRIG_ARG_FROM_QUANT_IDX(afskCtx.currentF1200Quant)]
+    amplitudeFromTable[(afskCtx).currentF1200TrigArg = CALCULATE_F1200_TRIG_ARG_FROM_QUANT_IDX((afskCtx).currentF1200Quant)]
 
 #define CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(afskCtx) \
-    amplitudeFromTable[afskCtx.currentF2200TrigArg = CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX(afskCtx.currentF2200Quant)]
+    amplitudeFromTable[(afskCtx).currentF2200TrigArg = CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX((afskCtx).currentF2200Quant)]
 
 #define CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(afskCtx) \
-    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(afskCtx.currentF2200TrigArg, true, HALF_PERIOD_F1200, QUANTS_COUNT_PER_SYMBOL_F1200)
+    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude((afskCtx).currentF2200TrigArg, true, HALF_PERIOD_F1200, QUANTS_COUNT_PER_SYMBOL_F1200)
 
 #define CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(afskCtx) \
-    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(afskCtx.currentF1200TrigArg, false, HALF_PERIOD_F2200, QUANTS_COUNT_PER_SYMBOL_F2200)
+    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude((afskCtx).currentF1200TrigArg, false, HALF_PERIOD_F2200, QUANTS_COUNT_PER_SYMBOL_F2200)
