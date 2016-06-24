@@ -7,7 +7,7 @@ import definitions_derived
 class TrigTables:
     def __init__(self, precisionData, sineTableSize, arcSineTableSize):
         self.precisionData = precisionData
-        self.CONST_SINE_SCALER     = sineTableSize / (numpy.float64(2.0) * numpy.pi)
+        self.CONST_SINE_SCALER = sineTableSize / (numpy.float64(2.0) * numpy.pi)
         self.CONST_ARC_SINE_SCALER = arcSineTableSize / numpy.float64(2.0)
         self.sineValues = self.generateSineValues(sineTableSize, self.CONST_SINE_SCALER)
         self.arcSineValues = self.generateArcSineValues(arcSineTableSize, self.CONST_ARC_SINE_SCALER)
@@ -16,7 +16,7 @@ class TrigTables:
         result = []
         for i in range(tableSize + 1):
             sin = definitions_derived.AMPLITUDE_SHIFT + definitions_derived.AMPLITUDE_SCALER * numpy.sin(numpy.float64(i) / scaler)
-            value = fixedpoint.FixedPointNumber(sin, self.precisionData.PRECISION_TRIG)
+            value = self.precisionData.createFixedPoint(sin, self.precisionData.PRECISION_TRIG)
             result.append(value)
         return result
 
@@ -25,9 +25,9 @@ class TrigTables:
         for i in range(tableSize + 1):
             arcsin = numpy.arcsin(numpy.float64(2.0) * i / tableSize - numpy.float64(1.0))
             if arcsin >= 0:
-                value = fixedpoint.FixedPointNumber(arcsin, self.precisionData.PRECISION_INVERSE_TRIG)
+                value = self.precisionData.createFixedPoint(arcsin, self.precisionData.PRECISION_INVERSE_TRIG)
             else:
-                value = fixedpoint.FixedPointNumber(arcsin + numpy.pi * numpy.float64(2.0), self.precisionData.PRECISION_INVERSE_TRIG)
+                value = self.precisionData.createFixedPoint(arcsin + numpy.pi * numpy.float64(2.0), self.precisionData.PRECISION_INVERSE_TRIG)
             result.append(value)
         return result
 

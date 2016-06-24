@@ -13,21 +13,24 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
 
     def findBestFastDivision(self, divisor, maxValue):
         firstDivisorPowerOfTwo = 0
-        while (divisor & 1) == 0:
+        while (divisor & 1) == 0 and divisor != 0:
             firstDivisorPowerOfTwo += 1
             divisor = divisor >> 1
         if firstDivisorPowerOfTwo > 0:
             maxValue = maxValue >> firstDivisorPowerOfTwo
-        for i in range(1, 31):
-            testLastDivisorPowerOfTwo = i
-            testMultiplier = numpy.uint32((1 << testLastDivisorPowerOfTwo) / divisor + 0.5)
-            if testMultiplier > 0:
-                maxMultipliedValue = numpy.uint64(testMultiplier) * maxValue
-                if maxMultipliedValue > numpy.iinfo(numpy.uint32).max:
-                    break
-                multiplier = testMultiplier
-                lastDivisorPowerOfTwo = testLastDivisorPowerOfTwo
-        return (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo)
+        if divisor != 1:
+            for i in range(1, 31):
+                testLastDivisorPowerOfTwo = i
+                testMultiplier = numpy.uint32((1 << testLastDivisorPowerOfTwo) / divisor + 0.5)
+                if testMultiplier > 0:
+                    maxMultipliedValue = numpy.uint64(testMultiplier) * maxValue
+                    if maxMultipliedValue > numpy.iinfo(numpy.uint32).max:
+                        break
+                    multiplier = testMultiplier
+                    lastDivisorPowerOfTwo = testLastDivisorPowerOfTwo
+            return (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo)
+        else:
+            return (firstDivisorPowerOfTwo, 1, 0)
 
     def getBestFastDivision(self, fastDivisionAlias):
         return self.divData.get(fastDivisionAlias)
@@ -76,7 +79,7 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
                 clampValue = len(self.trigTables.sineValues) - 1
                 fastDivData = self.divData['CONST_PRECISION_TRIG_PARAM_DIVISOR_F2200'] = \
                     (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo, precisionSummand, clampValue)
-        return fixedpoint.FixedPointNumber(self.fastDiv(result.getInternalRepresentation(), fastDivData), self.precisionData.PRECISION_TRIG_ARG)
+        return self.precisionData.createFixedPoint(self.fastDiv(result.getInternalRepresentation(), fastDivData), self.precisionData.PRECISION_TRIG_ARG)
 
     def calculateQuantIdxFromAmplitude(self, isF1200, reciprocalAngularFrequency, amplitude):
         result = (amplitude * self.CONST_INVERSE_TRIG_SCALER)
@@ -117,4 +120,4 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
                 clampValue = self.CONST_F2200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()
                 fastDivData = self.divData['CONST_PRECISION_QUANT_DIVISOR_F2200'] = \
                     (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo, precisionSummand, clampValue)
-        return fixedpoint.FixedPointNumber(self.fastDiv(result.getInternalRepresentation(), fastDivData), self.precisionData.PRECISION_QUANT)
+        return self.precisionData.createFixedPoint(self.fastDiv(result.getInternalRepresentation(), fastDivData), self.precisionData.PRECISION_QUANT)

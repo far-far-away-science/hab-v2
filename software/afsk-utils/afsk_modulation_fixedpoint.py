@@ -11,15 +11,15 @@ class AfskModulationFixedPoint(afsk_modulation.AfskModulation):
         self.precisionData = precisionData
         afsk_modulation.AfskModulation.__init__(self, data, bitsCount)
         self.trigTables = trigtables.TrigTables(precisionData, definitions.TRIG_TABLE_SIZE, definitions.INVERSE_TRIG_TABLE_SIZE)
-        self.CONST_TWO_PI = fixedpoint.FixedPointNumber(numpy.pi * numpy.float64(2.0) * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_ARG)
-        self.CONST_PI_OVER_TWO = fixedpoint.FixedPointNumber(numpy.pi / numpy.float64(2.0) * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_ARG)
-        self.CONST_THREE_HALFS_PI = fixedpoint.FixedPointNumber(numpy.pi * numpy.float64(3.0) / numpy.float64(2.0) * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_ARG)
-        self.CONST_AMPLITUDE = fixedpoint.FixedPointNumber(definitions.QUANT_MAX_VALUE, self.precisionData.PRECISION_TRIG)
-        self.CONST_TRIG_PARAM_SCALER_F1200 = fixedpoint.FixedPointNumber(definitions_derived.ANGULAR_FREQUENCY_F1200 * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_SCALER)
-        self.CONST_TRIG_PARAM_SCALER_F2200 = fixedpoint.FixedPointNumber(definitions_derived.ANGULAR_FREQUENCY_F2200 * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_SCALER)
-        self.CONST_INVERSE_TRIG_SCALER = fixedpoint.FixedPointNumber(self.trigTables.CONST_ARC_SINE_SCALER / definitions_derived.AMPLITUDE_SCALER, self.precisionData.PRECISION_INVERSE_TRIG_SCALER)
-        self.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F1200 = fixedpoint.FixedPointNumber(numpy.float64(1.0) / definitions_derived.ANGULAR_FREQUENCY_F1200, self.precisionData.PRECISION_RECIPROCAL_ANGULAR_FREQUENCY)
-        self.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F2200 = fixedpoint.FixedPointNumber(numpy.float64(1.0) / definitions_derived.ANGULAR_FREQUENCY_F2200, self.precisionData.PRECISION_RECIPROCAL_ANGULAR_FREQUENCY)
+        self.CONST_TWO_PI = self.precisionData.createFixedPoint(numpy.pi * numpy.float64(2.0) * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_ARG)
+        self.CONST_PI_OVER_TWO = self.precisionData.createFixedPoint(numpy.pi / numpy.float64(2.0) * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_ARG)
+        self.CONST_THREE_HALFS_PI = self.precisionData.createFixedPoint(numpy.pi * numpy.float64(3.0) / numpy.float64(2.0) * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_ARG)
+        self.CONST_AMPLITUDE = self.precisionData.createFixedPoint(definitions.QUANT_MAX_VALUE, self.precisionData.PRECISION_TRIG)
+        self.CONST_TRIG_PARAM_SCALER_F1200 = self.precisionData.createFixedPoint(definitions_derived.ANGULAR_FREQUENCY_F1200 * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_SCALER)
+        self.CONST_TRIG_PARAM_SCALER_F2200 = self.precisionData.createFixedPoint(definitions_derived.ANGULAR_FREQUENCY_F2200 * self.trigTables.CONST_SINE_SCALER, self.precisionData.PRECISION_TRIG_SCALER)
+        self.CONST_INVERSE_TRIG_SCALER = self.precisionData.createFixedPoint(self.trigTables.CONST_ARC_SINE_SCALER / definitions_derived.AMPLITUDE_SCALER, self.precisionData.PRECISION_INVERSE_TRIG_SCALER)
+        self.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F1200 = self.precisionData.createFixedPoint(numpy.float64(1.0) / definitions_derived.ANGULAR_FREQUENCY_F1200, self.precisionData.PRECISION_RECIPROCAL_ANGULAR_FREQUENCY)
+        self.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F2200 = self.precisionData.createFixedPoint(numpy.float64(1.0) / definitions_derived.ANGULAR_FREQUENCY_F2200, self.precisionData.PRECISION_RECIPROCAL_ANGULAR_FREQUENCY)
 
     def convertAmplitudeToFinalFormat(self, value):
         (result, self.CONST_PRECISION_OUTPUT_AMPLITUDE_ROUNT_SUMMAND, self.CONST_PRECISION_OUTPUT_AMPLITUDE_DIVISOR) = value.convert2Precision(self.precisionData.PRECISION_AMPLITUDE_OUTPUT)
@@ -33,10 +33,10 @@ class AfskModulationFixedPoint(afsk_modulation.AfskModulation):
            valueName == 'CONST_HALF_PERIOD_F2200' or \
            valueName == 'currentF1200Quant' or \
            valueName == 'currentF2200Quant':
-            return fixedpoint.FixedPointNumber(value, self.precisionData.PRECISION_QUANT)
+            return self.precisionData.createFixedPoint(value, self.precisionData.PRECISION_QUANT)
         elif valueName == 'CONST_AMPLITUDE_SCALER' or \
              valueName == 'CONST_AMPLITUDE_SHIFT':
-            return fixedpoint.FixedPointNumber(value, self.precisionData.PRECISION_AMPLITUDE)
+            return self.precisionData.createFixedPoint(value, self.precisionData.PRECISION_AMPLITUDE)
 
     def calculateTrigArg(self, isF1200, currentQuant):
         if isF1200:

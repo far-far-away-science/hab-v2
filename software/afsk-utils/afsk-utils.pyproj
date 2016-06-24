@@ -6,7 +6,7 @@
     <ProjectGuid>30d94e14-7ee8-4b52-ab98-8f3ff1a2939c</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>code_generation_v3_fast_div.py</StartupFile>
+    <StartupFile>code_generation_v3_fast_div_base_2.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -30,6 +30,7 @@
     </Compile>
     <Compile Include="approximation_long_run.py" />
     <Compile Include="approximation_visualization.py" />
+    <Compile Include="code_generation_v3_fast_div_base_2.py" />
     <Compile Include="code_generation_v3_fast_div.py" />
     <Compile Include="data_generation.py">
       <SubType>Code</SubType>

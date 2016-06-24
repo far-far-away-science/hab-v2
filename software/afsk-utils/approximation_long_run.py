@@ -24,7 +24,7 @@ for i in range(ITERATIONS_COUNT):
     x = numpy.linspace(1, len(afskSignalData), len(afskSignalData))
     y = numpy.array(afskSignalData)
 
-    fixedPointModulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(definitions.FixedPointFastDivPrecisionData(), data, bitsCount)
+    fixedPointModulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(definitions.FixedPointBase2FastDivPrecisionData(), data, bitsCount)
     afskSignalDataFixedPoint = fixedPointModulation.afskModulate()
     yFixedPoint = numpy.array(afskSignalDataFixedPoint)
 

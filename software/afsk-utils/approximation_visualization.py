@@ -23,13 +23,13 @@ bitsCount = int(128 * 8 + 128 / 5 * 8 + 1)
 
 data = data_generation.generateBytes(bitsCount)
 
+fixedPointModulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(definitions.FixedPointBase2FastDivPrecisionData(), data, bitsCount)
+afskSignalDataFixedPoint = fixedPointModulation.afskModulate()
+yFixedPoint = numpy.array(afskSignalDataFixedPoint)
+
 floatingPointModulation = afsk_modulation.AfskModulation(data, bitsCount)
 afskSignalData = floatingPointModulation.afskModulate()
 y = numpy.array(afskSignalData)
-
-fixedPointModulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(definitions.FixedPointFastDivPrecisionData(), data, bitsCount)
-afskSignalDataFixedPoint = fixedPointModulation.afskModulate()
-yFixedPoint = numpy.array(afskSignalDataFixedPoint)
 
 x = numpy.linspace(0, len(afskSignalData), len(afskSignalData))
 

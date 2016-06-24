@@ -3074,5 +3074,5 @@ const uint16_t amplitudeFromTable[] =
     2035,
     2039,
     2043,
-    2048,
+    2047,
 };
