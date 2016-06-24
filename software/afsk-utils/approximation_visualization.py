@@ -1,6 +1,7 @@
 import numpy
 import matplotlib.pyplot as plot
 
+import definitions
 import afsk_modulation
 import data_generation
 import definitions_derived
@@ -26,7 +27,7 @@ floatingPointModulation = afsk_modulation.AfskModulation(data, bitsCount)
 afskSignalData = floatingPointModulation.afskModulate()
 y = numpy.array(afskSignalData)
 
-fixedPointModulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(data, bitsCount)
+fixedPointModulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(definitions.FixedPointFastDivPrecisionData(), data, bitsCount)
 afskSignalDataFixedPoint = fixedPointModulation.afskModulate()
 yFixedPoint = numpy.array(afskSignalDataFixedPoint)
 

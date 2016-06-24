@@ -10,7 +10,7 @@ import afsk_modulation_fixedpoint_fast_div
 
 class Generator:
     def __init__(self):
-        self.modulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv([0x65], 8)
+        self.modulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(definitions.FixedPointFastDivPrecisionData(), [0x65], 8)
         self.modulation.afskModulate()
 
     def formatBestFastDivision(self, fastDivisionAlias):

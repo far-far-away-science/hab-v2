@@ -7,8 +7,8 @@ import definitions_derived
 import afsk_modulation_fixedpoint
 
 class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationFixedPoint):
-    def __init__(self, data, bitsCount):
-        afsk_modulation_fixedpoint.AfskModulationFixedPoint.__init__(self, data, bitsCount)
+    def __init__(self, precisionData, data, bitsCount):
+        afsk_modulation_fixedpoint.AfskModulationFixedPoint.__init__(self, precisionData, data, bitsCount)
         self.divData = {}
 
     def findBestFastDivision(self, divisor, maxValue):
@@ -53,7 +53,7 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
             fastDivData = self.divData.get('CONST_PRECISION_TRIG_PARAM_DIVISOR_F1200')
             if fastDivData is None:
                 (trigArg, self.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_TRIG_PARAM_DIVISOR) = \
-                    result.convert2Precision(definitions.PRECISION_TRIG_ARG)
+                    result.convert2Precision(self.precisionData.PRECISION_TRIG_ARG)
                 maxValue = \
                     self.CONST_TRIG_PARAM_SCALER_F1200.getInternalRepresentation() * self.CONST_F1200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()
                 precisionSummand = self.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND
@@ -67,7 +67,7 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
             fastDivData = self.divData.get('CONST_PRECISION_TRIG_PARAM_DIVISOR_F2200')
             if 'CONST_PRECISION_TRIG_PARAM_DIVISOR_F2200' not in self.divData.keys():
                 (trigArg, self.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_TRIG_PARAM_DIVISOR) = \
-                    result.convert2Precision(definitions.PRECISION_TRIG_ARG)
+                    result.convert2Precision(self.precisionData.PRECISION_TRIG_ARG)
                 maxValue = \
                     self.CONST_TRIG_PARAM_SCALER_F2200.getInternalRepresentation() * self.CONST_F2200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()
                 precisionSummand = self.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND
@@ -76,14 +76,14 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
                 clampValue = len(self.trigTables.sineValues) - 1
                 fastDivData = self.divData['CONST_PRECISION_TRIG_PARAM_DIVISOR_F2200'] = \
                     (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo, precisionSummand, clampValue)
-        return fixedpoint.FixedPointNumber(self.fastDiv(result.getInternalRepresentation(), fastDivData), definitions.PRECISION_TRIG_ARG)
+        return fixedpoint.FixedPointNumber(self.fastDiv(result.getInternalRepresentation(), fastDivData), self.precisionData.PRECISION_TRIG_ARG)
 
     def calculateQuantIdxFromAmplitude(self, isF1200, reciprocalAngularFrequency, amplitude):
         result = (amplitude * self.CONST_INVERSE_TRIG_SCALER)
         fastDivData = self.divData.get('CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR')
         if fastDivData is None:
             (inverseTrigArg, self.CONST_PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND, self.CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR) = \
-                result.convert2Precision(definitions.PRECISION_INVERSE_TRIG_ARG)
+                result.convert2Precision(self.precisionData.PRECISION_INVERSE_TRIG_ARG)
             maxValue = max(self.trigTables.sineValues).getInternalRepresentation() * self.CONST_INVERSE_TRIG_SCALER.getInternalRepresentation()
             precisionSummand = self.CONST_PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND
             (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo) = \
@@ -97,7 +97,7 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
             fastDivData = self.divData.get('CONST_PRECISION_QUANT_DIVISOR_F1200')
             if fastDivData is None:
                 (inverseTrigArg, self.CONST_PRECISION_QUANT_ROUND_SUMMAND, self.CONST_PRECISION_QUANT_DIVISOR) = \
-                    result.convert2Precision(definitions.PRECISION_QUANT)
+                    result.convert2Precision(self.precisionData.PRECISION_QUANT)
                 maxValue = \
                     max(self.trigTables.arcSineValues).getInternalRepresentation() * self.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F1200.getInternalRepresentation()
                 precisionSummand = self.CONST_PRECISION_QUANT_ROUND_SUMMAND
@@ -109,7 +109,7 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
             fastDivData = self.divData.get('CONST_PRECISION_QUANT_DIVISOR_F2200')
             if fastDivData is None:
                 (inverseTrigArg, self.CONST_PRECISION_QUANT_ROUND_SUMMAND, self.CONST_PRECISION_QUANT_DIVISOR) = \
-                    result.convert2Precision(definitions.PRECISION_QUANT)
+                    result.convert2Precision(self.precisionData.PRECISION_QUANT)
                 maxValue = \
                     max(self.trigTables.arcSineValues).getInternalRepresentation() * self.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F2200.getInternalRepresentation()
                 precisionSummand = self.CONST_PRECISION_QUANT_ROUND_SUMMAND
@@ -117,4 +117,4 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
                 clampValue = self.CONST_F2200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()
                 fastDivData = self.divData['CONST_PRECISION_QUANT_DIVISOR_F2200'] = \
                     (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo, precisionSummand, clampValue)
-        return fixedpoint.FixedPointNumber(self.fastDiv(result.getInternalRepresentation(), fastDivData), definitions.PRECISION_QUANT)
+        return fixedpoint.FixedPointNumber(self.fastDiv(result.getInternalRepresentation(), fastDivData), self.precisionData.PRECISION_QUANT)

@@ -14,23 +14,25 @@ QUANT_MAX_VALUE         = (1 << 12) - 1 # 12 bit dac
 TRIG_TABLE_SIZE         = 3072
 INVERSE_TRIG_TABLE_SIZE = 3072
 
-# higher precision reduces precision of approximated fast division as multiplier factor
-# is limited by 32 bit result value
+class FixedPointFastDivPrecisionData:
+    def __init__(self):
+        # higher precision reduces precision of approximated fast division as multiplier factor
+        # is limited by 32 bit result value
 
-# 2 precisions below are liked and there will be an overflow if sum is > than 6
-PRECISION_QUANT                        = 4
-PRECISION_TRIG_SCALER                  = 2
+        # 2 precisions below are liked and there will be an overflow if sum is > than 6
+        self.PRECISION_QUANT                        = 4
+        self.PRECISION_TRIG_SCALER                  = 2
 
-# 2 precisions below are linked and there will be an overflow if sum is > than 7
-PRECISION_INVERSE_TRIG                 = 3
-PRECISION_RECIPROCAL_ANGULAR_FREQUENCY = 4
+        # 2 precisions below are linked and there will be an overflow if sum is > than 7
+        self.PRECISION_INVERSE_TRIG                 = 3
+        self.PRECISION_RECIPROCAL_ANGULAR_FREQUENCY = 4
 
-# 2 precisions below are linked together and there will be an overflow if sum is > 6
-PRECISION_AMPLITUDE                    = 3
-PRECISION_TRIG                         = 3 # note that this precision is linked to the one above and to the one below!!!
-PRECISION_INVERSE_TRIG_SCALER          = 3
-# 2 precisions above are linked together and there will be an overflow if sum is > 6
+        # 2 precisions below are linked together and there will be an overflow if sum is > 6
+        self.PRECISION_AMPLITUDE                    = 3
+        self.PRECISION_TRIG                         = 3 # note that this precision is linked to the one above and to the one below!!!
+        self.PRECISION_INVERSE_TRIG_SCALER          = 3
+        # 2 precisions above are linked together and there will be an overflow if sum is > 6
 
-PRECISION_AMPLITUDE_OUTPUT             = 0
-PRECISION_TRIG_ARG                     = 0
-PRECISION_INVERSE_TRIG_ARG             = 0
+        self.PRECISION_AMPLITUDE_OUTPUT             = 0
+        self.PRECISION_TRIG_ARG                     = 0
+        self.PRECISION_INVERSE_TRIG_ARG             = 0
