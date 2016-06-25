@@ -10,6 +10,7 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
     def __init__(self, precisionData, data, bitsCount):
         afsk_modulation_fixedpoint.AfskModulationFixedPoint.__init__(self, precisionData, data, bitsCount)
         self.divData = {}
+        self.CLAMPED_VALUE = False
 
     def findBestFastDivision(self, divisor, maxValue):
         firstDivisorPowerOfTwo = 0
@@ -37,16 +38,17 @@ class AfskModulationFixedPointFastDiv(afsk_modulation_fixedpoint.AfskModulationF
 
     def fastDiv(self, value, fastDivData):
         (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo, precisionSummand, clampValue) = fastDivData
-        value = numpy.uint64(value) + precisionSummand
-        if value > numpy.iinfo(numpy.uint32).max:
-            raise RuntimeError(str(value) + ' number is too large')
-        r1 = numpy.uint32(numpy.uint32(value) >> firstDivisorPowerOfTwo)
+        r0 = numpy.uint64(value) + precisionSummand
+        if r0 > numpy.iinfo(numpy.uint32).max:
+            raise RuntimeError(str(r0) + ' number is too large')
+        r1 = numpy.uint32(numpy.uint32(r0) >> firstDivisorPowerOfTwo)
         r2 = numpy.uint64(r1) * multiplier
         if r2 > numpy.iinfo(numpy.uint32).max:
             raise RuntimeError(str(r2) + ' number is too large (' + str(r1) + ' * ' + str(multiplier) + ')')
         r3 = numpy.uint32(numpy.uint32(r2) >> lastDivisorPowerOfTwo)
         if r3 > clampValue:
-            return numpy.uint32(clampValue)
+            self.CLAMPED_VALUE = True
+            return clampValue
         else:
             return r3
 

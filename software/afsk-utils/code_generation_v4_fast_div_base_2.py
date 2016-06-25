@@ -12,6 +12,8 @@ class Generator:
     def __init__(self):
         self.modulation = afsk_modulation_fixedpoint_fast_div.AfskModulationFixedPointFastDiv(definitions.FixedPointBase2FastDivPrecisionData(), [0x65], 8)
         self.modulation.afskModulate()
+        if self.modulation.CLAMPED_VALUE:
+            raise RuntimeError('Clamping should be supported but it isn\'t')
 
     def formatBestFastDivision(self, fastDivisionAlias):
         (firstDivisorPowerOfTwo, multiplier, lastDivisorPowerOfTwo, precisionSummand, clampValue) = self.modulation.getBestFastDivision(fastDivisionAlias)
