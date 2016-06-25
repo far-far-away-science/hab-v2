@@ -9,19 +9,6 @@ bool isSeparator(uint8_t c)
     return c == ',' || c == '*';
 }
 
-bool canUInt32Overflow(uint32_t previousValue, uint8_t newDigit)
-{
-    if ((previousValue > NMEA_MAX_UINT32_DIV_10) ||
-        (previousValue == NMEA_MAX_UINT32_DIV_10 && newDigit > 5))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 NMEA_PARSING_RESULT findNextTokenStart(NmeaParsingContext* pContext)
 {
     for (;; ++pContext->tokenStartIdx)
@@ -43,217 +30,9 @@ NMEA_PARSING_RESULT findNextTokenStart(NmeaParsingContext* pContext)
     return NPR_UNEXPECTED_END_OF_MESSAGE;
 }
 
-NMEA_PARSING_RESULT parseUInt32FixedPoint(NmeaParsingContext* pContext, uint8_t minNumberOfWholeDigits, uint8_t fractionalDigitsCount, uint32_t* pResult)
+NMEA_PARSING_RESULT parseLastDummyToken(NmeaParsingContext* pContext)
 {
-    bool ignoreRemaningCharacters = false;
-
-    NMEA_PARSING_RESULT result = NPR_VALID;
-
-    uint32_t number = 0;
-    uint32_t numberOfDigitsProcessed = 0;
-    uint32_t numberOfCharactersProcessed = 0;
-    uint32_t decimalPointPosition = NMEA_NO_POINT;
-
-    for (;; ++pContext->tokenStartIdx, ++numberOfCharactersProcessed)
-    {
-        if (pContext->tokenStartIdx >= pContext->pMessage->size)
-        {
-            result = NPR_UNEXPECTED_END_OF_MESSAGE;
-            break;
-        }
-
-        const uint8_t c = pContext->pMessage->message[pContext->tokenStartIdx];
-
-        if (isSeparator(c))
-        {
-            ++pContext->tokenStartIdx; // move to start of the next token
-            break;
-        }
-        else if (!ignoreRemaningCharacters)
-        {
-            if (c == '.')
-            {
-                const bool isSecondPointDetected = decimalPointPosition != NMEA_NO_POINT;
-
-                if (isSecondPointDetected)
-                {
-                    ignoreRemaningCharacters = true; // ignore fractional digits as precision isn't that big of a deal
-                    result = NPR_UNEXPECTED_CHARACTER_ENCOUNTERED;
-                }
-                else
-                {
-                    decimalPointPosition = numberOfCharactersProcessed;
-                }
-            }
-            else if (!isdigit(c))
-            {
-                ignoreRemaningCharacters = true;
-                result = NPR_UNEXPECTED_CHARACTER_ENCOUNTERED;
-            }
-            else
-            {
-                const uint8_t d = c - '0';
-
-                if (canUInt32Overflow(number, d))
-                {
-                    result = NPR_OVERFLOW;
-                    ignoreRemaningCharacters = true;
-                }
-                else
-                {
-                    number = number * 10 + d;
-                    ++numberOfDigitsProcessed;
-
-                    const bool isPointEncountered = decimalPointPosition != NMEA_NO_POINT;
-
-                    if (isPointEncountered)
-                    {
-                        const bool collectedEnoughFractionalDigits = (numberOfCharactersProcessed - decimalPointPosition) >= fractionalDigitsCount;
-
-                        if (collectedEnoughFractionalDigits)
-                        {
-                            ignoreRemaningCharacters = true; // safely ignore remaining digits
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    const bool isPointEncountered = decimalPointPosition != NMEA_NO_POINT;
-
-    if (NPR_IS_VALID(result))
-    {
-        if (isPointEncountered)
-        {
-            if (decimalPointPosition < minNumberOfWholeDigits)
-            {
-                result = NPR_NOT_ENOUGH_DIGITS;
-            }
-        }
-        else if (numberOfDigitsProcessed < minNumberOfWholeDigits)
-        {
-            result = NPR_NOT_ENOUGH_DIGITS;
-        }
-    }
-
-    if (NPR_IS_VALID(result) && number)
-    {
-        // as it's a fixed point number we need to fill up missing fractional digits
-
-        const uint32_t encounteredFractionalDigitCount = isPointEncountered ? numberOfCharactersProcessed - decimalPointPosition - 1 : 0;
-
-        for (uint32_t i = encounteredFractionalDigitCount; i < fractionalDigitsCount; ++i)
-        {
-            if (canUInt32Overflow(number, 0))
-            {
-                result = NPR_OVERFLOW;
-                break;
-            }
-            number = number * 10;
-        }
-    }
-
-    if (NPR_IS_VALID(result))
-    {
-        *pResult = number;
-        return numberOfDigitsProcessed == 0 ? NPR_EMPTY_VALUE : NPR_VALID;
-    }
-    else
-    {
-        *pResult = 0;
-        return result;
-    }
-}
-
-NMEA_PARSING_RESULT parseUInt16FixedPoint(NmeaParsingContext* pContext, uint8_t minNumberOfWholeDigits, uint8_t fractionalDigitsCount, uint16_t* pResult)
-{
-    uint32_t result;
-
-    const NMEA_PARSING_RESULT parsingResult = parseUInt32FixedPoint(pContext, minNumberOfWholeDigits, fractionalDigitsCount, &result);
-
-    if (NPR_IS_INVALID(parsingResult))
-    {
-        *pResult = 0;
-        return parsingResult;
-    }
-    else
-    {
-        if (result > 65535)
-        {
-            *pResult = 0;
-            return NPR_OVERFLOW;
-        }
-        else
-        {
-            *pResult = (uint16_t) result;
-            return parsingResult;
-        }
-    }
-}
-
-NMEA_PARSING_RESULT parseUInt8(NmeaParsingContext* pContext, uint32_t maxNumberOfCharactersToConsider, uint8_t* pResult)
-{
-    bool ignoreRemaningCharacters = false;
-
-    uint16_t number = 0;
-    uint32_t numberOfCharactersProcessed = 0;
-
-    NMEA_PARSING_RESULT result = NPR_VALID;
-
-    for (;; ++pContext->tokenStartIdx, ++numberOfCharactersProcessed)
-    {
-        if (pContext->tokenStartIdx >= pContext->pMessage->size)
-        {
-            result = NPR_UNEXPECTED_END_OF_MESSAGE;
-            break;
-        }
-        else if (numberOfCharactersProcessed >= maxNumberOfCharactersToConsider)
-        {
-            break;
-        }
-
-        const uint8_t c = pContext->pMessage->message[pContext->tokenStartIdx];
-
-        if (isSeparator(c))
-        {
-            if (maxNumberOfCharactersToConsider != NMEA_UNLIMITED_NUMBER_OF_CHARACTERS)
-            {
-                result = NPR_UNEXPECTED_SEPARATOR_ENCOUNTERED;
-            }
-            ++pContext->tokenStartIdx; // move to start of the next token
-            break;
-        }
-        else if (!ignoreRemaningCharacters)
-        {
-            if (!isdigit(c))
-            {
-                ignoreRemaningCharacters = true;
-                result = NPR_UNEXPECTED_CHARACTER_ENCOUNTERED;
-            }
-            else
-            {
-                number = number * 10 + (c - '0');
-
-                if (number > 255)
-                {
-                    result = NPR_OVERFLOW;
-                    ignoreRemaningCharacters = true;
-                }
-            }
-        }
-    }
-
-    if (NPR_IS_VALID(result))
-    {
-        *pResult = (uint8_t) number;
-        return result;
-    }
-    else
-    {
-        *pResult = 0;
-        return result;
-    }
+    return NPR_INVALID; // TODO
 }
 
 NMEA_PARSING_RESULT parseHemisphere(NmeaParsingContext* pContext, HEMISPHERE* pHemisphere)
@@ -341,7 +120,7 @@ NMEA_PARSING_RESULT parseGpsTime(NmeaParsingContext* pContext, GpsTime* pTime)
 
     NMEA_PARSING_RESULT result;
 
-    if (NPR_IS_INVALID(result = parseUInt8(pContext, 2, &pTime->hours)))
+    if (NPR_IS_INVALID(result = parseFixedNumberOfDigits(pContext, 2, pTime->hours.string)))
     {
         if (result != NPR_UNEXPECTED_SEPARATOR_ENCOUNTERED)
         {
@@ -353,7 +132,7 @@ NMEA_PARSING_RESULT parseGpsTime(NmeaParsingContext* pContext, GpsTime* pTime)
         }
         return result;
     }
-    if (NPR_IS_INVALID(result = parseUInt8(pContext, 2, &pTime->minutes)))
+    if (NPR_IS_INVALID(result = parseFixedNumberOfDigits(pContext, 2, pTime->minutes.string)))
     {
         if (result != NPR_UNEXPECTED_SEPARATOR_ENCOUNTERED)
         {
@@ -365,20 +144,13 @@ NMEA_PARSING_RESULT parseGpsTime(NmeaParsingContext* pContext, GpsTime* pTime)
         }
         return result;
     }
-    if (NPR_IS_INVALID(result = parseUInt16FixedPoint(pContext, 2, 2, &pTime->seconds)))
+    if (NPR_IS_INVALID(result = parseFixedPoint(pContext, 2, 2, 2, pTime->seconds.string)))
     {
         return result;
     }
     else if (result == NPR_EMPTY_VALUE)
     {
         return NPR_UNEXPECTED_SEPARATOR_ENCOUNTERED;
-    }
-
-    if (pTime->hours > 23 ||
-        pTime->minutes > 59 ||
-        pTime->seconds > 5999)
-    {
-        return NPR_OVERFLOW;
     }
 
     pTime->isValid = true;
@@ -404,7 +176,7 @@ NMEA_PARSING_RESULT parseAngularCoordinate(NmeaParsingContext* pContext, Angular
     }
     else
     {
-        if (NPR_IS_INVALID(resultCoordinate = parseUInt8(pContext, angularCoordinateType, &pCoordinate->degrees)))
+        if (NPR_IS_INVALID(resultCoordinate = parseFixedNumberOfDigits(pContext, angularCoordinateType, pCoordinate->degrees.string)))
         {
             if (resultCoordinate != NPR_UNEXPECTED_SEPARATOR_ENCOUNTERED)
             {
@@ -417,7 +189,7 @@ NMEA_PARSING_RESULT parseAngularCoordinate(NmeaParsingContext* pContext, Angular
             findNextTokenStart(pContext); // skip hemisphere
             return resultCoordinate;
         }
-        if (NPR_IS_INVALID(resultCoordinate = parseUInt32FixedPoint(pContext, 2, 6, &pCoordinate->minutes)))
+        if (NPR_IS_INVALID(resultCoordinate = parseFixedPoint(pContext, 2, 2, 6, pCoordinate->minutes.string)))
         {
             findNextTokenStart(pContext); // skip hemisphere
             return resultCoordinate;
@@ -436,11 +208,6 @@ NMEA_PARSING_RESULT parseAngularCoordinate(NmeaParsingContext* pContext, Angular
         return resultCoordinate == resultHemisphere ? NPR_EMPTY_VALUE : NPR_UNEXPECTED_CHARACTER_ENCOUNTERED;
     }
 
-    if (pCoordinate->minutes >= 60000000)
-    {
-        return NPR_OVERFLOW;
-    }
-
     switch (angularCoordinateType)
     {
         case ACR_LATITUDE:
@@ -448,10 +215,6 @@ NMEA_PARSING_RESULT parseAngularCoordinate(NmeaParsingContext* pContext, Angular
             if (pCoordinate->hemisphere != H_NORTH && pCoordinate->hemisphere != H_SOUTH)
             {
                 return NPR_UNEXPECTED_CHARACTER_ENCOUNTERED;
-            }
-            if (pCoordinate->degrees >= 91)
-            {
-                return NPR_OVERFLOW;
             }
             break;
         }
@@ -461,10 +224,6 @@ NMEA_PARSING_RESULT parseAngularCoordinate(NmeaParsingContext* pContext, Angular
             {
                 return NPR_UNEXPECTED_CHARACTER_ENCOUNTERED;
             }
-            if (pCoordinate->degrees >= 181)
-            {
-                return NPR_OVERFLOW;
-            }
             break;
         }
         default: return NPR_INVALID;
@@ -473,4 +232,33 @@ NMEA_PARSING_RESULT parseAngularCoordinate(NmeaParsingContext* pContext, Angular
     pCoordinate->isValid = true;
 
     return NPR_VALID;
+}
+
+NMEA_PARSING_RESULT parseFixType(NmeaParsingContext* pContext, GPS_FIX_TYPE* pFixType)
+{
+    return NPR_INVALID; // TODO
+}
+
+NMEA_PARSING_RESULT parseFixedNumberOfDigits(NmeaParsingContext* pContext, uint8_t digitsCount, uint8_t* pResultBuffer)
+{
+    return NPR_INVALID; // TODO
+}
+
+NMEA_PARSING_RESULT parseFixedPoint(NmeaParsingContext* pContext,
+                                    uint8_t minNumberOfWholeDigits,
+                                    uint8_t maxNumberOfWholeDigits,
+                                    uint8_t maxFractionalDigitsCount,
+                                    uint8_t* pResult)
+{
+    return NPR_INVALID; // TODO
+}
+
+NMEA_PARSING_RESULT parseChecksum(NmeaParsingContext* pContext, uint8_t* pChecksum)
+{
+    return NPR_INVALID; // TODO
+}
+
+bool isChecksumValid(uint8_t expectedCheckSum, const uint8_t* pBuffer, uint8_t bufferSize)
+{
+    return false; // TODO
 }

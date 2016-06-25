@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "generated/afsk.h"
+
 static uint8_t g_aprsPayloadBuffer[APRS_PAYLOAD_BUFFER_MAX_LENGTH];
 
 const Callsign CALLSIGN_SOURCE = 
@@ -266,74 +268,88 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
 
 uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)
 {
+    // with time    @092345z4903.50N/07201.75WO>088/036@00101m,07,2,1111
+    // without time !4903.50N/07201.75WO>088/036@00101m,07,2,1111
+
     uint8_t bufferStartIdx = 0;
 
-    if (pGpsData->gpggaData.latitude.isValid && pGpsData->gpggaData.longitude.isValid)
+    if (pGpsData->gpggaData.utcTime.isValid)
     {
-        if (pGpsData->gpggaData.utcTime.isValid)
-        {
-            if (bufferStartIdx + 8 > aprsPayloadBufferMaxLength)
-            {
-                return 0;
-            }
-
-            bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
-                                      "@%02u%02u%02uz",
-                                      pGpsData->gpggaData.utcTime.hours,
-                                      pGpsData->gpggaData.utcTime.minutes,
-                                      pGpsData->gpggaData.utcTime.seconds / 100);
-        }
-        else
-        {
-            if (bufferStartIdx + 1 > aprsPayloadBufferMaxLength)
-            {
-                return 0;
-            }
-
-            g_aprsPayloadBuffer[bufferStartIdx++] = '!';
-        }
-
-        if (bufferStartIdx + 20 > aprsPayloadBufferMaxLength)
+        if (bufferStartIdx + 8 > aprsPayloadBufferMaxLength)
         {
             return 0;
         }
 
-        const unsigned int latMinutesWhole = pGpsData->gpggaData.latitude.minutes / 1000000;
-        const unsigned int latMinutesFraction = (pGpsData->gpggaData.latitude.minutes - latMinutesWhole * 1000000) / 10000;
-
-        const unsigned int lonMinutesWhole = pGpsData->gpggaData.longitude.minutes / 1000000;
-        const unsigned int lonMinutesFraction = (pGpsData->gpggaData.longitude.minutes - lonMinutesWhole * 1000000) / 10000;
-
-        bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
-                                  "%02u%02u.%02u%1c/%03u%02u.%02u%1cO",
-                                  pGpsData->gpggaData.latitude.degrees,
-                                  latMinutesWhole,
-                                  latMinutesFraction,
-                                  pGpsData->gpggaData.latitude.hemisphere,
-                                  pGpsData->gpggaData.longitude.degrees,
-                                  lonMinutesWhole,
-                                  lonMinutesFraction,
-                                  pGpsData->gpggaData.longitude.hemisphere);
-
-        if (bufferStartIdx + 7 > aprsPayloadBufferMaxLength)
-        {
-            return 0;
-        }
-
-        bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
-                                  ">%03u/%03u",
-                                  (unsigned int) (pGpsData->gpvtgData.trueCourseDegrees / 10),
-                                  (unsigned int) (pGpsData->gpvtgData.speedKph / 10));
-
-        if (bufferStartIdx + 7 > aprsPayloadBufferMaxLength)
-        {
-            return 0;
-        }
-
-        bufferStartIdx += sprintf((char*) &g_aprsPayloadBuffer[bufferStartIdx],
-                                  "@%05um",
-                                  (unsigned int) pGpsData->gpggaData.altitudeMslMeters / 10);
+        g_aprsPayloadBuffer[bufferStartIdx++] = '@';
+        memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.utcTime.hours.string, 2);
+        bufferStartIdx += 2;
+        memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.utcTime.minutes.string, 2);
+        bufferStartIdx += 2;
+        memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.utcTime.seconds.string, 2);
+        bufferStartIdx += 2;
+        g_aprsPayloadBuffer[bufferStartIdx++] = 'z';
     }
+    else
+    {
+        if (bufferStartIdx + 1 > aprsPayloadBufferMaxLength)
+        {
+            return 0;
+        }
+
+        g_aprsPayloadBuffer[bufferStartIdx++] = '!';
+    }
+
+    if (bufferStartIdx + 18 > aprsPayloadBufferMaxLength)
+    {
+        return 0;
+    }
+
+    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.latitude.degrees.string, 2);
+    bufferStartIdx += 2;
+    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.latitude.minutes.string, 5);
+    bufferStartIdx += 5;
+    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.latitude.hemisphere;
+
+    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.longitude.degrees.string, 3);
+    bufferStartIdx += 3;
+    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.longitude.minutes.string, 5);
+    bufferStartIdx += 5;
+    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.latitude.hemisphere;
+    g_aprsPayloadBuffer[bufferStartIdx++] = 'O';
+
+    if (bufferStartIdx + 8 > aprsPayloadBufferMaxLength)
+    {
+        return 0;
+    }
+
+    g_aprsPayloadBuffer[bufferStartIdx++] = '>';
+    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpvtgData.trueCourseDegrees.string, 3);
+    bufferStartIdx += 3;
+    g_aprsPayloadBuffer[bufferStartIdx++] = '/';
+    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpvtgData.speedKph.string, 3);
+    bufferStartIdx += 3;
+
+    if (bufferStartIdx + 17 > aprsPayloadBufferMaxLength)
+    {
+        return 0;
+    }
+
+    g_aprsPayloadBuffer[bufferStartIdx++] = '@';
+    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.altitudeMslMeters.string, 5);
+    bufferStartIdx += 5;
+    g_aprsPayloadBuffer[bufferStartIdx++] = 'm';
+
+    g_aprsPayloadBuffer[bufferStartIdx++] = ',';
+    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.numberOfSattelitesInUse.string, 2);
+
+    g_aprsPayloadBuffer[bufferStartIdx++] = ',';
+    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.fixType;
+
+    g_aprsPayloadBuffer[bufferStartIdx++] = ',';
+    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.isValid ? '1' : '0';
+    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.latitude.isValid ? '1' : '0';
+    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.longitude.isValid ? '1' : '0';
+    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpvtgData.isValid ? '1' : '0';
 
     return bufferStartIdx;
 }

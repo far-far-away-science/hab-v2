@@ -39,9 +39,9 @@ TEST_CLASS(aprs_board_encodeAprsMessageAsAfsk_perf,
 
         // the following data is for 16MHz
 #ifndef DEBUG
-        ASSERT_IS_TRUE(speedUpFactor <= 0.38f);
+        ASSERT_IS_TRUE(speedUpFactor <= 0.32f);
 #else
-        ASSERT_IS_TRUE(speedUpFactor <= 0.86f);
+        ASSERT_IS_TRUE(speedUpFactor <= 0.62f);
 #endif
     })
 })

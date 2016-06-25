@@ -1,8 +1,5 @@
 #pragma once
 
-// uncomment below to enable tests
-// #define TEST
-
 #if defined(TEST)
     #include <stdint.h>
     #include <stdbool.h>
