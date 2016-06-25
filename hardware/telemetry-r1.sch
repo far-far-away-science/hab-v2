@@ -10405,18 +10405,6 @@ Ground</text>
 <wire x1="342.9" y1="160.02" x2="335.28" y2="160.02" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="TEMPH" class="0">
-<segment>
-<pinref part="J9" gate="J$1" pin="3"/>
-<wire x1="355.6" y1="71.12" x2="347.98" y2="71.12" width="0.1524" layer="91"/>
-<label x="353.06" y="71.12" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="D6" gate="G$1" pin="CH1"/>
-<wire x1="345.44" y1="7.62" x2="345.44" y2="17.78" width="0.1524" layer="91"/>
-<label x="345.44" y="7.62" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
 <net name="HXEN" class="0">
 <segment>
 <wire x1="124.46" y1="43.18" x2="137.16" y2="43.18" width="0.1524" layer="91"/>
@@ -10778,6 +10766,16 @@ Ground</text>
 <wire x1="35.56" y1="50.8" x2="45.72" y2="50.8" width="0.1524" layer="91"/>
 <label x="35.56" y="50.8" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="J9" gate="J$1" pin="3"/>
+<wire x1="355.6" y1="71.12" x2="347.98" y2="71.12" width="0.1524" layer="91"/>
+<label x="353.06" y="71.12" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="D6" gate="G$1" pin="CH1"/>
+<wire x1="345.44" y1="7.62" x2="345.44" y2="17.78" width="0.1524" layer="91"/>
+<label x="345.44" y="7.62" size="1.778" layer="95" rot="R90"/>
+</segment>
 </net>
 <net name="LP1" class="0">
 <segment>
@@ -10844,13 +10842,8 @@ Ground</text>
 <approved hash="104,1,139.7,53.34,IC6,RFGND,RGND,,,"/>
 <approved hash="104,1,165.1,58.42,IC6,VCC,5V,,,"/>
 <approved hash="104,1,309.88,165.1,IC5,VIN,+9V,,,"/>
-<approved hash="104,1,223.52,111.76,IC7A,V+,5V,,,"/>
-<approved hash="104,1,223.52,96.52,IC7A,V-,GND,,,"/>
-<approved hash="104,1,276.86,38.1,D4,VCC,3.3V,,,"/>
-<approved hash="104,1,314.96,38.1,D5,VCC,3.3V,,,"/>
 <approved hash="104,1,353.06,38.1,D6,VCC,VS,,,"/>
 <approved hash="202,1,419.1,86.36,IC10,!EN,,,,"/>
-<approved hash="104,1,391.16,38.1,D7,VCC,3.3V,,,"/>
 <approved hash="106,1,314.96,68.58,AL_L,,,,,"/>
 <approved hash="106,1,309.88,109.22,INT,,,,,"/>
 <approved hash="106,1,309.88,106.68,INT2,,,,,"/>

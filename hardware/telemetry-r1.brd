@@ -3224,22 +3224,6 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="31.455" y1="53.68" x2="33.625" y2="53.68" width="0.2032" layer="1"/>
 <wire x1="33.625" y1="53.68" x2="33.655" y2="53.71" width="0.2032" layer="1"/>
 </signal>
-<signal name="TEMPH">
-<contactref element="J9" pad="3"/>
-<contactref element="D6" pad="1"/>
-<wire x1="3.81" y1="29.94" x2="7.08" y2="29.94" width="0.2032" layer="1"/>
-<wire x1="7.08" y1="29.94" x2="7.3025" y2="30.1625" width="0.2032" layer="1"/>
-<wire x1="7.62" y1="30.48" x2="7.62" y2="32.155" width="0.2032" layer="1"/>
-<wire x1="7.62" y1="32.155" x2="7.605" y2="32.17" width="0.2032" layer="1"/>
-<via x="34.925" y="25.4" extent="1-16" drill="0.5"/>
-<wire x1="34.925" y1="25.4" x2="18.415" y2="25.4" width="0.2032" layer="16"/>
-<wire x1="18.415" y1="25.4" x2="13.875" y2="29.94" width="0.2032" layer="16"/>
-<wire x1="13.875" y1="29.94" x2="7.525" y2="29.94" width="0.2032" layer="16"/>
-<wire x1="7.525" y1="29.94" x2="7.3025" y2="30.1625" width="0.2032" layer="16"/>
-<via x="7.3025" y="30.1625" extent="1-16" drill="0.5"/>
-<wire x1="7.3025" y1="30.1625" x2="7.62" y2="30.48" width="0.2032" layer="1"/>
-<wire x1="34.87" y1="25.455" x2="34.925" y2="25.4" width="0.2032" layer="1"/>
-</signal>
 <signal name="HXEN">
 <contactref element="IC6" pad="4"/>
 <contactref element="R23" pad="1"/>
@@ -3519,6 +3503,21 @@ Please make sure your boards conform to these design rules.</description>
 </signal>
 <signal name="PHOTO">
 <contactref element="IC4" pad="12"/>
+<contactref element="J9" pad="3"/>
+<contactref element="D6" pad="1"/>
+<wire x1="7.62" y1="30.48" x2="7.62" y2="32.155" width="0.2032" layer="1"/>
+<wire x1="7.62" y1="32.155" x2="7.605" y2="32.17" width="0.2032" layer="1"/>
+<via x="34.925" y="25.4" extent="1-16" drill="0.5"/>
+<wire x1="34.925" y1="25.4" x2="18.415" y2="25.4" width="0.2032" layer="16"/>
+<wire x1="18.415" y1="25.4" x2="13.875" y2="29.94" width="0.2032" layer="16"/>
+<wire x1="13.875" y1="29.94" x2="7.525" y2="29.94" width="0.2032" layer="16"/>
+<wire x1="7.525" y1="29.94" x2="7.3025" y2="30.1625" width="0.2032" layer="16"/>
+<via x="7.3025" y="30.1625" extent="1-16" drill="0.5"/>
+<wire x1="7.3025" y1="30.1625" x2="7.62" y2="30.48" width="0.2032" layer="1"/>
+<wire x1="34.87" y1="25.455" x2="34.925" y2="25.4" width="0.2032" layer="1"/>
+<wire x1="34.87" y1="25.455" x2="34.87" y2="26.46" width="0.2032" layer="1"/>
+<wire x1="3.81" y1="29.94" x2="7.08" y2="29.94" width="0.2032" layer="1"/>
+<wire x1="7.08" y1="29.94" x2="7.3025" y2="30.1625" width="0.2032" layer="1"/>
 </signal>
 <signal name="LP1">
 <contactref element="R21" pad="1"/>
@@ -3569,8 +3568,8 @@ Please make sure your boards conform to these design rules.</description>
 <approved hash="19,16,7abc0c6ad07ba248"/>
 <approved hash="19,16,789216de14f8715e"/>
 <approved hash="19,16,d723524d1ae9946d"/>
-<approved hash="5,1,efe80e4520c437a6"/>
 <approved hash="5,1,fa6c0d4d23bc212a"/>
+<approved hash="5,1,efe80e4520c437a6"/>
 <approved hash="5,1,8de97acd2fbc2d2f"/>
 <approved hash="5,1,a16a564d2fbc2d2c"/>
 <approved hash="5,1,b4ee55452cc43ba0"/>
