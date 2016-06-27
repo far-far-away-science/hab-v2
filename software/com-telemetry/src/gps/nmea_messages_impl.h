@@ -22,9 +22,6 @@ typedef enum AngularCoordinateType_t
 #define PARSE_DUMMY_TOKEN(nmeaParsingContext) \
     if (NPR_IS_INVALID(findNextTokenStart(&(nmeaParsingContext)))) { return; }
 
-#define PARSE_LAST_DUMMY_TOKEN(nmeaParsingContext) \
-    if (NPR_IS_INVALID(parseLastDummyToken(&(nmeaParsingContext)))) { return; }
-
 #define PARSE_GPS_TIME(nmeaParsingContext, utcTime) \
     if (NPR_IS_INVALID(parseGpsTime(&(nmeaParsingContext), &(utcTime)))) { return; }
 
@@ -34,20 +31,17 @@ typedef enum AngularCoordinateType_t
 #define PARSE_LONGITUDE(nmeaParsingContext, angularCoordinate) \
     if (NPR_IS_INVALID(parseAngularCoordinate(&(nmeaParsingContext), ACR_LONGITUDE, &(angularCoordinate)))) { return; }
 
-#define PARSE_FIX_TYPE(nmeaParsingContext, fixType) \
-    if (NPR_IS_INVALID(parseFixType(&(nmeaParsingContext), &(fixType)))) { return; }
+#define PARSE_UINT8_DEFAULT_TO_0(nmeaParsingContext, result) \
+    if (NPR_IS_INVALID(parseUInt8(&(nmeaParsingContext), NMEA_UNLIMITED_NUMBER_OF_CHARACTERS, &(result)))) { return; }
 
-#define PARSE_FIXED_POINT_W2F0(nmeaParsingContext, result) \
-    if (NPR_IS_INVALID(parseFixedPoint(&(nmeaParsingContext), 0, 2, 0, (result).string))) { return; }
+#define PARSE_FIXED_POINT_UINT32_F1_DEFAULT_TO_0(nmeaParsingContext, result) \
+    if (NPR_IS_INVALID(parseUInt32FixedPoint(&(nmeaParsingContext), 0, 1, &(result)))) { return; }
 
-#define PARSE_FIXED_POINT_W3F1(nmeaParsingContext, result) \
-    if (NPR_IS_INVALID(parseFixedPoint(&(nmeaParsingContext), 0, 3, 1, (result).string))) { return; }
+#define PARSE_FIXED_POINT_UINT16_F1_DEFAULT_TO_0(nmeaParsingContext, result) \
+    if (NPR_IS_INVALID(parseUInt16FixedPoint(&(nmeaParsingContext), 0, 1, &(result)))) { return; }
 
-#define PARSE_FIXED_POINT_W5F1(nmeaParsingContext, result) \
-    if (NPR_IS_INVALID(parseFixedPoint(&(nmeaParsingContext), 0, 5, 1, (result).string))) { return; }
-
-#define PARSE_CHECKSUM(nmeaParsingContext, checksum) \
-    if (NPR_IS_INVALID(parseChecksum(&(nmeaParsingContext), &(checksum)))) { return; }
+#define PARSE_FIXED_POINT_UINT16_F2_DEFAULT_TO_0(nmeaParsingContext, result) \
+    if (NPR_IS_INVALID(parseUInt16FixedPoint(&(nmeaParsingContext), 0, 2, &(result)))) { return; }
 
 typedef struct NmeaParsingContext_t
 {
@@ -70,25 +64,22 @@ typedef enum NMEA_PARSING_RESULT_t
 
 bool canUInt32Overflow(uint32_t previousValue, uint8_t newDigit);
 
-NMEA_PARSING_RESULT parseLastDummyToken(NmeaParsingContext* pContext);
-
 NMEA_PARSING_RESULT findNextTokenStart(NmeaParsingContext* pContext);
 
 NMEA_PARSING_RESULT parseHemisphere(NmeaParsingContext* pContext, HEMISPHERE* pHemisphere);
 
-NMEA_PARSING_RESULT parseFixType(NmeaParsingContext* pContext, GPS_FIX_TYPE* pFixType);
+/*
+ * maxFractionalDigitsCount - higher precision than specified will be ignored
+ *                          - if not enough fractional digits is encountered then zeroes will be suffixed automatically to the number ('1.1' for W2F2 will result in '110')
+ *                          - if decimal point isn't encountered it's no big deal
+ */
+NMEA_PARSING_RESULT parseUInt32FixedPoint(NmeaParsingContext* pContext, uint8_t minNumberOfWholeDigits, uint8_t maxFractionalDigitsCount, uint32_t* pResult);
+NMEA_PARSING_RESULT parseUInt16FixedPoint(NmeaParsingContext* pContext, uint8_t minNumberOfWholeDigits, uint8_t maxFractionalDigitsCount, uint16_t* pResult);
+
+/*
+ * Used to parse part of digits from the token
+ */
+NMEA_PARSING_RESULT parseUInt8(NmeaParsingContext* pContext, uint32_t maxNumberOfCharactersToConsider, uint8_t* pResult);
 
 NMEA_PARSING_RESULT parseGpsTime(NmeaParsingContext* pContext, GpsTime* pTime);
 NMEA_PARSING_RESULT parseAngularCoordinate(NmeaParsingContext* pContext, AngularCoordinateType angularCoordinateType, AngularCoordinate* pCoordinate);
-
-NMEA_PARSING_RESULT parseFixedPoint(NmeaParsingContext* pContext,
-                                    uint8_t minNumberOfWholeDigits,
-                                    uint8_t maxNumberOfWholeDigits,
-                                    uint8_t maxFractionalDigitsCount,
-                                    uint8_t* pResult);
-
-NMEA_PARSING_RESULT parseFixedNumberOfDigits(NmeaParsingContext* pContext, uint8_t digitsCount, uint8_t* pResultBuffer);
-
-NMEA_PARSING_RESULT parseChecksum(NmeaParsingContext* pContext, uint8_t* pChecksum);
-
-bool isChecksumValid(uint8_t expectedCheckSum, const uint8_t* pBuffer, uint8_t bufferSize);
