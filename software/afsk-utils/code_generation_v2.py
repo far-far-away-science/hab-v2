@@ -24,38 +24,38 @@ class Generator:
 // code_generation_v2.py file
 //
 
-#define APRS_SIGNAL_GENERATION_FREQUENCY ((uint32_t)''' + str(definitions.APRS_SIGNAL_GENERATION_FREQUENCY) + ''')
+#define APRS_SIGNAL_GENERATION_FREQUENCY ((uint32_t) ''' + str(definitions.APRS_SIGNAL_GENERATION_FREQUENCY) + ''')
 
-#define QUANT_MIN_VALUE ((uint32_t)''' + str(definitions.QUANT_MIN_VALUE) + ''')
-#define QUANT_STEP_SIZE ((uint32_t)''' + str(self.modulation.CONST_QUANT_STEP_SIZE.getInternalRepresentation()) + ''')
+#define QUANT_MIN_VALUE ((uint32_t) ''' + str(definitions.QUANT_MIN_VALUE) + ''')
+#define QUANT_STEP_SIZE ((uint32_t) ''' + str(self.modulation.CONST_QUANT_STEP_SIZE.getInternalRepresentation()) + ''')
 
-#define SCALED_PI_OVER_TWO    ((uint32_t)''' + str(self.modulation.CONST_PI_OVER_TWO.getInternalRepresentation()) + ''')
-#define SCALED_THREE_HALFS_PI ((uint32_t)''' + str(self.modulation.CONST_THREE_HALFS_PI.getInternalRepresentation()) + ''')
+#define SCALED_PI_OVER_TWO    ((uint32_t) ''' + str(self.modulation.CONST_PI_OVER_TWO.getInternalRepresentation()) + ''')
+#define SCALED_THREE_HALFS_PI ((uint32_t) ''' + str(self.modulation.CONST_THREE_HALFS_PI.getInternalRepresentation()) + ''')
 
-#define HALF_PERIOD_F1200 ((uint32_t)''' + str(self.modulation.CONST_HALF_PERIOD_F1200.getInternalRepresentation()) + ''')
-#define HALF_PERIOD_F2200 ((uint32_t)''' + str(self.modulation.CONST_HALF_PERIOD_F2200.getInternalRepresentation()) + ''')
+#define HALF_PERIOD_F1200 ((uint32_t) ''' + str(self.modulation.CONST_HALF_PERIOD_F1200.getInternalRepresentation()) + ''')
+#define HALF_PERIOD_F2200 ((uint32_t) ''' + str(self.modulation.CONST_HALF_PERIOD_F2200.getInternalRepresentation()) + ''')
 
-#define PRECISION_QUANT_DIVISOR       ((uint32_t)''' + str(self.modulation.CONST_PRECISION_QUANT_DIVISOR) + ''')
-#define PRECISION_QUANT_ROUND_SUMMAND ((uint32_t)''' + str(self.modulation.CONST_PRECISION_QUANT_ROUND_SUMMAND) + ''')
+#define PRECISION_QUANT_DIVISOR       ((uint32_t) ''' + str(self.modulation.CONST_PRECISION_QUANT_DIVISOR) + ''')
+#define PRECISION_QUANT_ROUND_SUMMAND ((uint32_t) ''' + str(self.modulation.CONST_PRECISION_QUANT_ROUND_SUMMAND) + ''')
 
-#define TRIG_PARAM_SCALER_F1200            ((uint32_t)''' + str(self.modulation.CONST_TRIG_PARAM_SCALER_F1200.getInternalRepresentation()) + ''')
-#define TRIG_PARAM_SCALER_F2200            ((uint32_t)''' + str(self.modulation.CONST_TRIG_PARAM_SCALER_F2200.getInternalRepresentation()) + ''')
-#define PRECISION_TRIG_PARAM_DIVISOR       ((uint32_t)''' + str(self.modulation.CONST_PRECISION_TRIG_PARAM_DIVISOR) + ''')
-#define PRECISION_TRIG_PARAM_ROUND_SUMMAND ((uint32_t)''' + str(self.modulation.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND) + ''')
+#define TRIG_PARAM_SCALER_F1200            ((uint32_t) ''' + str(self.modulation.CONST_TRIG_PARAM_SCALER_F1200.getInternalRepresentation()) + ''')
+#define TRIG_PARAM_SCALER_F2200            ((uint32_t) ''' + str(self.modulation.CONST_TRIG_PARAM_SCALER_F2200.getInternalRepresentation()) + ''')
+#define PRECISION_TRIG_PARAM_DIVISOR       ((uint32_t) ''' + str(self.modulation.CONST_PRECISION_TRIG_PARAM_DIVISOR) + ''')
+#define PRECISION_TRIG_PARAM_ROUND_SUMMAND ((uint32_t) ''' + str(self.modulation.CONST_PRECISION_TRIG_PARAM_ROUND_SUMMAND) + ''')
 
-#define INVERSE_TRIG_PARAM_SCALER                  ((uint32_t)''' + str(self.modulation.CONST_INVERSE_TRIG_SCALER.getInternalRepresentation()) + ''')
-#define PRECISION_INVERSE_TRIG_PARAM_DIVISOR       ((uint32_t)''' + str(self.modulation.CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR) + ''')
-#define PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND ((uint32_t)''' + str(self.modulation.CONST_PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND) + ''')
+#define INVERSE_TRIG_PARAM_SCALER                  ((uint32_t) ''' + str(self.modulation.CONST_INVERSE_TRIG_SCALER.getInternalRepresentation()) + ''')
+#define PRECISION_INVERSE_TRIG_PARAM_DIVISOR       ((uint32_t) ''' + str(self.modulation.CONST_PRECISION_INVERSE_TRIG_PARAM_DIVISOR) + ''')
+#define PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND ((uint32_t) ''' + str(self.modulation.CONST_PRECISION_INVERSE_TRIG_PARAM_ROUND_SUMMAND) + ''')
 
 #define QUANTS_COUNT_PER_SYMBOL ((uint32_t)''' + str(int(definitions_derived.F1200_QUANTS_COUNT_PER_SYMBOL)) + ''')
 
-#define QUANTS_COUNT_PER_SYMBOL_F1200 ((uint32_t)''' + str(self.modulation.CONST_F1200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()) + ''')
-#define QUANTS_COUNT_PER_SYMBOL_F2200 ((uint32_t)''' + str(self.modulation.CONST_F2200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()) + ''')
+#define QUANTS_COUNT_PER_SYMBOL_F1200 ((uint32_t) ''' + str(self.modulation.CONST_F1200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()) + ''')
+#define QUANTS_COUNT_PER_SYMBOL_F2200 ((uint32_t) ''' + str(self.modulation.CONST_F2200_QUANTS_COUNT_PER_SYMBOL.getInternalRepresentation()) + ''')
 
-#define RECIPROCAL_ANGULAR_FREQUENCY_F1200 ((uint32_t)''' + str(self.modulation.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F1200.getInternalRepresentation()) + ''')
-#define RECIPROCAL_ANGULAR_FREQUENCY_F2200 ((uint32_t)''' + str(self.modulation.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F2200.getInternalRepresentation()) + ''')
+#define RECIPROCAL_ANGULAR_FREQUENCY_F1200 ((uint32_t) ''' + str(self.modulation.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F1200.getInternalRepresentation()) + ''')
+#define RECIPROCAL_ANGULAR_FREQUENCY_F2200 ((uint32_t) ''' + str(self.modulation.CONST_RECIPROCAL_ANGULAR_FREQUENCY_F2200.getInternalRepresentation()) + ''')
 
-#define LEADING_WARMUP_QUANTS_COUNT ((uint32_t)''' + str(definitions_derived.LEADING_WARMUP_QUANTS_COUNT) + ''')
+#define LEADING_WARMUP_QUANTS_COUNT ((uint32_t) ''' + str(definitions_derived.LEADING_WARMUP_QUANTS_COUNT) + ''')
 
 extern const uint16_t amplitudeFromTable[];
 extern const uint32_t scaledSineValueFromTable[];

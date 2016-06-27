@@ -17,7 +17,7 @@
 #define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
-GpsData g_gpsData;
+NmeaMessage g_nmeaMessage;
 NmeaRingBuffer g_nmeaRingBuffer;
 UART_HandleTypeDef g_copernicusUartHandle;
 
@@ -52,8 +52,7 @@ int main(void) {
     {
     }
 #else
-    bool hasGpsMessage = true;
-    NmeaMessage nmeaMessage = { 0 };
+    bool hasGpsMessage = false;
 
     for (;;) {
         // TODO distinguish between modes:
@@ -63,23 +62,20 @@ int main(void) {
         // - landed not moving
         // - landed moving (water landing or on the truck :) )
 
-        if (nmeaReadMessage(&g_nmeaRingBuffer, &nmeaMessage)) {
+        if (nmeaReadMessage(&g_nmeaRingBuffer, &g_nmeaMessage)) {
             hasGpsMessage = true;
-            parseNmeaMessageIfValid(&nmeaMessage, &g_gpsData);
         }
 
-        // TODO get/parse telemetry data
-
         if (!g_aprsMessageTransmitting) {
+            // TODO add delay between APRS messages
+            // TODO send APRS telemetry message
             if (hasGpsMessage)
             {
-                if (encodeGpsAprsMessage(&CALLSIGN_SOURCE, &g_gpsData, &g_aprsEncodedMessage)) {
+                if (encodeNmeaAprsMessage(&CALLSIGN_SOURCE, &g_nmeaMessage, &g_aprsEncodedMessage)) {
                     transmitAprsMessage();
                 }
             }
         }
-
-        // TODO send aprs telemetry message
     }
 #endif
 }

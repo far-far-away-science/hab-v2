@@ -44,8 +44,8 @@ extern const Callsign CALLSIGN_DESTINATION_2;
 
 bool isAprsMessageEmtpy(const AprsEncodedMessage* pMessage);
 
-bool encodeGpsAprsMessage(const Callsign* pCallsign, const GpsData* pGpsData, AprsEncodedMessage* pEncdedMessage);
-bool encodeTelemetryAprsMessage(const Callsign* pCallsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncdedMessage);
+bool encodeNmeaAprsMessage(const Callsign* pCallsign, const NmeaMessage* pNmeaMessage, AprsEncodedMessage* pEncodedMessage);
+bool encodeTelemetryAprsMessage(const Callsign* pCallsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncodedMessage);
 
 /*
  * Should fill full requested length of the buffer. If no data available add Zeroes.

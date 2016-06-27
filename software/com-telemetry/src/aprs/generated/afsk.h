@@ -11,39 +11,39 @@
 
 //
 // To figure out what those values mean see afsk-utils Python project,
-// code_generation_v2.py file
+// code_generation_v4_fast_div_base_2.py file
 //
 
-#define APRS_SIGNAL_GENERATION_FREQUENCY ((uint32_t)96000)
+#define APRS_SIGNAL_GENERATION_FREQUENCY ((uint32_t) 96000)
 
-#define QUANT_MIN_VALUE ((uint32_t)0)
-#define QUANT_STEP_SIZE ((uint32_t)16384)
+#define QUANT_MIN_VALUE ((uint32_t) 0)
+#define QUANT_STEP_SIZE ((uint32_t) 16384)
 
-#define SCALED_PI_OVER_TWO    ((uint32_t)768)
-#define SCALED_THREE_HALFS_PI ((uint32_t)2304)
+#define SCALED_PI_OVER_TWO    ((uint32_t) 768)
+#define SCALED_THREE_HALFS_PI ((uint32_t) 2304)
 
-#define HALF_PERIOD_F1200 ((uint32_t)655360)
-#define HALF_PERIOD_F2200 ((uint32_t)357469)
+#define HALF_PERIOD_F1200 ((uint32_t) 655360)
+#define HALF_PERIOD_F2200 ((uint32_t) 357469)
 
-#define QUANTS_COUNT_PER_SYMBOL_F1200 ((uint32_t)1310720)
-#define QUANTS_COUNT_PER_SYMBOL_F2200 ((uint32_t)714938)
+#define QUANTS_COUNT_PER_SYMBOL_F1200 ((uint32_t) 1310720)
+#define QUANTS_COUNT_PER_SYMBOL_F2200 ((uint32_t) 714938)
 
 #define PRECISION_CONVERTER_QUANT_IDX(value) ((((uint32_t) value) + 1024) >> 11)
 
-#define TRIG_PARAM_SCALER_F1200 ((uint32_t)2457)
-#define TRIG_PARAM_SCALER_F2200 ((uint32_t)4505)
+#define TRIG_PARAM_SCALER_F1200 ((uint32_t) 2457)
+#define TRIG_PARAM_SCALER_F2200 ((uint32_t) 4505)
 #define PRECISION_CONVERTER_TRIG_PARAM_F1200(value) ((((uint32_t) value) + 524288) >> 20)
 #define PRECISION_CONVERTER_TRIG_PARAM_F2200(value) ((((uint32_t) value) + 524288) >> 20)
 
-#define INVERSE_TRIG_PARAM_SCALER ((uint32_t)1536)
+#define INVERSE_TRIG_PARAM_SCALER ((uint32_t) 1536)
 #define PRECISION_CONVERTER_INVERSE_TRIG_PARAM(value) ((((uint32_t) value) + 524288) >> 20)
 
-#define QUANTS_COUNT_PER_SYMBOL ((uint32_t)80)
+#define QUANTS_COUNT_PER_SYMBOL ((uint32_t) 80)
 
-#define RECIPROCAL_ANGULAR_FREQUENCY_F1200 ((uint32_t)834430)
-#define RECIPROCAL_ANGULAR_FREQUENCY_F2200 ((uint32_t)455143)
+#define RECIPROCAL_ANGULAR_FREQUENCY_F1200 ((uint32_t) 834430)
+#define RECIPROCAL_ANGULAR_FREQUENCY_F2200 ((uint32_t) 455143)
 
-#define LEADING_WARMUP_QUANTS_COUNT ((uint32_t)960)
+#define LEADING_WARMUP_QUANTS_COUNT ((uint32_t) 960)
 
 extern const uint16_t amplitudeFromTable[];
 extern const uint32_t scaledSineValueFromTable[];

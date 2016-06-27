@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "generated/afsk.h"
 
@@ -266,98 +267,12 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
     return true;
 }
 
-uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)
+bool encodeNmeaAprsMessage(const Callsign* pCallsign, const NmeaMessage* pNmeaMessage, AprsEncodedMessage* pEncodedMessage)
 {
-    // with time    @092345z4903.50N/07201.75WO>088/036@00101m,07,2,1111
-    // without time !4903.50N/07201.75WO>088/036@00101m,07,2,1111
-
-    uint8_t bufferStartIdx = 0;
-
-    if (pGpsData->gpggaData.utcTime.isValid)
-    {
-        if (bufferStartIdx + 8 > aprsPayloadBufferMaxLength)
-        {
-            return 0;
-        }
-
-        g_aprsPayloadBuffer[bufferStartIdx++] = '@';
-        memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.utcTime.hours.string, 2);
-        bufferStartIdx += 2;
-        memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.utcTime.minutes.string, 2);
-        bufferStartIdx += 2;
-        memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.utcTime.seconds.string, 2);
-        bufferStartIdx += 2;
-        g_aprsPayloadBuffer[bufferStartIdx++] = 'z';
-    }
-    else
-    {
-        if (bufferStartIdx + 1 > aprsPayloadBufferMaxLength)
-        {
-            return 0;
-        }
-
-        g_aprsPayloadBuffer[bufferStartIdx++] = '!';
-    }
-
-    if (bufferStartIdx + 18 > aprsPayloadBufferMaxLength)
-    {
-        return 0;
-    }
-
-    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.latitude.degrees.string, 2);
-    bufferStartIdx += 2;
-    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.latitude.minutes.string, 5);
-    bufferStartIdx += 5;
-    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.latitude.hemisphere;
-
-    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.longitude.degrees.string, 3);
-    bufferStartIdx += 3;
-    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.longitude.minutes.string, 5);
-    bufferStartIdx += 5;
-    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.latitude.hemisphere;
-    g_aprsPayloadBuffer[bufferStartIdx++] = 'O';
-
-    if (bufferStartIdx + 8 > aprsPayloadBufferMaxLength)
-    {
-        return 0;
-    }
-
-    g_aprsPayloadBuffer[bufferStartIdx++] = '>';
-    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpvtgData.trueCourseDegrees.string, 3);
-    bufferStartIdx += 3;
-    g_aprsPayloadBuffer[bufferStartIdx++] = '/';
-    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpvtgData.speedKph.string, 3);
-    bufferStartIdx += 3;
-
-    if (bufferStartIdx + 17 > aprsPayloadBufferMaxLength)
-    {
-        return 0;
-    }
-
-    g_aprsPayloadBuffer[bufferStartIdx++] = '@';
-    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.altitudeMslMeters.string, 5);
-    bufferStartIdx += 5;
-    g_aprsPayloadBuffer[bufferStartIdx++] = 'm';
-
-    g_aprsPayloadBuffer[bufferStartIdx++] = ',';
-    memcpy(&g_aprsPayloadBuffer[bufferStartIdx], pGpsData->gpggaData.numberOfSattelitesInUse.string, 2);
-
-    g_aprsPayloadBuffer[bufferStartIdx++] = ',';
-    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.fixType;
-
-    g_aprsPayloadBuffer[bufferStartIdx++] = ',';
-    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.isValid ? '1' : '0';
-    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.latitude.isValid ? '1' : '0';
-    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpggaData.longitude.isValid ? '1' : '0';
-    g_aprsPayloadBuffer[bufferStartIdx++] = pGpsData->gpvtgData.isValid ? '1' : '0';
-
-    return bufferStartIdx;
-}
-
-bool encodeGpsAprsMessage(const Callsign* pCallsign, const GpsData* pGpsData, AprsEncodedMessage* pEncodedMessage)
-{
-    uint8_t aprsPayloadBufferDataLength = createGpsAprsPayload(pGpsData, g_aprsPayloadBuffer, APRS_PAYLOAD_BUFFER_MAX_LENGTH);
-    return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, aprsPayloadBufferDataLength, pEncodedMessage);
+    const uint8_t payloadSize = pNmeaMessage->size + 1 > APRS_PAYLOAD_BUFFER_MAX_LENGTH ? APRS_PAYLOAD_BUFFER_MAX_LENGTH : pNmeaMessage->size + 1;
+    g_aprsPayloadBuffer[0] = ':';
+    memcpy(&g_aprsPayloadBuffer[1], pNmeaMessage->message, payloadSize - 1);
+    return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, payloadSize, pEncodedMessage);
 }
 
 uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)

@@ -1,4 +1,5 @@
 OpenOCD.launch
+*.launch
 /Debug/
 /Release/
 /Test Debug/
