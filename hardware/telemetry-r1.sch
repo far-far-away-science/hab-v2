@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.6.0">
+<eagle version="7.5.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -8647,7 +8647,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="R20" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="180K"/>
 <part name="GND32" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="J8" library="SparkFun-Connectors" deviceset="M03" device="JST-PTH" value="TEMP_GPS"/>
-<part name="J9" library="SparkFun-Connectors" deviceset="M03" device="JST-PTH" value="TEMP_HOT"/>
+<part name="J9" library="SparkFun-Connectors" deviceset="M03" device="JST-PTH" value="PHOTO_GP4"/>
 <part name="J10" library="SparkFun-Connectors" deviceset="M03" device="JST-PTH" value="TEMP_BAT"/>
 <part name="GND33" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="GND34" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
@@ -8661,7 +8661,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="JP2" library="SparkFun-Passives" deviceset="JUMPER-PAD-2-NC_BY_TRACE" device="" value="GND"/>
 <part name="D6" library="HAB" deviceset="CM1213A" device="" value="CM1213A"/>
 <part name="GND38" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="J12" library="SparkFun-Connectors" deviceset="M03" device="JST-PTH" value="INSOL"/>
+<part name="J12" library="SparkFun-Connectors" deviceset="M03" device="JST-PTH" value="PHOTO_GP2"/>
 <part name="GND41" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="C33" library="SparkFun-Passives" deviceset="CAP" device="0805" value="0.1u"/>
 <part name="J13" library="HAB" deviceset="1X08" device="" value="LORA"/>
@@ -10615,7 +10615,7 @@ Ground</text>
 <label x="121.92" y="33.02" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="INSOL" class="0">
+<net name="PHOTO_GP2" class="0">
 <segment>
 <pinref part="J12" gate="J$1" pin="3"/>
 <wire x1="388.62" y1="71.12" x2="381" y2="71.12" width="0.1524" layer="91"/>
@@ -10760,7 +10760,7 @@ Ground</text>
 <label x="424.18" y="119.38" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="PHOTO" class="0">
+<net name="PHOTO_GP4" class="0">
 <segment>
 <pinref part="IC4" gate="G$1" pin="PA2"/>
 <wire x1="35.56" y1="50.8" x2="45.72" y2="50.8" width="0.1524" layer="91"/>

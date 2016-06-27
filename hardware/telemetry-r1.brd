@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.6.0">
+<eagle version="7.5.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -177,11 +177,11 @@
 <text x="7.62" y="44.45" size="1.016" layer="21" font="vector" ratio="10">TEMP
 GPS</text>
 <text x="5.715" y="22.225" size="1.016" layer="21" font="vector" ratio="10">PHOTO
-CELL 1</text>
+GP4</text>
 <text x="7.62" y="39.37" size="1.016" layer="21" font="vector" ratio="10">TEMP
 BATT</text>
 <text x="5.715" y="11.43" size="1.016" layer="21" font="vector" ratio="10">PHOTO
-CELL 2</text>
+GP2</text>
 <text x="16.51" y="61.595" size="1.27" layer="21" font="vector" ratio="10">9V</text>
 <text x="19.685" y="60.325" size="1.778" layer="21" font="vector" ratio="10">+</text>
 <text x="59.69" y="33.02" size="1.27" layer="21" font="vector" ratio="10">SD</text>
@@ -1988,7 +1988,7 @@ Please make sure your boards conform to these design rules.</description>
 <element name="J11" library="SparkFun-Connectors" package="1X06_LOCK" value="DNP" x="47.625" y="15.875" smashed="yes">
 <attribute name="NAME" x="46.355" y="13.208" size="0.8128" layer="25" font="vector"/>
 </element>
-<element name="J12" library="SparkFun-Connectors" package="JST-3-PTH" value="INSOL" x="3.81" y="17.78" smashed="yes" rot="R90">
+<element name="J12" library="SparkFun-Connectors" package="JST-3-PTH" value="PHOTO_GP2" x="3.81" y="17.78" smashed="yes" rot="R90">
 <attribute name="SKU" value="PRT-09915" x="3.81" y="17.78" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="1.27" y="22.385" size="0.8128" layer="25"/>
 <attribute name="VALUE" x="1.11" y="16.51" size="0.6096" layer="27" rot="R90"/>
@@ -2020,7 +2020,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="1.27" y="52.865" size="0.8128" layer="25"/>
 <attribute name="VALUE" x="1.11" y="46.355" size="0.6096" layer="27" rot="R90"/>
 </element>
-<element name="J9" library="SparkFun-Connectors" package="JST-3-PTH" value="TEMP_HOT" x="3.81" y="27.94" smashed="yes" rot="R90">
+<element name="J9" library="SparkFun-Connectors" package="JST-3-PTH" value="PHOTO_GP4" x="3.81" y="27.94" smashed="yes" rot="R90">
 <attribute name="SKU" value="PRT-09915" x="3.81" y="27.94" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="1.27" y="32.545" size="0.8128" layer="25"/>
 <attribute name="VALUE" x="1.11" y="26.035" size="0.6096" layer="27" rot="R90"/>
@@ -3363,7 +3363,7 @@ Please make sure your boards conform to these design rules.</description>
 <via x="51.435" y="3.81" extent="1-16" drill="0.5"/>
 <via x="60.325" y="3.81" extent="1-16" drill="0.5"/>
 </signal>
-<signal name="INSOL">
+<signal name="PHOTO_GP2">
 <contactref element="J12" pad="3"/>
 <contactref element="D6" pad="3"/>
 <contactref element="IC4" pad="16"/>
@@ -3501,7 +3501,7 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="44.45" y1="52.705" x2="43.37" y2="52.705" width="0.2032" layer="16"/>
 <wire x1="43.37" y1="52.705" x2="40.83" y2="55.245" width="0.2032" layer="16"/>
 </signal>
-<signal name="PHOTO">
+<signal name="PHOTO_GP4">
 <contactref element="IC4" pad="12"/>
 <contactref element="J9" pad="3"/>
 <contactref element="D6" pad="1"/>
