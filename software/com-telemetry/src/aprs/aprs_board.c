@@ -5,9 +5,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "fcs/fcs.h"
 #include "generated/afsk.h"
 
-static uint8_t g_aprsPayloadBuffer[APRS_PAYLOAD_BUFFER_MAX_LENGTH];
+uint16_t g_telemetryMessageId;
+uint8_t g_aprsPayloadBuffer[APRS_PAYLOAD_BUFFER_MAX_LENGTH];
 
 const Callsign CALLSIGN_SOURCE = 
 {
@@ -79,25 +81,14 @@ bool encodeAndAppendBits(const uint8_t* pMessageData,
             currentByte <<= 1;
         }
 
+        if (fcsType == FCS_CALCULATE)
+        {
+            calculateFcs(currentByte);
+        }
+
         for (uint8_t iBit = 0; iBit < 8; ++iBit)
         {
             const uint8_t currentBit = currentByte & (1 << iBit);
-
-            // TODO
-            // add FCS calculation based on tables
-            // to improve speed (need to migrate to GCC due to 
-            // 32Kb application size limit in Keil)
-            // STM32 has CRC hardware can reuse that
-
-            if (fcsType == FCS_CALCULATE)
-            {
-                const uint16_t shiftBit = pEncodingContext->fcs & 0x0001;
-                pEncodingContext->fcs = pEncodingContext->fcs >> 1;
-                if (shiftBit != ((currentByte >> iBit) & 0x01))
-                {
-                    pEncodingContext->fcs ^= FCS_POLYNOMIAL;
-                }
-            }
 
             if (currentBit)
             {
@@ -214,9 +205,13 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
         return false;
     }
 
+    pEncodedMessage->size.chars = 0;
+    pEncodedMessage->size.lastCharBits = 0;
+
+    resetFcs();
+
     EncodingContext encodingCtx = { 0 };
     encodingCtx.lastBit = 1;
-    encodingCtx.fcs = FCS_INITIAL_VALUE;
 
     for (uint8_t i = 0; i < LEADING_FF_BYTES_COUNT_TO_CANCEL_PREVIOUS_PACKET; ++i)
     {
@@ -249,10 +244,10 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
 
     // FCS
 
-    encodingCtx.fcs ^= FCS_POST_PROCESSING_XOR_VALUE;
-    uint8_t fcsByte = encodingCtx.fcs & 0x00FF; // get low byte
+    uint16_t fcs = getCalculatedFcs();
+    uint8_t fcsByte = fcs & 0x00FF; // get low byte
     encodeAndAppendBits(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
-    fcsByte = (encodingCtx.fcs >> 8) & 0x00FF; // get high byte
+    fcsByte = (fcs >> 8) & 0x00FF; // get high byte
     encodeAndAppendBits(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pEncodedMessage);
 
     // suffix flags
@@ -274,9 +269,57 @@ bool encodeNmeaAprsMessage(const Callsign* pCallsign, const NmeaMessage* pNmeaMe
     return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, payloadSize, pEncodedMessage);
 }
 
+uint8_t int2str(uint16_t value, uint8_t* pBuffer)
+{
+    if (value < 10)
+    {
+        pBuffer[0] = '1';
+        pBuffer[1] = '0';
+        itoa(value, (char*) &pBuffer[2], 10);
+    }
+    else if (value < 100)
+    {
+        pBuffer[0] = '0';
+        itoa(value, (char*) &pBuffer[1], 10);
+    }
+    else if (value < 1000)
+    {
+        itoa(value, (char*) pBuffer, 10);
+    }
+    else
+    {
+        itoa(999, (char*) pBuffer, 10);
+    }
+    return 3;
+}
+
 uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)
 {
-    return 0; // TODO
+    uint8_t currentIdx = 0;
+
+    if (g_telemetryMessageId >= 1000)
+    {
+        g_telemetryMessageId = 0;
+    }
+
+    pAprsPayloadBuffer[currentIdx++] = 'T';
+    pAprsPayloadBuffer[currentIdx++] = '#';
+    currentIdx += int2str(g_telemetryMessageId++, &pAprsPayloadBuffer[currentIdx]);
+    pAprsPayloadBuffer[currentIdx++] = ',';
+    currentIdx += int2str(pTelemetry->batteryVoltage, &pAprsPayloadBuffer[currentIdx]);
+    pAprsPayloadBuffer[currentIdx++] = ',';
+    currentIdx += int2str(pTelemetry->batteryTemperature, &pAprsPayloadBuffer[currentIdx]);
+    pAprsPayloadBuffer[currentIdx++] = ',';
+    currentIdx += int2str(pTelemetry->cpuTemperature, &pAprsPayloadBuffer[currentIdx]);
+    pAprsPayloadBuffer[currentIdx++] = ',';
+    currentIdx += int2str(pTelemetry->gpsChipTemperature, &pAprsPayloadBuffer[currentIdx]);
+    pAprsPayloadBuffer[currentIdx++] = ',';
+    currentIdx += int2str(pTelemetry->maxAccelerationOnAnyAxis, &pAprsPayloadBuffer[currentIdx]);
+    pAprsPayloadBuffer[currentIdx++] = ',';
+    memcpy(&pAprsPayloadBuffer[currentIdx], "00000000", 8);
+    currentIdx += 8;
+
+    return currentIdx;
 }
 
 bool encodeTelemetryAprsMessage(const Callsign* pCallsign, const Telemetry* pTelemetry, AprsEncodedMessage* pEncodedMessage)

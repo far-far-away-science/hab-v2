@@ -14,9 +14,12 @@
 #include "gps/nmea_buffer.h"
 #include "aprs/aprs_board.h"
 
+#include <string.h>
+
 #define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
+Telemetry g_telemetry;
 NmeaMessage g_nmeaMessage;
 NmeaRingBuffer g_nmeaRingBuffer;
 UART_HandleTypeDef g_copernicusUartHandle;
@@ -52,7 +55,15 @@ int main(void) {
     {
     }
 #else
-    bool hasGpsMessage = false;
+    bool hasGpsMessage = true; // TODO remove
+
+    g_nmeaMessage.size = 68;
+    memcpy(g_nmeaMessage.message, "$GPGGA,015611,3922.4938,N,07646.7958,W,1,06,3.2,160.5,M,-33.9,M,,*7F", g_nmeaMessage.size);
+    g_telemetry.batteryTemperature = 1;
+    g_telemetry.batteryVoltage = 2;
+    g_telemetry.cpuTemperature = 3;
+    g_telemetry.gpsChipTemperature = 4;
+    g_telemetry.maxAccelerationOnAnyAxis = 5;
 
     for (;;) {
         // TODO distinguish between modes:
@@ -71,7 +82,8 @@ int main(void) {
             // TODO send APRS telemetry message
             if (hasGpsMessage)
             {
-                if (encodeNmeaAprsMessage(&CALLSIGN_SOURCE, &g_nmeaMessage, &g_aprsEncodedMessage)) {
+                // if (encodeNmeaAprsMessage(&CALLSIGN_SOURCE, &g_nmeaMessage, &g_aprsEncodedMessage)) {
+                if (encodeTelemetryAprsMessage(&CALLSIGN_SOURCE, &g_telemetry, &g_aprsEncodedMessage)) {
                     transmitAprsMessage();
                 }
             }

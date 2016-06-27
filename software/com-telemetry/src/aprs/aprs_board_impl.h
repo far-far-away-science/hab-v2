@@ -5,14 +5,6 @@
 #define APRS_PAYLOAD_BUFFER_MAX_LENGTH 128
 
 /*
- * FCS
- */
- 
-#define FCS_POLYNOMIAL                0x8408
-#define FCS_INITIAL_VALUE             0xFFFF
-#define FCS_POST_PROCESSING_XOR_VALUE 0xFFFF
-
-/*
  * those values are calculated in advance depending on MCU/etc
  */
 
@@ -43,7 +35,6 @@ typedef enum SHIFT_ONE_LEFT_TYPE_t
 
 typedef struct EncodingContext_t
 {
-    uint16_t fcs;
     uint8_t lastBit;
     uint8_t numberOfOnes;
 } EncodingContext;
@@ -64,3 +55,5 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
 
 uint8_t createGpsAprsPayload(const GpsData* pGpsData, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength);
 uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength);
+
+uint8_t int2str(uint16_t value, uint8_t* pBuffer);
