@@ -1,33 +1,36 @@
 #pragma once
 
 #include "test/test.h"
-#include "aprs/aprs_board_impl.h"
 #include "stm32l0xx_hal.h"
+
+#include "../afsk.h"
+#include "../generated/afsk.h"
 
 #ifdef TEST
     #define DAC_BUFFER_SIZE 128
 
+    static AfskContext g_afskContext;
     static uint16_t g_dacBuffer[DAC_BUFFER_SIZE];
-    static AprsEncodedMessage g_aprsEncodedMessage;
+    static Ax25EncodedMessage g_ax25EncodedMessage;
 #endif
 
-TEST_CLASS(aprs_board_encodeAprsMessageAsAfsk_perf,
+TEST_CLASS(afsk_encodeAx25MessageAsAfsk_perf,
 {
     TEST_METHOD(encoding_to_afsk_should_work_fast_enough_for_dac_dma_to_function_prperly,
     {
-        resetAfskContext(&g_aprsEncodedMessage.afskContext);
-        g_aprsEncodedMessage.size.chars = MAX_APRS_MESSAGE_LENGTH;
-        g_aprsEncodedMessage.size.lastCharBits = 0;
-        for (uint32_t i = 0; i < MAX_APRS_MESSAGE_LENGTH; ++i)
+        resetAfskContext(&g_afskContext);
+        g_ax25EncodedMessage.size.chars = MAX_AX25_MESSAGE_LENGTH;
+        g_ax25EncodedMessage.size.lastCharBits = 0;
+        for (uint32_t i = 0; i < MAX_AX25_MESSAGE_LENGTH; ++i)
         {
-            g_aprsEncodedMessage.buffer[i] = 0xAA;
+            g_ax25EncodedMessage.buffer[i] = 0xAA;
         }
 
         uint16_t trialsCount = 0;
 
         const uint32_t startTimeMilliseconds = HAL_GetTick();
 
-        while (encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_dacBuffer, DAC_BUFFER_SIZE))
+        while (encodeAx25MessageAsAfsk(&g_ax25EncodedMessage, &g_afskContext, g_dacBuffer, DAC_BUFFER_SIZE))
         {
             ++trialsCount;
         }

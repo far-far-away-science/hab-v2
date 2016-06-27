@@ -12,14 +12,16 @@
 #include "uart.h"
 #include "test/test.h"
 #include "gps/nmea_buffer.h"
-#include "aprs/aprs_board.h"
 
-#include <string.h>
+#include "aprs/aprs.h"
+#include "aprs/afsk.h"
+#include "aprs/generated/afsk.h"
 
 #define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
 Telemetry g_telemetry;
+AfskContext g_afskContext;
 NmeaMessage g_nmeaMessage;
 NmeaRingBuffer g_nmeaRingBuffer;
 UART_HandleTypeDef g_copernicusUartHandle;
@@ -27,7 +29,7 @@ UART_HandleTypeDef g_copernicusUartHandle;
 bool g_aprsMessageTransmitting;
 DAC_HandleTypeDef g_hx1DacHandle;
 DAC_ChannelConfTypeDef g_hx1DacConfig;
-AprsEncodedMessage g_aprsEncodedMessage;
+Ax25EncodedMessage g_ax25EncodedAprsMessage;
 uint16_t g_DacBuffer[FULL_BUFFER_LENGTH];
 
 void ErrorHandler(void);
@@ -55,15 +57,7 @@ int main(void) {
     {
     }
 #else
-    bool hasGpsMessage = true; // TODO remove
-
-    g_nmeaMessage.size = 68;
-    memcpy(g_nmeaMessage.message, "$GPGGA,015611,3922.4938,N,07646.7958,W,1,06,3.2,160.5,M,-33.9,M,,*7F", g_nmeaMessage.size);
-    g_telemetry.batteryTemperature = 1;
-    g_telemetry.batteryVoltage = 2;
-    g_telemetry.cpuTemperature = 3;
-    g_telemetry.gpsChipTemperature = 4;
-    g_telemetry.maxAccelerationOnAnyAxis = 5;
+    bool hasGpsMessage = false;
 
     for (;;) {
         // TODO distinguish between modes:
@@ -82,8 +76,7 @@ int main(void) {
             // TODO send APRS telemetry message
             if (hasGpsMessage)
             {
-                // if (encodeNmeaAprsMessage(&CALLSIGN_SOURCE, &g_nmeaMessage, &g_aprsEncodedMessage)) {
-                if (encodeTelemetryAprsMessage(&CALLSIGN_SOURCE, &g_telemetry, &g_aprsEncodedMessage)) {
+                if (encodeNmeaAprsMessage(&CALLSIGN_SOURCE, &g_nmeaMessage, &g_ax25EncodedAprsMessage)) {
                     transmitAprsMessage();
                 }
             }
@@ -226,7 +219,7 @@ void stopHX1(void) {
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
     if (g_aprsMessageTransmitting) {
         // fill in 1st half of the buffer
-        g_aprsMessageTransmitting = encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer, HALF_BUFFER_LENGTH);
+        g_aprsMessageTransmitting = encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 2nd half of the buffer (this is 1/2 completion event after all)
     } else {
         stopHX1();
@@ -236,7 +229,7 @@ void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* pDdac) {
     if (g_aprsMessageTransmitting) {
         // fill in 2nd half of the buffer
-        g_aprsMessageTransmitting = encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
+        g_aprsMessageTransmitting = encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 1st half of the buffer
     } else {
         stopHX1();
@@ -250,7 +243,7 @@ void HX1_Dac_Init(void) {
 void transmitAprsMessage(void) {
     stopHX1();
 
-    if (isAprsMessageEmtpy(&g_aprsEncodedMessage)) {
+    if (isAx25MessageEmtpy(&g_ax25EncodedAprsMessage)) {
         return;
     }
 
@@ -267,7 +260,9 @@ void transmitAprsMessage(void) {
         ErrorHandler();
     }
 
-    if (encodeAprsMessageAsAfsk(&g_aprsEncodedMessage, g_DacBuffer, FULL_BUFFER_LENGTH)) {
+    resetAfskContext(&g_afskContext);
+
+    if (encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer, FULL_BUFFER_LENGTH)) {
         if (HAL_DAC_Start_DMA(&g_hx1DacHandle, HX1_DAC_CHANNEL, (uint32_t*) g_DacBuffer, FULL_BUFFER_LENGTH, HX1_DAC_ALIGN) != HAL_OK) {
             stopHX1();
             ErrorHandler();

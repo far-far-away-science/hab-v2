@@ -96,17 +96,17 @@ uint32_t calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude(uint32_t othe
 #define CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX(currentF2200Quant) \\
     PRECISION_CONVERTER_TRIG_PARAM_F2200(TRIG_PARAM_SCALER_F2200 * (currentF2200Quant))
 
-#define CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(afskCtx) \\
-    amplitudeFromTable[(afskCtx).currentF1200TrigArg = CALCULATE_F1200_TRIG_ARG_FROM_QUANT_IDX((afskCtx).currentF1200Quant)]
+#define CALCULATE_F1200_AMPLITUDE_FROM_QUANT_IDX(pAfskCtx) \\
+    amplitudeFromTable[(pAfskCtx)->currentF1200TrigArg = CALCULATE_F1200_TRIG_ARG_FROM_QUANT_IDX((pAfskCtx)->currentF1200Quant)]
 
-#define CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(afskCtx) \\
-    amplitudeFromTable[(afskCtx).currentF2200TrigArg = CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX((afskCtx).currentF2200Quant)]
+#define CALCULATE_F2200_AMPLITUDE_FROM_QUANT_IDX(pAfskCtx) \\
+    amplitudeFromTable[(pAfskCtx)->currentF2200TrigArg = CALCULATE_F2200_TRIG_ARG_FROM_QUANT_IDX((pAfskCtx)->currentF2200Quant)]
 
-#define CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(afskCtx) \\
-    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude((afskCtx).currentF2200TrigArg, true, HALF_PERIOD_F1200, QUANTS_COUNT_PER_SYMBOL_F1200)
+#define CALCULATE_F1200_QUANT_IDX_FROM_F2200_QUANT_IDX(pAfskCtx) \\
+    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude((pAfskCtx)->currentF2200TrigArg, true, HALF_PERIOD_F1200, QUANTS_COUNT_PER_SYMBOL_F1200)
 
-#define CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(afskCtx) \\
-    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude((afskCtx).currentF1200TrigArg, false, HALF_PERIOD_F2200, QUANTS_COUNT_PER_SYMBOL_F2200)
+#define CALCULATE_F2200_QUANT_IDX_FROM_F1200_QUANT_IDX(pAfskCtx) \\
+    calculateQuantIndexFromOtherFrequencyQuantIdxAndAmplitude((pAfskCtx)->currentF1200TrigArg, false, HALF_PERIOD_F2200, QUANTS_COUNT_PER_SYMBOL_F2200)
 '''
 
         with open(filePath, 'w+') as f:
