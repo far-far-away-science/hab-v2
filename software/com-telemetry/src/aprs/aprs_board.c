@@ -269,9 +269,8 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
 
 bool encodeNmeaAprsMessage(const Callsign* pCallsign, const NmeaMessage* pNmeaMessage, AprsEncodedMessage* pEncodedMessage)
 {
-    const uint8_t payloadSize = pNmeaMessage->size + 1 > APRS_PAYLOAD_BUFFER_MAX_LENGTH ? APRS_PAYLOAD_BUFFER_MAX_LENGTH : pNmeaMessage->size + 1;
-    g_aprsPayloadBuffer[0] = ':';
-    memcpy(&g_aprsPayloadBuffer[1], pNmeaMessage->message, payloadSize - 1);
+    const uint8_t payloadSize = pNmeaMessage->size > APRS_PAYLOAD_BUFFER_MAX_LENGTH ? APRS_PAYLOAD_BUFFER_MAX_LENGTH : pNmeaMessage->size;
+    memcpy(g_aprsPayloadBuffer, pNmeaMessage->message, payloadSize);
     return encodeAprsMessage(pCallsign, g_aprsPayloadBuffer, payloadSize, pEncodedMessage);
 }
 
