@@ -10527,10 +10527,7 @@ Ground</text>
 </net>
 <net name="A-" class="0">
 <segment>
-<wire x1="215.9" y1="139.7" x2="215.9" y2="121.92" width="0.1524" layer="91"/>
-<label x="215.9" y="139.7" size="1.778" layer="95"/>
-<pinref part="IC7" gate="A" pin="+IN"/>
-<wire x1="218.44" y1="139.7" x2="215.9" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="144.78" x2="215.9" y2="121.92" width="0.1524" layer="91"/>
 <pinref part="R10" gate="G$1" pin="2"/>
 <pinref part="C37" gate="G$1" pin="2"/>
 <pinref part="R18" gate="G$1" pin="1"/>
@@ -10538,6 +10535,9 @@ Ground</text>
 <wire x1="228.6" y1="121.92" x2="215.9" y2="121.92" width="0.1524" layer="91"/>
 <junction x="228.6" y="121.92"/>
 <junction x="215.9" y="121.92"/>
+<pinref part="IC7" gate="A" pin="-IN"/>
+<wire x1="215.9" y1="144.78" x2="218.44" y2="144.78" width="0.1524" layer="91"/>
+<label x="215.9" y="144.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="A+" class="0">
@@ -10549,11 +10549,11 @@ Ground</text>
 <wire x1="198.12" y1="137.16" x2="203.2" y2="137.16" width="0.1524" layer="91"/>
 <junction x="203.2" y="137.16"/>
 <junction x="203.2" y="137.16"/>
-<label x="215.9" y="144.78" size="1.778" layer="95"/>
-<wire x1="208.28" y1="144.78" x2="208.28" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="208.28" y1="139.7" x2="208.28" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="208.28" y1="137.16" x2="203.2" y2="137.16" width="0.1524" layer="91"/>
-<pinref part="IC7" gate="A" pin="-IN"/>
-<wire x1="218.44" y1="144.78" x2="208.28" y2="144.78" width="0.1524" layer="91"/>
+<pinref part="IC7" gate="A" pin="+IN"/>
+<wire x1="218.44" y1="139.7" x2="208.28" y2="139.7" width="0.1524" layer="91"/>
+<label x="210.82" y="139.7" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VCORE" class="0">
