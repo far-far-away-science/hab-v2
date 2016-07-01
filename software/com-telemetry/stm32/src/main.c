@@ -17,6 +17,8 @@
 #include "aprs/afsk.h"
 #include "aprs/generated/afsk.h"
 
+#include "../test/trace_uart.h"
+
 #define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
@@ -51,10 +53,13 @@ int main(void) {
     ConfigurateMcu();
 
 #ifdef TEST
+    traceUartInit();
+
     EXECUTE_TESTS();
 
     for (;;)
     {
+        HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
     }
 #else
     bool hasGpsMessage = false;

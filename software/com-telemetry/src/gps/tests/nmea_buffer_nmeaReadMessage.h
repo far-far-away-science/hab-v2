@@ -32,8 +32,8 @@ TEST_CLASS(nmeaBuffer_nmeaReadMessage,
 
         ASSERT_IS_TRUE(nmeaReadMessage(&ringBuffer, &result));
         ASSERT_IS_FALSE(result.hasError);
-        ASSERT_ARE_EQUAL(5, result.size);
-        ASSERT_ARE_STR_EQUAL((uint8_t*) "test1", result.message, 5);
+        ASSERT_INT_ARE_EQUAL(5, result.size);
+        ASSERT_STR_ARE_EQUAL((uint8_t*) "test1", result.message, 5);
 
         ASSERT_IS_FALSE(nmeaReadMessage(&ringBuffer, &result));
     })
@@ -48,8 +48,8 @@ TEST_CLASS(nmeaBuffer_nmeaReadMessage,
 
         ASSERT_IS_TRUE(nmeaReadMessage(&ringBuffer, &result));
         ASSERT_IS_TRUE(result.hasError);
-        ASSERT_ARE_EQUAL(5, result.size);
-        ASSERT_ARE_STR_EQUAL((uint8_t*) "test1", result.message, 5);
+        ASSERT_INT_ARE_EQUAL(5, result.size);
+        ASSERT_STR_ARE_EQUAL((uint8_t*) "test1", result.message, 5);
 
         ASSERT_IS_FALSE(nmeaReadMessage(&ringBuffer, &result));
     })
@@ -67,18 +67,18 @@ TEST_CLASS(nmeaBuffer_nmeaReadMessage,
 
         ASSERT_IS_TRUE(nmeaReadMessage(&ringBuffer, &result));
         ASSERT_IS_FALSE(result.hasError);
-        ASSERT_ARE_EQUAL(5, result.size);
-        ASSERT_ARE_STR_EQUAL((uint8_t*) "test1", result.message, 5);
+        ASSERT_INT_ARE_EQUAL(5, result.size);
+        ASSERT_STR_ARE_EQUAL((uint8_t*) "test1", result.message, 5);
 
         ASSERT_IS_TRUE(nmeaReadMessage(&ringBuffer, &result));
         ASSERT_IS_TRUE(result.hasError);
-        ASSERT_ARE_EQUAL(6, result.size);
-        ASSERT_ARE_STR_EQUAL((uint8_t*) "test2a", result.message, 6);
+        ASSERT_INT_ARE_EQUAL(6, result.size);
+        ASSERT_STR_ARE_EQUAL((uint8_t*) "test2a", result.message, 6);
 
         ASSERT_IS_TRUE(nmeaReadMessage(&ringBuffer, &result));
         ASSERT_IS_FALSE(result.hasError);
-        ASSERT_ARE_EQUAL(5, result.size);
-        ASSERT_ARE_STR_EQUAL((uint8_t*) "test3", result.message, 5);
+        ASSERT_INT_ARE_EQUAL(5, result.size);
+        ASSERT_STR_ARE_EQUAL((uint8_t*) "test3", result.message, 5);
 
         ASSERT_IS_FALSE(nmeaReadMessage(&ringBuffer, &result));
     })

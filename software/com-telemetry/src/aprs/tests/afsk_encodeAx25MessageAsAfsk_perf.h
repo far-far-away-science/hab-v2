@@ -42,9 +42,9 @@ TEST_CLASS(afsk_encodeAx25MessageAsAfsk_perf,
 
         // the following data is for 16MHz
 #ifndef DEBUG
-        ASSERT_IS_TRUE(speedUpFactor <= 0.32f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(speedUpFactor, 0.32f);
 #else
-        ASSERT_IS_TRUE(speedUpFactor <= 0.62f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(speedUpFactor, 0.62f);
 #endif
     })
 })

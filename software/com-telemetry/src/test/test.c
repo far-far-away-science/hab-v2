@@ -7,38 +7,70 @@
     #include <gps/tests/nmea_buffer_nmeaReadMessage.h>
     #include <gps/tests/nmea_buffer_nmeaReceiveCharacter.h>
 
-#include <aprs/tests/afsk_encodeAx25MessageAsAfsk_perf.h>
+    #include <aprs/tests/afsk_encodeAx25MessageAsAfsk_perf.h>
+    #include <aprs/tests/ax25_encodeAndAppendDataAsAx25_perf.h>
 
-    void ASSERT_IS_TRUE(bool value)
+    void AssertIsTrue(bool value, uint32_t lineNumber)
     {
         if (!value)
         {
+            TRACE_FORMAT_STRING("AssertIsTrue failed, line=%u\n", lineNumber);
             ERROR_TEST_FAILED();
             HANG();
         }
     }
 
-    void ASSERT_IS_FALSE(bool value)
+    void AssertIsFalse(bool value, uint32_t lineNumber)
     {
-        ASSERT_IS_TRUE(!value);
+        if (value)
+        {
+            TRACE_FORMAT_STRING("AssertIsFalse failed, line=%u\n", lineNumber);
+            ERROR_TEST_FAILED();
+            HANG();
+        }
     }
 
-    void ASSERT_ARE_EQUAL(uint8_t expected, uint8_t actual)
+    void AssertIntAreEqual(uint8_t expected, uint8_t actual, uint32_t lineNumber)
     {
-        ASSERT_IS_TRUE(expected == actual);
+        if (expected != actual)
+        {
+            TRACE_FORMAT_STRING("Assert %u == %u failed, line=%u\n", expected, actual, lineNumber);
+            ERROR_TEST_FAILED();
+            HANG();
+        }
     }
 
-    void ASSERT_ARE_STR_EQUAL(uint8_t* pExpected, uint8_t* pActual, uint16_t size)
+    void AssertStrAreEqual(uint8_t* pExpected, uint8_t* pActual, uint16_t size, uint32_t lineNumber)
     {
-        ASSERT_IS_TRUE(memcmp(pExpected, pActual, size) == 0);
+        if (memcmp(pExpected, pActual, size) != 0)
+        {
+            TRACE_FORMAT_STRING("Assert '%s' == '%s' (size = %u) failed, line=%u\n", pExpected, pActual, size, lineNumber);
+            ERROR_TEST_FAILED();
+            HANG();
+        }
+    }
+
+    void AssertFloatIsLessThanOrEqual(float value1, float value2, uint32_t lineNumber)
+    {
+        if (value1 > value2)
+        {
+            // TODO sprintf doesn't work for floats.
+            // TODO need to convert floats to str manually (didn't find a way to enable this functionality in embedded)
+            TRACE_FORMAT_STRING("Assert %f <= %f failed, line=%u\n", value1, value2, lineNumber);
+            ERROR_TEST_FAILED();
+            HANG();
+        }
     }
 
     void executeTests()
     {
+        TRACE_STRING("\n");
         RUN_TEST_CLASS(nmeaBuffer_advanceUint8Index);
         RUN_TEST_CLASS(nmeaBuffer_nmeaReadMessage);
         RUN_TEST_CLASS(nmeaBuffer_nmeaReceiveCharacter);
         RUN_TEST_CLASS(afsk_encodeAx25MessageAsAfsk_perf);
+        RUN_TEST_CLASS(ax25_encodeAndAppendDataAsAx25_perf);
+        TRACE_STRING("Done!");
     }
 
 #endif
