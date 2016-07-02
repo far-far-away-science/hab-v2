@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef TEST
-    #define TEST
+    // #define TEST
 #endif
 
 #if defined(TEST)
