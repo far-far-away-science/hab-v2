@@ -13,7 +13,7 @@
 
     static char g_buffer[256];
 
-    void AssertIsTrue(bool value, uint32_t lineNumber)
+    void assertIsTrue(bool value, uint32_t lineNumber)
     {
         if (!value)
         {
@@ -24,7 +24,7 @@
         }
     }
 
-    void AssertIsFalse(bool value, uint32_t lineNumber)
+    void assertIsFalse(bool value, uint32_t lineNumber)
     {
         if (value)
         {
@@ -35,7 +35,7 @@
         }
     }
 
-    void AssertIntAreEqual(uint8_t expected, uint8_t actual, uint32_t lineNumber)
+    void assertIntAreEqual(uint8_t expected, uint8_t actual, uint32_t lineNumber)
     {
         if (expected != actual)
         {
@@ -46,7 +46,7 @@
         }
     }
 
-    void AssertStrAreEqual(uint8_t* pExpected, uint8_t* pActual, uint16_t size, uint32_t lineNumber)
+    void assertStrAreEqual(uint8_t* pExpected, uint8_t* pActual, uint16_t size, uint32_t lineNumber)
     {
         if (memcmp(pExpected, pActual, size) != 0)
         {
@@ -57,7 +57,7 @@
         }
     }
 
-    void AssertFloatIsLessThanOrEqual(float value1, float value2, uint32_t lineNumber)
+    void assertFloatIsLessThanOrEqual(float value1, float value2, uint32_t lineNumber)
     {
         if (value1 > value2)
         {

@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef TEST
-    // #define TEST
-#endif
-
 #if defined(TEST)
     #include <stdint.h>
     #include <stdbool.h>
@@ -38,22 +34,22 @@
         #define HANG()
     #endif
 
-    #define ASSERT_IS_TRUE(value) AssertIsTrue(value, __LINE__)
-    #define ASSERT_IS_FALSE(value) AssertIsFalse(value, __LINE__)
+    #define ASSERT_IS_TRUE(value) assertIsTrue(value, __LINE__)
+    #define ASSERT_IS_FALSE(value) assertIsFalse(value, __LINE__)
 
-    #define ASSERT_INT_ARE_EQUAL(expected, actual) AssertIntAreEqual(expected, actual, __LINE__)
-    #define ASSERT_STR_ARE_EQUAL(pExpected, pActual, size) AssertStrAreEqual(pExpected, pActual, size, __LINE__)
+    #define ASSERT_INT_ARE_EQUAL(expected, actual) assertIntAreEqual(expected, actual, __LINE__)
+    #define ASSERT_STR_ARE_EQUAL(pExpected, pActual, size) assertStrAreEqual(pExpected, pActual, size, __LINE__)
 
-    #define ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(value1, value2) AssertFloatIsLessThanOrEqual(value1, value2, __LINE__)
+    #define ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(value1, value2) assertFloatIsLessThanOrEqual(value1, value2, __LINE__)
 
-    void AssertIsTrue(bool value, uint32_t lineNumber);
-    void AssertIsFalse(bool value, uint32_t lineNumber);
+    void assertIsTrue(bool value, uint32_t lineNumber);
+    void assertIsFalse(bool value, uint32_t lineNumber);
 
-    void AssertIntAreEqual(uint8_t expected, uint8_t actual, uint32_t lineNumber);
+    void assertIntAreEqual(uint8_t expected, uint8_t actual, uint32_t lineNumber);
 
-    void AssertStrAreEqual(uint8_t* pExpected, uint8_t* pActual, uint16_t size, uint32_t lineNumber);
+    void assertStrAreEqual(uint8_t* pExpected, uint8_t* pActual, uint16_t size, uint32_t lineNumber);
 
-    void AssertFloatIsLessThanOrEqual(float value1, float value2, uint32_t lineNumber);
+    void assertFloatIsLessThanOrEqual(float value1, float value2, uint32_t lineNumber);
 
     void executeTests(void);
 
