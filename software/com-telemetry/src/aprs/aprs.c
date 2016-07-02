@@ -1,11 +1,13 @@
 #include <aprs/aprs_impl.h>
+#include <crc/crc.h>
 
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include <crc/crc.h>
+#define CRC_POLYNOMIAL                0x1021
+#define CRC_POST_PROCESSING_XOR_VALUE 0xFFFF
 
 static uint16_t g_telemetryMessageId;
 static uint8_t g_aprsPayloadBuffer[APRS_PAYLOAD_BUFFER_MAX_LENGTH];
@@ -47,7 +49,7 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
     pAx25EncodedMessage->size.chars = 0;
     pAx25EncodedMessage->size.lastCharBits = 0;
 
-    resetCrc();
+    resetCrc(CRC_POLYNOMIAL);
 
     Ax25EncodingContext encodingCtx = { 0 };
     encodingCtx.lastBit = 1;
@@ -83,11 +85,13 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
 
     // FCS
 
-    uint16_t fcs = getCalculatedCrc();
+    uint16_t fcs = getCalculatedCrc() ^ CRC_POST_PROCESSING_XOR_VALUE;
     uint8_t fcsByte = fcs & 0x00FF; // get low byte
     encodeAndAppendDataAsAx25(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
     fcsByte = (fcs >> 8) & 0x00FF; // get high byte
     encodeAndAppendDataAsAx25(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+
+    disableCrc();
 
     // suffix flags
 
@@ -132,6 +136,11 @@ uint8_t threeDigitInt2str(uint16_t value, uint8_t* pBuffer)
 
 uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)
 {
+    if (aprsPayloadBufferMaxLength < 34)
+    {
+        return 0;
+    }
+
     uint8_t currentIdx = 0;
 
     if (g_telemetryMessageId >= 1000)

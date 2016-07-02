@@ -5,19 +5,16 @@
 
 #include "errors.h"
 
-#define CRC_POLYNOMIAL                0x1021
-#define CRC_POST_PROCESSING_XOR_VALUE 0xFFFF
-
 static uint16_t g_crcValue;
 static CRC_HandleTypeDef g_crcHandle;
 
-void resetCrc(void)
+void resetCrc(uint32_t polynomial)
 {
     g_crcValue = 0;
 
     g_crcHandle.Instance = CRC;
     g_crcHandle.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_DISABLE;
-    g_crcHandle.Init.GeneratingPolynomial    = CRC_POLYNOMIAL;
+    g_crcHandle.Init.GeneratingPolynomial    = polynomial;
     g_crcHandle.Init.CRCLength               = CRC_POLYLENGTH_16B;
     g_crcHandle.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
     g_crcHandle.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_HALFWORD;
@@ -42,7 +39,15 @@ void calculateCrc(uint8_t data)
 
 uint16_t getCalculatedCrc()
 {
-    return g_crcValue ^ CRC_POST_PROCESSING_XOR_VALUE;
+    return g_crcValue;
+}
+
+void disableCrc()
+{
+    if (HAL_CRC_DeInit(&g_crcHandle) != HAL_OK)
+    {
+        ERROR_FCS();
+    }
 }
 
 void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
@@ -52,4 +57,5 @@ void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
 
 void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
 {
+    __HAL_RCC_CRC_CLK_DISABLE();
 }

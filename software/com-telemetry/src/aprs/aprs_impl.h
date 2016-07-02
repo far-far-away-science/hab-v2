@@ -2,7 +2,7 @@
 
 #include <aprs/aprs.h>
 
-#define APRS_PAYLOAD_BUFFER_MAX_LENGTH 128
+#define APRS_PAYLOAD_BUFFER_MAX_LENGTH 34
 
 /*
  * those values are calculated in advance depending on MCU/etc
