@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <fcs/fcs.h>
+#include <crc/crc.h>
 
 static uint16_t g_telemetryMessageId;
 static uint8_t g_aprsPayloadBuffer[APRS_PAYLOAD_BUFFER_MAX_LENGTH];
@@ -47,7 +47,7 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
     pAx25EncodedMessage->size.chars = 0;
     pAx25EncodedMessage->size.lastCharBits = 0;
 
-    resetFcs();
+    resetCrc();
 
     Ax25EncodingContext encodingCtx = { 0 };
     encodingCtx.lastBit = 1;
@@ -83,7 +83,7 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
 
     // FCS
 
-    uint16_t fcs = getCalculatedFcs();
+    uint16_t fcs = getCalculatedCrc();
     uint8_t fcsByte = fcs & 0x00FF; // get low byte
     encodeAndAppendDataAsAx25(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
     fcsByte = (fcs >> 8) & 0x00FF; // get high byte

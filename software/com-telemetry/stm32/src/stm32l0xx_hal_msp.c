@@ -1,7 +1,7 @@
 #include "stm32l073xx.h"
 #include "stm32l0xx_hal.h"
 
-#include "../test/trace_uart.h"
+#include "test/trace_uart.h"
 
 /*
  * Initializes the Global MSP.
@@ -115,13 +115,4 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* pDac)
         HAL_DMA_DeInit(pDac->DMA_Handle1);
         HAL_NVIC_DisableIRQ(HX1_DMA_IRQn);
     }
-}
-
-void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
-{
-  __HAL_RCC_CRC_CLK_ENABLE();
-}
-
-void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
-{
 }

@@ -1,6 +1,6 @@
 #include "ax25.h"
 
-#include <fcs/fcs.h>
+#include <crc/crc.h>
 
 bool isAx25MessageEmtpy(const Ax25EncodedMessage* pMessage)
 {
@@ -57,7 +57,7 @@ bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
 
         if (fcsType == FCS_CALCULATE)
         {
-            calculateFcs(currentByte);
+            calculateCrc(currentByte);
         }
 
         for (uint8_t iBit = 0; iBit < 8; ++iBit)

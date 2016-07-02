@@ -17,7 +17,7 @@
 #include "aprs/afsk.h"
 #include "aprs/generated/afsk.h"
 
-#include "../test/trace_uart.h"
+#include "test/trace_uart.h"
 
 #define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
