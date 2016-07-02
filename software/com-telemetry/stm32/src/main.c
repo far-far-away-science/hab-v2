@@ -57,9 +57,10 @@ int main(void) {
 
     EXECUTE_TESTS();
 
+    traceUartDeInit();
+
     for (;;)
     {
-        HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
     }
 #else
     bool hasGpsMessage = false;

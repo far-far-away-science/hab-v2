@@ -1,6 +1,7 @@
 #include "test.h"
 
 #if defined(TEST)
+    #include <math.h>
     #include <string.h>
 
     #include <gps/tests/nmea_buffer_advanceUint8Index.h>
@@ -10,11 +11,14 @@
     #include <aprs/tests/afsk_encodeAx25MessageAsAfsk_perf.h>
     #include <aprs/tests/ax25_encodeAndAppendDataAsAx25_perf.h>
 
+    static char g_buffer[256];
+
     void AssertIsTrue(bool value, uint32_t lineNumber)
     {
         if (!value)
         {
-            TRACE_FORMAT_STRING("AssertIsTrue failed, line=%u\n", lineNumber);
+            sprintf(g_buffer, "    ASSERT IsTrue failed, line=%u\r\n", (unsigned int) lineNumber);
+            TRACE_STRING_NO_EOL(g_buffer);
             ERROR_TEST_FAILED();
             HANG();
         }
@@ -24,7 +28,8 @@
     {
         if (value)
         {
-            TRACE_FORMAT_STRING("AssertIsFalse failed, line=%u\n", lineNumber);
+            sprintf(g_buffer, "    ASSERT IsFalse failed, line=%u\r\n", (unsigned int) lineNumber);
+            TRACE_STRING_NO_EOL(g_buffer);
             ERROR_TEST_FAILED();
             HANG();
         }
@@ -34,7 +39,8 @@
     {
         if (expected != actual)
         {
-            TRACE_FORMAT_STRING("Assert %u == %u failed, line=%u\n", expected, actual, lineNumber);
+            sprintf(g_buffer, "    ASSERT %u == %u failed, line=%u\r\n", (unsigned int) expected, (unsigned int) actual, (unsigned int) lineNumber);
+            TRACE_STRING_NO_EOL(g_buffer);
             ERROR_TEST_FAILED();
             HANG();
         }
@@ -44,7 +50,8 @@
     {
         if (memcmp(pExpected, pActual, size) != 0)
         {
-            TRACE_FORMAT_STRING("Assert '%s' == '%s' (size = %u) failed, line=%u\n", pExpected, pActual, size, lineNumber);
+            sprintf(g_buffer, "    ASSERT '%s' == '%s' (size = %u) failed, line=%u\r\n", pExpected, pActual, (unsigned int) size, (unsigned int) lineNumber);
+            TRACE_STRING_NO_EOL(g_buffer);
             ERROR_TEST_FAILED();
             HANG();
         }
@@ -54,9 +61,26 @@
     {
         if (value1 > value2)
         {
-            // TODO sprintf doesn't work for floats.
-            // TODO need to convert floats to str manually (didn't find a way to enable this functionality in embedded)
-            TRACE_FORMAT_STRING("Assert %f <= %f failed, line=%u\n", value1, value2, lineNumber);
+            float intPart1;
+            float fractionalPart1 = modff(value1, &intPart1);
+
+            float intPart2;
+            float fractionalPart2 = modff(value2, &intPart2);
+
+            int32_t whole1 = (int32_t) intPart1;
+            uint32_t fractional1 = (uint32_t) (fractionalPart1 * 100000);
+
+            int32_t whole2 = (int32_t) intPart2;
+            uint32_t fractional2 = (uint32_t) (fractionalPart2 * 100000);
+
+            sprintf(g_buffer, "    ASSERT %i.%u <= %i.%u failed, line=%u\r\n",
+                    (int) whole1,
+                    (unsigned int) fractional1,
+                    (int) whole2,
+                    (unsigned int) fractional2,
+                    (unsigned int) lineNumber);
+
+            TRACE_STRING_NO_EOL(g_buffer);
             ERROR_TEST_FAILED();
             HANG();
         }
@@ -64,7 +88,7 @@
 
     void executeTests()
     {
-        TRACE_STRING("\n");
+        TRACE_STRING("\r\n");
         RUN_TEST_CLASS(nmeaBuffer_advanceUint8Index);
         RUN_TEST_CLASS(nmeaBuffer_nmeaReadMessage);
         RUN_TEST_CLASS(nmeaBuffer_nmeaReceiveCharacter);

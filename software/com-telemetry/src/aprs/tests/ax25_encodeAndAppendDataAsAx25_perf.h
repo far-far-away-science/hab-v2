@@ -37,9 +37,9 @@ TEST_CLASS(ax25_encodeAndAppendDataAsAx25_perf,
 
         // the following data is for 16MHz
 #ifndef DEBUG
-        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 0.00f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 2.51f);
 #else
-        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 0.00f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 7.74f);
 #endif
     })
 })

@@ -12,7 +12,6 @@
 
     void TRACE_STRING(const char* pString);
     void TRACE_STRING_NO_EOL(const char* pString);
-    void TRACE_FORMAT_STRING(const char* pFormat, ...);
 
     #define TEST_CLASS(name, body) \
         void name(void) \
@@ -21,10 +20,9 @@
     #define TEST_METHOD(name, body) \
         void name(void) \
         body \
-        TRACE_STRING_NO_EOL("  Running test method: " #name); \
-        TRACE_STRING_NO_EOL(" BEGIN."); \
+        TRACE_STRING("  BEGIN: " #name); \
         name(); \
-        TRACE_STRING(" END.");
+        TRACE_STRING("  END.");
 
     #define RUN_TEST_CLASS(name) \
         TRACE_STRING("Running test class: " #name); \
@@ -32,7 +30,7 @@
 
     #ifdef TEST_DEBUG
         #define HANG() \
-            TRACE_STRING("Hanged"); \
+            TRACE_STRING("    Hanged"); \
             for (;;) \
             { \
             }

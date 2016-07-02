@@ -34,16 +34,28 @@
         }
     }
 
+    void traceUartDeInit(void)
+    {
+        if(HAL_UART_DeInit(&g_uartHandle) != HAL_OK)
+        {
+            ERROR_UART();
+        }
+    }
+
     void transmitBuffer(uint8_t* pBuffer, uint8_t bufferSize)
     {
         if(HAL_UART_Transmit_DMA(&g_uartHandle, pBuffer, bufferSize)!= HAL_OK)
         {
+            g_uartReady = RESET;
             ERROR_UART();
         }
-        while (g_uartReady != SET)
+        else
         {
+            while (g_uartReady != SET)
+            {
+            }
+            g_uartReady = RESET;
         }
-        g_uartReady = RESET;
     }
 
     void traceUartMspInit(UART_HandleTypeDef* pUart)
@@ -130,9 +142,12 @@
         HAL_NVIC_DisableIRQ(TRACE_UART_DMA_RX_IRQn);
     }
 
-    void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
+    void HAL_UART_TxCpltCallback(UART_HandleTypeDef* pUart)
     {
-        g_uartReady = SET;
+        if (pUart->Instance == TRACE_UART)
+        {
+            g_uartReady = SET;
+        }
     }
 
     void TRACE_DMA_RX_IRQHandler(void)
