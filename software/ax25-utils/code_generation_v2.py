@@ -19,6 +19,11 @@ typedef struct AX25EncodedData_t
     uint8_t newNumberOfOnes;
 } AX25EncodedData;
 
+//
+// To figure out what those values mean see ax25-utils Python project,
+// code_generation_v2.py file
+//
+
 extern const AX25EncodedData byte2ax25EncodedData[];
 
 #define FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ZERO ''' + str(self.frameSeparatorZero[0]) + '''
@@ -46,8 +51,11 @@ extern const AX25EncodedData byte2ax25EncodedData[];
 const AX25EncodedData byte2ax25EncodedData[] =
 {
 '''
-        for (oldNumberOfOnes, byte2Encode, newDataGiventLastBitWasZero, newDataGiventLastBitWasOne, newDataNumberOfBits, newNumberOfOnes) in self.combinations:
-            text += '  {' + str(newDataGiventLastBitWasZero) + ', ' + str(newDataNumberOfBits) + ', ' + str(newNumberOfOnes) + '},\n'
+        i = 0
+        for (oldNumberOfOnes, byte2Encode, newDataGiventLastBitWasZero, newLastBitGiventLastBitWasZero, newDataGiventLastBitWasOne, newLastBitGiventLastBitWasOne, newDataNumberOfBits, newNumberOfOnes) in self.combinations:
+            text += '  {' + '{:>3}'.format(newDataGiventLastBitWasZero) + ', ' + '{:>2}'.format(newDataNumberOfBits) + ', ' + '{:>2}'.format(newNumberOfOnes) + '}, ' + \
+                    '// idx = ' + '{:0>4}'.format(i) + ', oldNumberOfOnes = ' + str(oldNumberOfOnes) + ', byte2Encode = ' + '{:0>3}'.format(byte2Encode) + '\n'
+            i += 1
         text += '''};
 '''
         with open(filePath, 'w+') as f:

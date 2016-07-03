@@ -31,9 +31,9 @@ TEST_CLASS(aprs_encodeAprsMessage_perf,
 
         // the following data is for 16MHz
 #ifndef DEBUG
-        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 3.28f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 1.42f);
 #else
-        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 8.53f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 2.65f);
 #endif
     })
 })

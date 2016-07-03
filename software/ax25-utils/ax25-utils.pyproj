@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>9efa2044-bde3-4127-9158-d8a9067b16b2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>code_generation.py</StartupFile>
+    <StartupFile>code_generation_v2.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="code_generation.py" />
+    <Compile Include="code_generation_v2.py" />
     <Compile Include="data_generator.py">
       <SubType>Code</SubType>
     </Compile>

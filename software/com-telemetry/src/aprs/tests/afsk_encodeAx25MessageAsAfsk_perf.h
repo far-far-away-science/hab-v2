@@ -14,7 +14,7 @@ TEST_CLASS(afsk_encodeAx25MessageAsAfsk_perf,
     {
         resetTestData();
 
-        resetAfskContext(&g_testAfskContext);
+        resetAfskContext(&g_testAfskCtx);
         g_testAx25EncodedMessage.size.chars = MAX_AX25_MESSAGE_LENGTH;
         g_testAx25EncodedMessage.size.lastCharBits = 0;
         for (uint32_t i = 0; i < MAX_AX25_MESSAGE_LENGTH; ++i)
@@ -26,14 +26,14 @@ TEST_CLASS(afsk_encodeAx25MessageAsAfsk_perf,
 
         const uint32_t startTimeMilliseconds = HAL_GetTick();
 
-        while (encodeAx25MessageAsAfsk(&g_testAx25EncodedMessage, &g_testAfskContext, g_testDacBuffer, TEST_DAC_BUFFER_SIZE))
+        while (encodeAx25MessageAsAfsk(&g_testAx25EncodedMessage, &g_testAfskCtx, g_testUint16Buffer, TEST_BUFFER_SIZE))
         {
             ++trialsCount;
         }
 
         const uint32_t endTimeMilliseconds = HAL_GetTick();
         const float actualRuntimeMilliseconds = (endTimeMilliseconds - startTimeMilliseconds) / (float) trialsCount;
-        const float expectedRuntimeMilliseconds = 1000.0f * TEST_DAC_BUFFER_SIZE / APRS_SIGNAL_GENERATION_FREQUENCY;
+        const float expectedRuntimeMilliseconds = 1000.0f * TEST_BUFFER_SIZE / APRS_SIGNAL_GENERATION_FREQUENCY;
         const float speedUpFactor = actualRuntimeMilliseconds / expectedRuntimeMilliseconds;
 
         // the following data is for 16MHz

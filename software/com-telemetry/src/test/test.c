@@ -10,6 +10,7 @@
 
     #include <aprs/tests/aprs_encodeAprsMessage.h>
     #include <aprs/tests/aprs_encodeAprsMessage_perf.h>
+    #include <aprs/tests/ax25_encodeAndAppendDataAsAx25.h>
     #include <aprs/tests/afsk_encodeAx25MessageAsAfsk_perf.h>
     #include <aprs/tests/ax25_encodeAndAppendDataAsAx25_perf.h>
 
@@ -122,8 +123,9 @@
         RUN_TEST_CLASS(nmeaBuffer_advanceUint8Index);
         RUN_TEST_CLASS(nmeaBuffer_nmeaReadMessage);
         RUN_TEST_CLASS(nmeaBuffer_nmeaReceiveCharacter);
-        RUN_TEST_CLASS(afsk_encodeAx25MessageAsAfsk_perf);
+        RUN_TEST_CLASS(ax25_encodeAndAppendDataAsAx25);
         RUN_TEST_CLASS(ax25_encodeAndAppendDataAsAx25_perf);
+        RUN_TEST_CLASS(afsk_encodeAx25MessageAsAfsk_perf);
         RUN_TEST_CLASS(aprs_encodeAprsMessage_perf);
         RUN_TEST_CLASS(aprs_encodeAprsMessage);
         if (g_isFailed)

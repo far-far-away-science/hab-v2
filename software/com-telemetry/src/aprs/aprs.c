@@ -46,13 +46,11 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
         return false;
     }
 
-    pAx25EncodedMessage->size.chars = 0;
-    pAx25EncodedMessage->size.lastCharBits = 0;
+    memset(pAx25EncodedMessage, 0, sizeof(Ax25EncodedMessage));
 
     resetCrc(CRC_POLYNOMIAL);
 
     Ax25EncodingContext encodingCtx = { 0 };
-    encodingCtx.lastBit = 0;
 
     encodeAndAppendPrefixAsAx25(&encodingCtx, pAx25EncodedMessage);
 
@@ -100,22 +98,28 @@ uint8_t threeDigitInt2str(uint16_t value, uint8_t* pBuffer)
 {
     if (value < 10)
     {
-        pBuffer[0] = '1';
+        pBuffer[0] = '0';
         pBuffer[1] = '0';
-        itoa(value, (char*) &pBuffer[2], 10);
+        pBuffer[2] = '0' + value;
     }
     else if (value < 100)
     {
         pBuffer[0] = '0';
-        itoa(value, (char*) &pBuffer[1], 10);
+        pBuffer[1] = '0' + (value / 10);
+        pBuffer[2] = '0' + (value % 10);
     }
     else if (value < 1000)
     {
-        itoa(value, (char*) pBuffer, 10);
+        pBuffer[0] = '0' + (value / 100);
+        value = value % 100;
+        pBuffer[1] = '0' + (value / 10);
+        pBuffer[2] = '0' + (value % 10);
     }
     else
     {
-        itoa(999, (char*) pBuffer, 10);
+        pBuffer[0] = '9';
+        pBuffer[1] = '9';
+        pBuffer[2] = '9';
     }
     return 3;
 }

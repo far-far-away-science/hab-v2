@@ -14,7 +14,7 @@ TEST_CLASS(ax25_encodeAndAppendDataAsAx25_perf,
     {
         resetTestData();
 
-        g_testEncodingCtx.lastBit = 1;
+        g_testAx25EncodingCtx.lastBit = 1;
 
         const uint16_t trialsCount = 1000;
         const uint32_t startTimeMilliseconds = HAL_GetTick();
@@ -25,7 +25,7 @@ TEST_CLASS(ax25_encodeAndAppendDataAsAx25_perf,
                                       70,
                                       FCS_CALCULATE,
                                       SHIFT_ONE_LEFT,
-                                      &g_testEncodingCtx,
+                                      &g_testAx25EncodingCtx,
                                       &g_testAx25EncodedMessage);
             g_testAx25EncodedMessage.size.chars = 0;
             g_testAx25EncodedMessage.size.lastCharBits = 0;
@@ -36,9 +36,9 @@ TEST_CLASS(ax25_encodeAndAppendDataAsAx25_perf,
 
         // the following data is for 16MHz
 #ifndef DEBUG
-        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 2.41f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 0.65f);
 #else
-        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 5.98f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 1.18f);
 #endif
     })
 })

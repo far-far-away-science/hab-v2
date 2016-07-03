@@ -9,6 +9,11 @@ typedef struct AX25EncodedData_t
     uint8_t newNumberOfOnes;
 } AX25EncodedData;
 
+//
+// To figure out what those values mean see ax25-utils Python project,
+// code_generation_v2.py file
+//
+
 extern const AX25EncodedData byte2ax25EncodedData[];
 
 #define FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ZERO 127

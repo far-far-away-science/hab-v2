@@ -79,80 +79,65 @@ bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
             calculateCrc(currentByte);
         }
 
-        for (uint8_t iBit = 0; iBit < 8; ++iBit)
+        uint16_t value;
+        const AX25EncodedData* pData = GET_AX25_ENCODED_DATA_FOR_BYTE(pAx25EncodingContext->numberOfOnes, currentByte);
+
+        if (pAx25EncodingContext->lastBit)
         {
-            const uint8_t currentBit = currentByte & (1 << iBit);
+            value = GET_VALUE_IF_LAST_BIT_IS_ONE(pData);
+        }
+        else
+        {
+            value = GET_VALUE_IF_LAST_BIT_IS_ZERO(pData);
+        }
 
-            if (currentBit)
+        const uint8_t newLastBit = GET_LAST_BIT(value, pData);
+
+        if (pResultAprsEncodedMessage->size.lastCharBits == 0)
+        {
+            pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] = (uint8_t) value;
+            if (pData->dataBitsCount > 8)
             {
-                if (pResultAprsEncodedMessage->size.chars >= MAX_AX25_MESSAGE_LENGTH)
-                {
-                    return false;
-                }
-                // as we are encoding 1 keep current bit as is
-                if (pAx25EncodingContext->lastBit)
-                {
-                    pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] |= 1 << (pResultAprsEncodedMessage->size.lastCharBits);
-                }
-                else
-                {
-                    pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] &= ~(1 << (pResultAprsEncodedMessage->size.lastCharBits));
-                }
+                pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] = (uint8_t) (value >> 8);
+                pResultAprsEncodedMessage->size.lastCharBits = pData->dataBitsCount - 8;
+            }
+        }
+        else
+        {
+            // old lastCharBits could have been 7 so if new data length is 10 bits max bits count is 17 (which is 2 whole bytes and one extra bit)
 
-                advanceBitstreamBit(&pResultAprsEncodedMessage->size);
+            const uint8_t byteRemainderData = (uint8_t) (value << pResultAprsEncodedMessage->size.lastCharBits);
 
-                ++pAx25EncodingContext->numberOfOnes;
+            pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] |= byteRemainderData;
 
-                // stuffing
+            uint8_t remainingBits = pData->dataBitsCount - (8 - pResultAprsEncodedMessage->size.lastCharBits);
 
-                if (pAx25EncodingContext->numberOfOnes == 5)
-                {
-                    if (pResultAprsEncodedMessage->size.chars >= MAX_AX25_MESSAGE_LENGTH)
-                    {
-                        return false;
-                    }
+            value >>= (8 - pResultAprsEncodedMessage->size.lastCharBits);
 
-                    // we need to insert 0 after 5 consecutive ones
-                    if (pAx25EncodingContext->lastBit)
-                    {
-                        pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] &= ~(1 << (pResultAprsEncodedMessage->size.lastCharBits));
-                        pAx25EncodingContext->lastBit = 0;
-                    }
-                    else
-                    {
-                        pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] |= 1 << (pResultAprsEncodedMessage->size.lastCharBits);
-                        pAx25EncodingContext->lastBit = 1;
-                    }
+            // now we need to fill whole bytes data
 
-                    pAx25EncodingContext->numberOfOnes = 0;
+            while (remainingBits >= 8)
+            {
+                pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] = (uint8_t) value;
+                value >>= 8;
+                remainingBits -= 8;
+            }
 
-                    advanceBitstreamBit(&pResultAprsEncodedMessage->size); // insert zero as we had 5 ones
-                }
+            // now fill remainder if any
+
+            if (remainingBits == 0)
+            {
+                pResultAprsEncodedMessage->size.lastCharBits = 0;
             }
             else
             {
-                if (pResultAprsEncodedMessage->size.chars >= MAX_AX25_MESSAGE_LENGTH)
-                {
-                    return false;
-                }
-
-                // as we are encoding 0 we need to flip bit
-                if (pAx25EncodingContext->lastBit)
-                {
-                    pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] &= ~(1 << (pResultAprsEncodedMessage->size.lastCharBits));
-                    pAx25EncodingContext->lastBit = 0;
-                }
-                else
-                {
-                    pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] |= 1 << (pResultAprsEncodedMessage->size.lastCharBits);
-                    pAx25EncodingContext->lastBit = 1;
-                }
-
-                pAx25EncodingContext->numberOfOnes = 0;
-
-                advanceBitstreamBit(&pResultAprsEncodedMessage->size);
+                pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] = (uint8_t) value;
+                pResultAprsEncodedMessage->size.lastCharBits = remainingBits;
             }
         }
+
+        pAx25EncodingContext->numberOfOnes = pData->newNumberOfOnes;
+        pAx25EncodingContext->lastBit = newLastBit;
     }
 
     return true;
@@ -160,7 +145,8 @@ bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
 
 bool encodeAndAppendSuffixAsAx25(Ax25EncodingContext* pAx25EncodingContext, Ax25EncodedMessage* pResultAprsEncodedMessage)
 {
-    const uint8_t frameStop = pAx25EncodingContext->lastBit == 0 ? FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ZERO : FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ONE;
+    const uint8_t frameStop = pAx25EncodingContext->lastBit == 0 ? FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ZERO :
+                                                                   FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ONE;
 
     if (pResultAprsEncodedMessage->size.lastCharBits == 0)
     {

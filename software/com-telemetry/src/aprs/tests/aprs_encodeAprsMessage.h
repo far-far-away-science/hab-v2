@@ -129,7 +129,7 @@
 
 TEST_CLASS(aprs_encodeAprsMessage,
 {
-    TEST_METHOD(encoding_aprs_should_work_fast_enough,
+    TEST_METHOD(should_properly_encode_aprs_message,
     {
         resetTestData();
 
