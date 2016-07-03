@@ -10,7 +10,7 @@
     #include <stm32l0xx_hal_uart_ex.h>
 
     static __IO ITStatus g_uartReady;
-    static UART_HandleTypeDef g_uartHandle;
+    static UART_HandleTypeDef g_uartHandle = { 0 };
 
     void traceUartInit(void)
     {

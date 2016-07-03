@@ -6,7 +6,7 @@
 #include "errors.h"
 
 static uint16_t g_crcValue;
-static CRC_HandleTypeDef g_crcHandle;
+static CRC_HandleTypeDef g_crcHandle = { 0 };
 
 void resetCrc(uint32_t polynomial)
 {

@@ -2,6 +2,8 @@
 
 #include <crc/crc.h>
 
+#include "generated/ax25.h"
+
 bool isAx25MessageEmtpy(const Ax25EncodedMessage* pMessage)
 {
     if (!pMessage)
@@ -25,9 +27,26 @@ void advanceBitstreamBit(BitstreamSize* pResultBitstreamSize)
     }
 }
 
+bool encodeAndAppendPrefixAsAx25(Ax25EncodingContext* pAx25EncodingContext, Ax25EncodedMessage* pResultAprsEncodedMessage)
+{
+    pAx25EncodingContext->lastBit = 1;
+    pAx25EncodingContext->numberOfOnes = 0;
+
+    for (uint8_t i = 0; i < LEADING_FF_BYTES_COUNT_TO_CANCEL_PREVIOUS_PACKET; ++i)
+    {
+        pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] = 0xFF;
+    }
+
+    for (uint8_t i = 0; i < PREFIX_FLAGS_COUNT; ++i)
+    {
+        pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] = FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ONE;
+    }
+
+    return true;
+}
+
 bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
                                uint16_t messageDataSize,
-                               STUFFING_TYPE stuffingType,
                                FCS_TYPE fcsType,
                                SHIFT_ONE_LEFT_TYPE shiftOneLeftType,
                                Ax25EncodingContext* pAx25EncodingContext,
@@ -82,33 +101,32 @@ bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
 
                 advanceBitstreamBit(&pResultAprsEncodedMessage->size);
 
-                if (stuffingType == ST_PERFORM_STUFFING)
+                ++pAx25EncodingContext->numberOfOnes;
+
+                // stuffing
+
+                if (pAx25EncodingContext->numberOfOnes == 5)
                 {
-                    ++pAx25EncodingContext->numberOfOnes;
-
-                    if (pAx25EncodingContext->numberOfOnes == 5)
+                    if (pResultAprsEncodedMessage->size.chars >= MAX_AX25_MESSAGE_LENGTH)
                     {
-                        if (pResultAprsEncodedMessage->size.chars >= MAX_AX25_MESSAGE_LENGTH)
-                        {
-                            return false;
-                        }
-
-                        // we need to insert 0 after 5 consecutive ones
-                        if (pAx25EncodingContext->lastBit)
-                        {
-                            pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] &= ~(1 << (pResultAprsEncodedMessage->size.lastCharBits));
-                            pAx25EncodingContext->lastBit = 0;
-                        }
-                        else
-                        {
-                            pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] |= 1 << (pResultAprsEncodedMessage->size.lastCharBits);
-                            pAx25EncodingContext->lastBit = 1;
-                        }
-
-                        pAx25EncodingContext->numberOfOnes = 0;
-
-                        advanceBitstreamBit(&pResultAprsEncodedMessage->size); // insert zero as we had 5 ones
+                        return false;
                     }
+
+                    // we need to insert 0 after 5 consecutive ones
+                    if (pAx25EncodingContext->lastBit)
+                    {
+                        pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] &= ~(1 << (pResultAprsEncodedMessage->size.lastCharBits));
+                        pAx25EncodingContext->lastBit = 0;
+                    }
+                    else
+                    {
+                        pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] |= 1 << (pResultAprsEncodedMessage->size.lastCharBits);
+                        pAx25EncodingContext->lastBit = 1;
+                    }
+
+                    pAx25EncodingContext->numberOfOnes = 0;
+
+                    advanceBitstreamBit(&pResultAprsEncodedMessage->size); // insert zero as we had 5 ones
                 }
             }
             else
@@ -130,20 +148,38 @@ bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
                     pAx25EncodingContext->lastBit = 1;
                 }
 
-                advanceBitstreamBit(&pResultAprsEncodedMessage->size);
+                pAx25EncodingContext->numberOfOnes = 0;
 
-                if (stuffingType == ST_PERFORM_STUFFING)
-                {
-                    pAx25EncodingContext->numberOfOnes = 0;
-                }
+                advanceBitstreamBit(&pResultAprsEncodedMessage->size);
             }
         }
     }
 
-    if (stuffingType == ST_NO_STUFFING)
+    return true;
+}
+
+bool encodeAndAppendSuffixAsAx25(Ax25EncodingContext* pAx25EncodingContext, Ax25EncodedMessage* pResultAprsEncodedMessage)
+{
+    const uint8_t frameStop = pAx25EncodingContext->lastBit == 0 ? FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ZERO : FRAME_SEPARATOR_GIVEN_THAT_PREVIOUS_BIT_WAS_ONE;
+
+    if (pResultAprsEncodedMessage->size.lastCharBits == 0)
     {
-        // reset ones as we didn't do any stuffing while sending this data
-        pAx25EncodingContext->numberOfOnes = 0;
+        for (uint8_t i = 0; i < SUFFIX_FLAGS_COUNT; ++i)
+        {
+            pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] = frameStop;
+        }
+    }
+    else
+    {
+        const uint8_t firstByteRemainder = frameStop << pResultAprsEncodedMessage->size.lastCharBits;
+        const uint8_t otherBytesData = firstByteRemainder | (frameStop >> (8 - pResultAprsEncodedMessage->size.lastCharBits));
+
+        pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] |= firstByteRemainder;
+
+        for (uint8_t i = 1; i < SUFFIX_FLAGS_COUNT; ++i)
+        {
+            pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] = otherBytesData;
+        }
     }
 
     return true;

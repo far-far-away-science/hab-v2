@@ -40,14 +40,16 @@
     #define ASSERT_INT_ARE_EQUAL(expected, actual) assertIntAreEqual(expected, actual, __LINE__)
     #define ASSERT_STR_ARE_EQUAL(pExpected, pActual, size) assertStrAreEqual(pExpected, pActual, size, __LINE__)
 
+    #define ASSERT_BINARY_ARE_EQUAL(pExpected, pActual, size) assertBinaryAreEqual(pExpected, pActual, size, __LINE__)
+
     #define ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(value1, value2) assertFloatIsLessThanOrEqual(value1, value2, __LINE__)
 
     void assertIsTrue(bool value, uint32_t lineNumber);
     void assertIsFalse(bool value, uint32_t lineNumber);
 
     void assertIntAreEqual(uint8_t expected, uint8_t actual, uint32_t lineNumber);
-
-    void assertStrAreEqual(uint8_t* pExpected, uint8_t* pActual, uint16_t size, uint32_t lineNumber);
+    void assertStrAreEqual(const uint8_t* pExpected, const uint8_t* pActual, uint16_t size, uint32_t lineNumber);
+    void assertBinaryAreEqual(const uint8_t* pExpected, const uint8_t* pActual, uint16_t size, uint32_t lineNumber);
 
     void assertFloatIsLessThanOrEqual(float value1, float value2, uint32_t lineNumber);
 

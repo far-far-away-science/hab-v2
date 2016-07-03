@@ -52,53 +52,39 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
     resetCrc(CRC_POLYNOMIAL);
 
     Ax25EncodingContext encodingCtx = { 0 };
-    encodingCtx.lastBit = 1;
+    encodingCtx.lastBit = 0;
 
-    for (uint8_t i = 0; i < LEADING_FF_BYTES_COUNT_TO_CANCEL_PREVIOUS_PACKET; ++i)
-    {
-        pAx25EncodedMessage->buffer[i] = 0xFF;
-        ++pAx25EncodedMessage->size.chars;
-    }
-
-    for (uint8_t i = 0; i < PREFIX_FLAGS_COUNT; ++i)
-    {
-        encodeAndAppendDataAsAx25((const uint8_t*) "\x7E", 1, ST_NO_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
-    }
+    encodeAndAppendPrefixAsAx25(&encodingCtx, pAx25EncodedMessage);
 
     // addresses to and from
 
-    encodeAndAppendDataAsAx25(CALLSIGN_DESTINATION_1.callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pAx25EncodedMessage);
-    encodeAndAppendDataAsAx25(&CALLSIGN_DESTINATION_1.ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
-    encodeAndAppendDataAsAx25(pCallsign->callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pAx25EncodedMessage);
-    encodeAndAppendDataAsAx25(&pCallsign->ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
-    encodeAndAppendDataAsAx25(CALLSIGN_DESTINATION_2.callsign, 6, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pAx25EncodedMessage);
-    encodeAndAppendDataAsAx25(&CALLSIGN_DESTINATION_2.ssid, 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(CALLSIGN_DESTINATION_1.callsign, 6, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(&CALLSIGN_DESTINATION_1.ssid, 1, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(pCallsign->callsign, 6, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(&pCallsign->ssid, 1, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(CALLSIGN_DESTINATION_2.callsign, 6, FCS_CALCULATE, SHIFT_ONE_LEFT, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(&CALLSIGN_DESTINATION_2.ssid, 1, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
 
     // control bytes
 
-    encodeAndAppendDataAsAx25((const uint8_t*) "\x03", 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
-    encodeAndAppendDataAsAx25((const uint8_t*) "\xF0", 1, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25((const uint8_t*) "\x03", 1, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25((const uint8_t*) "\xF0", 1, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
 
     // packet contents
 
-    encodeAndAppendDataAsAx25(aprsPayloadBuffer, aprsPayloadBufferLen, ST_PERFORM_STUFFING, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(aprsPayloadBuffer, aprsPayloadBufferLen, FCS_CALCULATE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
 
     // FCS
 
     uint16_t fcs = getCalculatedCrc() ^ CRC_POST_PROCESSING_XOR_VALUE;
     uint8_t fcsByte = fcs & 0x00FF; // get low byte
-    encodeAndAppendDataAsAx25(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(&fcsByte, 1, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
     fcsByte = (fcs >> 8) & 0x00FF; // get high byte
-    encodeAndAppendDataAsAx25(&fcsByte, 1, ST_PERFORM_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
+    encodeAndAppendDataAsAx25(&fcsByte, 1, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
 
     disableCrc();
 
-    // suffix flags
-
-    for (uint8_t i = 0; i < SUFFIX_FLAGS_COUNT; ++i)
-    {
-        encodeAndAppendDataAsAx25((const uint8_t*) "\x7E", 1, ST_NO_STUFFING, FCS_NONE, SHIFT_ONE_LEFT_NO, &encodingCtx, pAx25EncodedMessage);
-    }
+    encodeAndAppendSuffixAsAx25(&encodingCtx, pAx25EncodedMessage);
 
     return true;
 }

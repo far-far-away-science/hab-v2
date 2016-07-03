@@ -22,17 +22,17 @@
 #define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
-Telemetry g_telemetry;
-AfskContext g_afskContext;
-NmeaMessage g_nmeaMessage;
-NmeaRingBuffer g_nmeaRingBuffer;
-UART_HandleTypeDef g_copernicusUartHandle;
+Telemetry g_telemetry = { 0 };
+AfskContext g_afskContext = { 0 };
+NmeaMessage g_nmeaMessage = { 0 };
+NmeaRingBuffer g_nmeaRingBuffer = { 0 };
+UART_HandleTypeDef g_copernicusUartHandle = { 0 };
 
-bool g_aprsMessageTransmitting;
-DAC_HandleTypeDef g_hx1DacHandle;
-DAC_ChannelConfTypeDef g_hx1DacConfig;
-Ax25EncodedMessage g_ax25EncodedAprsMessage;
-uint16_t g_DacBuffer[FULL_BUFFER_LENGTH];
+bool g_aprsMessageTransmitting = false;
+DAC_HandleTypeDef g_hx1DacHandle = { 0 };
+DAC_ChannelConfTypeDef g_hx1DacConfig = { 0 };
+Ax25EncodedMessage g_ax25EncodedAprsMessage = { 0 };
+uint16_t g_DacBuffer[FULL_BUFFER_LENGTH] = { 0 };
 
 void ErrorHandler(void);
 
