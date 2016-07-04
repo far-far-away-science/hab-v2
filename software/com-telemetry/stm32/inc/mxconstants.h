@@ -39,9 +39,6 @@
 #define TRACE_UART_FORCE_RESET()        __HAL_RCC_USART2_FORCE_RESET()
 #define TRACE_UART_RELEASE_RESET()      __HAL_RCC_USART2_RELEASE_RESET()
 
-#define ERROR_LD_Pin       GPIO_PIN_5
-#define ERROR_LD_GPIO_Port GPIOA
-
 #define HX1_DAC                 DAC1
 #define HX1_DAC_CHANNEL         DAC_CHANNEL_1
 #define HX1_DAC_TRIGGER         DAC_TRIGGER_T6_TRGO
@@ -60,3 +57,6 @@
 #define HX1_GPIO_CLK_ENABLE     __HAL_RCC_GPIOA_CLK_ENABLE
 #define HX1_GPIO_PIN            GPIO_PIN_4
 #define HX1_GPIO_PORT           GPIOA
+
+#define HX1_ENABLE_Pin       GPIO_PIN_5
+#define HX1_ENABLE_GPIO_Port GPIOA

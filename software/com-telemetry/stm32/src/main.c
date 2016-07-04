@@ -43,9 +43,11 @@ void MX_GPIO_Init(void);
 void MX_STLink_Init(void);
 void Copernicus_Uart_Init(void);
 
-void stopHX1(void);
 void HX1_Timer_Init(void);
 void HX1_Dac_Init(void);
+
+void enableHx1(void);
+void stopDacAndDisableHx1(void);
 
 void transmitAprsMessage(void);
 
@@ -103,7 +105,8 @@ void ConfigurateMcu(void) {
 
 void ErrorHandler(void)
 {
-    HAL_GPIO_WritePin(ERROR_LD_GPIO_Port, ERROR_LD_Pin, GPIO_PIN_SET);
+    // TODO need to use other ports A5 is used for HX1 Enable
+    // HAL_GPIO_WritePin(ERROR_LD_GPIO_Port, ERROR_LD_Pin, GPIO_PIN_SET);
     for (;;)
     {
     }
@@ -153,12 +156,12 @@ void MX_GPIO_Init(void) {
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
 
-    GPIO_InitStruct.Pin   = ERROR_LD_Pin;
+    GPIO_InitStruct.Pin   = HX1_ENABLE_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-    HAL_GPIO_Init(ERROR_LD_GPIO_Port, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(ERROR_LD_GPIO_Port, ERROR_LD_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_Init(HX1_ENABLE_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(HX1_ENABLE_GPIO_Port, HX1_ENABLE_Pin, GPIO_PIN_RESET);
 }
 
 void MX_STLink_Init(void)
@@ -215,11 +218,16 @@ void HX1_Timer_Init(void) {
     HAL_TIM_Base_Start(&hx1TimerHandle);
 }
 
-void stopHX1(void) {
+void enableHx1(void)
+{
+    HAL_GPIO_WritePin(HX1_ENABLE_GPIO_Port, HX1_ENABLE_Pin, GPIO_PIN_SET);
+}
+
+void stopDacAndDisableHx1(void)
+{
     HAL_DAC_DeInit(&g_hx1DacHandle);
     g_aprsMessageTransmitting = false;
-
-    // TODO disable HX1
+    HAL_GPIO_WritePin(HX1_ENABLE_GPIO_Port, HX1_ENABLE_Pin, GPIO_PIN_RESET);
 }
 
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
@@ -228,7 +236,7 @@ void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
         g_aprsMessageTransmitting = encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 2nd half of the buffer (this is 1/2 completion event after all)
     } else {
-        stopHX1();
+        stopDacAndDisableHx1();
     }
 }
 
@@ -238,7 +246,7 @@ void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* pDdac) {
         g_aprsMessageTransmitting = encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 1st half of the buffer
     } else {
-        stopHX1();
+        stopDacAndDisableHx1();
     }
 }
 
@@ -247,13 +255,11 @@ void HX1_Dac_Init(void) {
 }
 
 void transmitAprsMessage(void) {
-    stopHX1();
+    stopDacAndDisableHx1();
 
     if (isAx25MessageEmtpy(&g_ax25EncodedAprsMessage)) {
         return;
     }
-
-    // TODO enable HX1
 
     if (HAL_DAC_Init(&g_hx1DacHandle) != HAL_OK) {
         ErrorHandler();
@@ -269,12 +275,13 @@ void transmitAprsMessage(void) {
     resetAfskContext(&g_afskContext);
 
     if (encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer, FULL_BUFFER_LENGTH)) {
+        enableHx1();
         if (HAL_DAC_Start_DMA(&g_hx1DacHandle, HX1_DAC_CHANNEL, (uint32_t*) g_DacBuffer, FULL_BUFFER_LENGTH, HX1_DAC_ALIGN) != HAL_OK) {
-            stopHX1();
+            stopDacAndDisableHx1();
             ErrorHandler();
         }
         g_aprsMessageTransmitting = true;
     } else {
-        stopHX1();
+        stopDacAndDisableHx1();
     }
 }
