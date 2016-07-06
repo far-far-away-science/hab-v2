@@ -1,7 +1,6 @@
 #pragma once
 
-#include "test/test.h"
-#include "stm32l0xx_hal.h"
+#include <test/test.h>
 
 #include "../afsk.h"
 #include "../generated/afsk.h"

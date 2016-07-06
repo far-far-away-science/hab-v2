@@ -1,7 +1,6 @@
 #pragma once
 
-#include "test/test.h"
-#include "stm32l0xx_hal.h"
+#include <test/test.h>
 
 #include "../afsk.h"
 #include "../generated/afsk.h"
@@ -24,14 +23,14 @@ TEST_CLASS(afsk_encodeAx25MessageAsAfsk_perf,
 
         uint16_t trialsCount = 0;
 
-        const uint32_t startTimeMilliseconds = HAL_GetTick();
+        const uint32_t startTimeMilliseconds = getTimeMilliseconds();
 
         while (encodeAx25MessageAsAfsk(&g_testAx25EncodedMessage, &g_testAfskCtx, g_testUint16Buffer, TEST_BUFFER_SIZE))
         {
             ++trialsCount;
         }
 
-        const uint32_t endTimeMilliseconds = HAL_GetTick();
+        const uint32_t endTimeMilliseconds = getTimeMilliseconds();
         const float actualRuntimeMilliseconds = (endTimeMilliseconds - startTimeMilliseconds) / (float) trialsCount;
         const float expectedRuntimeMilliseconds = 1000.0f * TEST_BUFFER_SIZE / APRS_SIGNAL_GENERATION_FREQUENCY;
         const float speedUpFactor = actualRuntimeMilliseconds / expectedRuntimeMilliseconds;

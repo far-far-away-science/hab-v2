@@ -98,6 +98,11 @@ bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
             pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] = (uint8_t) value;
             if (pData->dataBitsCount > 8)
             {
+                if (pResultAprsEncodedMessage->size.chars >= MAX_AX25_MESSAGE_LENGTH)
+                {
+                    return false;
+                }
+
                 pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] = (uint8_t) (value >> 8);
                 pResultAprsEncodedMessage->size.lastCharBits = pData->dataBitsCount - 8;
             }
@@ -118,6 +123,11 @@ bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
 
             while (remainingBits >= 8)
             {
+                if (pResultAprsEncodedMessage->size.chars >= MAX_AX25_MESSAGE_LENGTH)
+                {
+                    return false;
+                }
+
                 pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars++] = (uint8_t) value;
                 value >>= 8;
                 remainingBits -= 8;
@@ -131,6 +141,11 @@ bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,
             }
             else
             {
+                if (pResultAprsEncodedMessage->size.chars >= MAX_AX25_MESSAGE_LENGTH)
+                {
+                    return false;
+                }
+
                 pResultAprsEncodedMessage->buffer[pResultAprsEncodedMessage->size.chars] = (uint8_t) value;
                 pResultAprsEncodedMessage->size.lastCharBits = remainingBits;
             }

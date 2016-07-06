@@ -2,8 +2,9 @@
 
 #ifdef TEST
 
-    #include "../inc/errors.h"
     #include "../inc/mxconstants.h"
+
+    #include <signals/signals.h>
 
     #include <stm32l0xx_hal_rcc.h>
     #include <stm32l0xx_hal_cortex.h>
@@ -61,11 +62,9 @@
     void traceUartMspInit(UART_HandleTypeDef* pUart)
     {
         static DMA_HandleTypeDef hdma_tx;
-        static DMA_HandleTypeDef hdma_rx;
 
         GPIO_InitTypeDef gpioInitStruct;
 
-        TRACE_UART_RX_GPIO_CLK_ENABLE();
         TRACE_UART_TX_GPIO_CLK_ENABLE();
         TRACE_UART_CLK_ENABLE();
         TRACE_DMA_CLK_ENABLE();
@@ -77,11 +76,6 @@
         gpioInitStruct.Alternate = TRACE_UART_TX_AF;
 
         HAL_GPIO_Init(TRACE_UART_TX_GPIO_PORT, &gpioInitStruct);
-
-        gpioInitStruct.Pin       = TRACE_UART_RX_PIN;
-        gpioInitStruct.Alternate = TRACE_UART_RX_AF;
-
-        HAL_GPIO_Init(TRACE_UART_RX_GPIO_PORT, &gpioInitStruct);
 
         hdma_tx.Instance                 = TRACE_UART_TX_DMA_CHANNEL;
         hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
@@ -97,25 +91,8 @@
 
         __HAL_LINKDMA(pUart, hdmatx, hdma_tx);
 
-        hdma_rx.Instance                 = TRACE_UART_RX_DMA_CHANNEL;
-        hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-        hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-        hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
-        hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-        hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-        hdma_rx.Init.Mode                = DMA_NORMAL;
-        hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-        hdma_rx.Init.Request             = TRACE_UART_RX_DMA_REQUEST;
-
-        HAL_DMA_Init(&hdma_rx);
-
-        __HAL_LINKDMA(pUart, hdmarx, hdma_rx);
-
         HAL_NVIC_SetPriority(TRACE_UART_DMA_TX_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TRACE_UART_DMA_TX_IRQn);
-
-        HAL_NVIC_SetPriority(TRACE_UART_DMA_RX_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(TRACE_UART_DMA_RX_IRQn);
 
         HAL_NVIC_SetPriority(TRACE_UART_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TRACE_UART_IRQn);
@@ -127,19 +104,13 @@
         TRACE_UART_RELEASE_RESET();
 
         HAL_GPIO_DeInit(TRACE_UART_TX_GPIO_PORT, TRACE_UART_TX_PIN);
-        HAL_GPIO_DeInit(TRACE_UART_RX_GPIO_PORT, TRACE_UART_RX_PIN);
 
-        if (pUart->hdmarx != 0)
-        {
-            HAL_DMA_DeInit(pUart->hdmarx);
-        }
         if (pUart->hdmatx != 0)
         {
             HAL_DMA_DeInit(pUart->hdmatx);
         }
 
         HAL_NVIC_DisableIRQ(TRACE_UART_DMA_TX_IRQn);
-        HAL_NVIC_DisableIRQ(TRACE_UART_DMA_RX_IRQn);
     }
 
     void HAL_UART_TxCpltCallback(UART_HandleTypeDef* pUart)
@@ -150,10 +121,9 @@
         }
     }
 
-    void TRACE_DMA_RX_IRQHandler(void)
+    void TRACE_DMA_IRQHandler(void)
     {
         HAL_DMA_IRQHandler(g_uartHandle.hdmatx);
-        HAL_DMA_IRQHandler(g_uartHandle.hdmarx);
     }
 
     void TRACE_UART_IRQHandler(void)

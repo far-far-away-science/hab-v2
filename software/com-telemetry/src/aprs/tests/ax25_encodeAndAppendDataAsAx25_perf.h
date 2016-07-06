@@ -1,7 +1,6 @@
 #pragma once
 
-#include "test/test.h"
-#include "stm32l0xx_hal.h"
+#include <test/test.h>
 
 #include "../afsk.h"
 #include "../generated/afsk.h"
@@ -17,7 +16,7 @@ TEST_CLASS(ax25_encodeAndAppendDataAsAx25_perf,
         g_testAx25EncodingCtx.lastBit = 1;
 
         const uint16_t trialsCount = 1000;
-        const uint32_t startTimeMilliseconds = HAL_GetTick();
+        const uint32_t startTimeMilliseconds = getTimeMilliseconds();
 
         for (uint16_t i = 0; i < trialsCount; ++i)
         {
@@ -31,7 +30,7 @@ TEST_CLASS(ax25_encodeAndAppendDataAsAx25_perf,
             g_testAx25EncodedMessage.size.lastCharBits = 0;
         }
 
-        const uint32_t endTimeMilliseconds = HAL_GetTick();
+        const uint32_t endTimeMilliseconds = getTimeMilliseconds();
         const float actualRuntimeMilliseconds = (float) (endTimeMilliseconds - startTimeMilliseconds) / ((float) trialsCount);
 
         // the following data is for 16MHz

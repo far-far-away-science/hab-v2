@@ -1,9 +1,8 @@
 #include <crc/crc.h>
-#include "stm32l0xx_hal_rcc.h"
-#include "stm32l0xx_hal_crc.h"
-#include "stm32l0xx_hal_crc_ex.h"
-
-#include "errors.h"
+#include <signals/signals.h>
+#include <stm32l0xx_hal_rcc.h>
+#include <stm32l0xx_hal_crc.h>
+#include <stm32l0xx_hal_crc_ex.h>
 
 static uint16_t g_crcValue;
 static CRC_HandleTypeDef g_crcHandle = { 0 };

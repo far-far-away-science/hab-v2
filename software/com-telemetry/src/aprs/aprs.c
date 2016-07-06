@@ -1,10 +1,11 @@
-#include <aprs/aprs_impl.h>
-#include <crc/crc.h>
+#include "aprs_impl.h"
 
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <crc/crc.h>
 
 #define CRC_POLYNOMIAL                0x1021
 #define CRC_POST_PROCESSING_XOR_VALUE 0xFFFF
@@ -152,7 +153,7 @@ uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPa
     pAprsPayloadBuffer[currentIdx++] = ',';
     currentIdx += threeDigitInt2str(pTelemetry->maxAccelerationOnAnyAxis, &pAprsPayloadBuffer[currentIdx]);
     pAprsPayloadBuffer[currentIdx++] = ',';
-    memcpy(&pAprsPayloadBuffer[currentIdx], "00000000", 8);
+    memcpy(&pAprsPayloadBuffer[currentIdx], "00000000", 8); // TODO send error bit mask here
     currentIdx += 8;
 
     return currentIdx;

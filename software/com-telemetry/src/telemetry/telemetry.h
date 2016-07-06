@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 typedef struct Telemetry_t
 {
     uint16_t batteryVoltage;

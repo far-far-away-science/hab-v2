@@ -2,6 +2,7 @@
 
 #if defined(TEST)
     #include <math.h>
+    #include <stdio.h>
     #include <string.h>
 
     #include <gps/tests/nmea_buffer_advanceUint8Index.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <aprs/aprs.h>
+#include "aprs.h"
 
 #define APRS_PAYLOAD_BUFFER_MAX_LENGTH 34
 

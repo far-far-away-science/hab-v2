@@ -4,7 +4,9 @@
     #include <stdint.h>
     #include <stdbool.h>
 
-    #include "errors.h"
+    #include <signals/signals.h>
+
+    uint32_t getTimeMilliseconds(void);
 
     void TRACE_STRING(const char* pString);
     void TRACE_STRING_NO_EOL(const char* pString);

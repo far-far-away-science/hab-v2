@@ -19,6 +19,8 @@
 
 #include "test/trace_uart.h"
 
+#include <signals/signals.h>
+
 #define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
@@ -36,8 +38,6 @@ uint16_t g_DacBuffer[FULL_BUFFER_LENGTH] = { 0 };
 
 void ErrorHandler(void);
 
-void ConfigurateMcu();
-
 void SystemClock_Config(void);
 void MX_GPIO_Init(void);
 void MX_STLink_Init(void);
@@ -51,10 +51,12 @@ void stopDacAndDisableHx1(void);
 
 void transmitAprsMessage(void);
 
-int main(void) {
-    ConfigurateMcu();
-
+int main(void)
+{
 #ifdef TEST
+    HAL_Init();
+    SystemClock_Config();
+    MX_STLink_Init();
     traceUartInit();
 
     EXECUTE_TESTS();
@@ -65,6 +67,17 @@ int main(void) {
     {
     }
 #else
+    HAL_Init();
+    SystemClock_Config();
+    initializeSignals();
+    MX_GPIO_Init();
+    MX_STLink_Init();
+    Copernicus_Uart_Init();
+    HX1_Dac_Init();
+    HX1_Timer_Init();
+
+    signalInitialized(true);
+
     bool hasGpsMessage = false;
 
     for (;;) {
@@ -93,16 +106,6 @@ int main(void) {
 #endif
 }
 
-void ConfigurateMcu(void) {
-    HAL_Init();
-    SystemClock_Config();
-    MX_GPIO_Init();
-    MX_STLink_Init();
-    Copernicus_Uart_Init();
-    HX1_Dac_Init();
-    HX1_Timer_Init();
-}
-
 void ErrorHandler(void)
 {
     // TODO need to use other ports A5 is used for HX1 Enable
@@ -115,7 +118,8 @@ void ErrorHandler(void)
 /*
  * System Clock Configuration
  */
-void SystemClock_Config(void) {
+void SystemClock_Config(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI |
                                             RCC_OSCILLATORTYPE_LSE;
@@ -151,7 +155,8 @@ void SystemClock_Config(void) {
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-void MX_GPIO_Init(void) {
+void MX_GPIO_Init(void)
+{
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -178,7 +183,8 @@ void MX_STLink_Init(void)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
-void Copernicus_Uart_Init(void) {
+void Copernicus_Uart_Init(void)
+{
     g_copernicusUartHandle.Instance                    = COPERNICUS_UART;
     g_copernicusUartHandle.Init.BaudRate               = 4800;
     g_copernicusUartHandle.Init.WordLength             = UART_WORDLENGTH_8B;
@@ -189,16 +195,19 @@ void Copernicus_Uart_Init(void) {
     g_copernicusUartHandle.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
     g_copernicusUartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 
-    if (HAL_UART_Init(&g_copernicusUartHandle) != HAL_OK) {
+    if (HAL_UART_Init(&g_copernicusUartHandle) != HAL_OK)
+    {
         ErrorHandler();
     }
 
-    if (EnableUart2ReceiveData(&g_copernicusUartHandle) != HAL_OK) {
+    if (EnableUart2ReceiveData(&g_copernicusUartHandle) != HAL_OK)
+    {
         ErrorHandler();
     }
 }
 
-void HX1_Timer_Init(void) {
+void HX1_Timer_Init(void)
+{
     const uint32_t period = (uint32_t) (SystemCoreClock / APRS_SIGNAL_GENERATION_FREQUENCY) - 1;
 
     static TIM_HandleTypeDef hx1TimerHandle;
@@ -230,58 +239,75 @@ void stopDacAndDisableHx1(void)
     HAL_GPIO_WritePin(HX1_ENABLE_GPIO_Port, HX1_ENABLE_Pin, GPIO_PIN_RESET);
 }
 
-void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac) {
-    if (g_aprsMessageTransmitting) {
+void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* pDac)
+{
+    if (g_aprsMessageTransmitting)
+    {
         // fill in 1st half of the buffer
         g_aprsMessageTransmitting = encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 2nd half of the buffer (this is 1/2 completion event after all)
-    } else {
+    }
+    else
+    {
         stopDacAndDisableHx1();
     }
 }
 
-void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* pDdac) {
-    if (g_aprsMessageTransmitting) {
+void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* pDdac)
+{
+    if (g_aprsMessageTransmitting)
+    {
         // fill in 2nd half of the buffer
         g_aprsMessageTransmitting = encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer + HALF_BUFFER_LENGTH, HALF_BUFFER_LENGTH);
         // continue transmission as we filled 1st half of the buffer
-    } else {
+    }
+    else
+    {
         stopDacAndDisableHx1();
     }
 }
 
-void HX1_Dac_Init(void) {
+void HX1_Dac_Init(void)
+{
     g_hx1DacHandle.Instance = HX1_DAC;
 }
 
-void transmitAprsMessage(void) {
+void transmitAprsMessage(void)
+{
     stopDacAndDisableHx1();
 
-    if (isAx25MessageEmtpy(&g_ax25EncodedAprsMessage)) {
+    if (isAx25MessageEmtpy(&g_ax25EncodedAprsMessage))
+    {
         return;
     }
 
-    if (HAL_DAC_Init(&g_hx1DacHandle) != HAL_OK) {
+    if (HAL_DAC_Init(&g_hx1DacHandle) != HAL_OK)
+    {
         ErrorHandler();
     }
 
     g_hx1DacConfig.DAC_Trigger      = HX1_DAC_TRIGGER;
     g_hx1DacConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
 
-    if (HAL_DAC_ConfigChannel(&g_hx1DacHandle, &g_hx1DacConfig, HX1_DAC_CHANNEL) != HAL_OK) {
+    if (HAL_DAC_ConfigChannel(&g_hx1DacHandle, &g_hx1DacConfig, HX1_DAC_CHANNEL) != HAL_OK)
+    {
         ErrorHandler();
     }
 
     resetAfskContext(&g_afskContext);
 
-    if (encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer, FULL_BUFFER_LENGTH)) {
+    if (encodeAx25MessageAsAfsk(&g_ax25EncodedAprsMessage, &g_afskContext, g_DacBuffer, FULL_BUFFER_LENGTH))
+    {
         enableHx1();
-        if (HAL_DAC_Start_DMA(&g_hx1DacHandle, HX1_DAC_CHANNEL, (uint32_t*) g_DacBuffer, FULL_BUFFER_LENGTH, HX1_DAC_ALIGN) != HAL_OK) {
+        if (HAL_DAC_Start_DMA(&g_hx1DacHandle, HX1_DAC_CHANNEL, (uint32_t*) g_DacBuffer, FULL_BUFFER_LENGTH, HX1_DAC_ALIGN) != HAL_OK)
+        {
             stopDacAndDisableHx1();
             ErrorHandler();
         }
         g_aprsMessageTransmitting = true;
-    } else {
+    }
+    else
+    {
         stopDacAndDisableHx1();
     }
 }

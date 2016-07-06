@@ -1,6 +1,7 @@
 #pragma once
 
-#include "test/test.h"
+#include <test/test.h>
+
 #include "gps/nmea_buffer.h"
 
 TEST_CLASS(nmeaBuffer_advanceUint8Index,

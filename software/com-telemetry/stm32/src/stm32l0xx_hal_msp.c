@@ -95,7 +95,7 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* pDac)
         dmaDac1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
         dmaDac1.Init.MemDataAlignment    = DMA_MDATAALIGN_HALFWORD;
         dmaDac1.Init.Mode                = DMA_CIRCULAR;
-        dmaDac1.Init.Priority            = DMA_PRIORITY_HIGH;
+        dmaDac1.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
         HAL_DMA_Init(&dmaDac1);
 
         __HAL_LINKDMA(pDac, DMA_Handle1, dmaDac1);

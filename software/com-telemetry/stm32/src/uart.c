@@ -1,7 +1,9 @@
 #include "uart.h"
 
-HAL_StatusTypeDef EnableUart2ReceiveData(UART_HandleTypeDef* pUart) {
-    if((pUart->State == HAL_UART_STATE_READY) || (pUart->State == HAL_UART_STATE_BUSY_TX)) {
+HAL_StatusTypeDef EnableUart2ReceiveData(UART_HandleTypeDef* pUart)
+{
+    if((pUart->State == HAL_UART_STATE_READY) || (pUart->State == HAL_UART_STATE_BUSY_TX))
+    {
         __HAL_LOCK(pUart);
 
         UART_MASK_COMPUTATION(pUart);
@@ -15,20 +17,26 @@ HAL_StatusTypeDef EnableUart2ReceiveData(UART_HandleTypeDef* pUart) {
         __HAL_UART_ENABLE_IT(pUart, UART_IT_RXNE);
 
         return HAL_OK;
-    } else {
+    }
+    else
+    {
         return HAL_BUSY;
     }
 }
 
-void DisableUart2ReceiveData(UART_HandleTypeDef* pUart) {
+void DisableUart2ReceiveData(UART_HandleTypeDef* pUart)
+{
     while(HAL_IS_BIT_SET(pUart->Instance->ISR, UART_FLAG_RXNE)) { }
 
     __HAL_UART_DISABLE_IT(pUart, UART_IT_RXNE);
 
     /* Check if a transmit Process is ongoing or not */
-    if(pUart->State == HAL_UART_STATE_BUSY_TX_RX) {
+    if(pUart->State == HAL_UART_STATE_BUSY_TX_RX)
+    {
         pUart->State = HAL_UART_STATE_BUSY_TX;
-    } else {
+    }
+    else
+    {
         /* Disable the UART Parity Error Interrupt */
         __HAL_UART_DISABLE_IT(pUart, UART_IT_PE);
 
@@ -72,7 +80,8 @@ void UART_ProcessStatus(UART_HandleTypeDef* pUart) {
     }
 
     /* Call UART Error Call back function if need be --------------------------*/
-    if (pUart->ErrorCode != HAL_UART_ERROR_NONE) {
+    if (pUart->ErrorCode != HAL_UART_ERROR_NONE)
+    {
         HAL_UART_ErrorCallback(pUart);
     }
 
@@ -92,13 +101,18 @@ bool UART_GetCharacter(UART_HandleTypeDef* pUart, uint8_t* pChar) {
     if((__HAL_UART_GET_IT(pUart, UART_IT_RXNE) != RESET) &&
        (__HAL_UART_GET_IT_SOURCE(pUart, UART_IT_RXNE) != RESET))
     {
-        if((pUart->State == HAL_UART_STATE_BUSY_RX) || (pUart->State == HAL_UART_STATE_BUSY_TX_RX)) {
+        if((pUart->State == HAL_UART_STATE_BUSY_RX) || (pUart->State == HAL_UART_STATE_BUSY_TX_RX))
+        {
             *pChar = (uint8_t) (pUart->Instance->RDR & (uint8_t) pUart->Mask);
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
-    } else {
+    }
+    else
+    {
         return false;
     }
 }

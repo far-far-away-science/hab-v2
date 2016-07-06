@@ -1,7 +1,6 @@
 #pragma once
 
-#include "test/test.h"
-#include "stm32l0xx_hal.h"
+#include <test/test.h>
 
 #include "../aprs_impl.h"
 
@@ -14,7 +13,7 @@ TEST_CLASS(aprs_encodeAprsMessage_perf,
         resetTestData();
 
         const uint16_t trialsCount = 1000;
-        const uint32_t startTimeMilliseconds = HAL_GetTick();
+        const uint32_t startTimeMilliseconds = getTimeMilliseconds();
 
         for (uint16_t i = 0; i < trialsCount; ++i)
         {
@@ -26,14 +25,14 @@ TEST_CLASS(aprs_encodeAprsMessage_perf,
             g_testAx25EncodedMessage.size.lastCharBits = 0;
         }
 
-        const uint32_t endTimeMilliseconds = HAL_GetTick();
+        const uint32_t endTimeMilliseconds = getTimeMilliseconds();
         const float actualRuntimeMilliseconds = (float) (endTimeMilliseconds - startTimeMilliseconds) / ((float) trialsCount);
 
         // the following data is for 16MHz
 #ifndef DEBUG
         ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 1.42f);
 #else
-        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 2.65f);
+        ASSERT_FLOAT_IS_LESS_THAN_OR_EQUAL(actualRuntimeMilliseconds, 2.68f);
 #endif
     })
 })
