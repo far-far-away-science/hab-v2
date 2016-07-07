@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.5.0">
+<eagle version="7.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -8623,9 +8623,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="SUPPLY22" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="GND25" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="C25" library="SparkFun-Passives" deviceset="CAP" device="0805" value="330p"/>
-<part name="R16" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="470K"/>
+<part name="R16" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="820K"/>
 <part name="R17" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="220K"/>
-<part name="R18" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="10K"/>
+<part name="R18" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="680K"/>
 <part name="C26" library="SparkFun-Passives" deviceset="CAP" device="0805" value="0.1u"/>
 <part name="GND26" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="GND27" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
@@ -8693,10 +8693,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="GND40" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="GND48" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="SUPPLY20" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
-<part name="C37" library="SparkFun-Passives" deviceset="CAP" device="0805" value="100p"/>
-<part name="R10" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="18K"/>
-<part name="R21" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="680"/>
-<part name="C38" library="SparkFun-Passives" deviceset="CAP" device="0805" value="47n"/>
+<part name="R10" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="470K"/>
 <part name="SUPPLY25" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="R27" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="330k"/>
 <part name="C39" library="SparkFun-Passives" deviceset="CAP" device="0805" value="100p"/>
@@ -8991,12 +8988,9 @@ Ground</text>
 <instance part="GND40" gate="1" x="292.1" y="20.32"/>
 <instance part="GND48" gate="1" x="279.4" y="20.32"/>
 <instance part="SUPPLY20" gate="G$1" x="279.4" y="33.02"/>
-<instance part="C37" gate="G$1" x="231.14" y="134.62" rot="R270"/>
 <instance part="R10" gate="G$1" x="210.82" y="121.92"/>
-<instance part="R21" gate="G$1" x="190.5" y="106.68"/>
-<instance part="C38" gate="G$1" x="195.58" y="99.06"/>
 <instance part="SUPPLY25" gate="G$1" x="182.88" y="129.54"/>
-<instance part="R27" gate="G$1" x="200.66" y="109.22"/>
+<instance part="R27" gate="G$1" x="195.58" y="106.68"/>
 <instance part="C39" gate="G$1" x="205.74" y="99.06"/>
 <instance part="R28" gate="G$1" x="231.14" y="96.52"/>
 <instance part="GND36" gate="1" x="223.52" y="129.54"/>
@@ -9261,13 +9255,8 @@ Ground</text>
 </segment>
 <segment>
 <pinref part="GND27" gate="1" pin="GND"/>
-<pinref part="C38" gate="G$1" pin="2"/>
-<wire x1="195.58" y1="96.52" x2="195.58" y2="93.98" width="0.1524" layer="91"/>
-<wire x1="195.58" y1="93.98" x2="205.74" y2="93.98" width="0.1524" layer="91"/>
 <pinref part="C39" gate="G$1" pin="2"/>
-<wire x1="205.74" y1="93.98" x2="205.74" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="205.74" y1="96.52" x2="205.74" y2="93.98" width="0.1524" layer="91"/>
-<junction x="205.74" y="93.98"/>
+<wire x1="205.74" y1="96.52" x2="205.74" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="GND28" gate="1" pin="GND"/>
@@ -10529,11 +10518,8 @@ Ground</text>
 <segment>
 <wire x1="215.9" y1="144.78" x2="215.9" y2="121.92" width="0.1524" layer="91"/>
 <pinref part="R10" gate="G$1" pin="2"/>
-<pinref part="C37" gate="G$1" pin="2"/>
 <pinref part="R18" gate="G$1" pin="1"/>
-<wire x1="228.6" y1="134.62" x2="228.6" y2="121.92" width="0.1524" layer="91"/>
 <wire x1="228.6" y1="121.92" x2="215.9" y2="121.92" width="0.1524" layer="91"/>
-<junction x="228.6" y="121.92"/>
 <junction x="215.9" y="121.92"/>
 <pinref part="IC7" gate="A" pin="-IN"/>
 <wire x1="215.9" y1="144.78" x2="218.44" y2="144.78" width="0.1524" layer="91"/>
@@ -10779,43 +10765,31 @@ Ground</text>
 </net>
 <net name="LP1" class="0">
 <segment>
-<wire x1="238.76" y1="121.92" x2="238.76" y2="134.62" width="0.1524" layer="91"/>
-<wire x1="238.76" y1="134.62" x2="238.76" y2="142.24" width="0.1524" layer="91"/>
+<wire x1="238.76" y1="121.92" x2="238.76" y2="142.24" width="0.1524" layer="91"/>
 <wire x1="241.3" y1="142.24" x2="238.76" y2="142.24" width="0.1524" layer="91"/>
 <label x="238.76" y="142.24" size="1.778" layer="95"/>
 <pinref part="IC7" gate="A" pin="OUT"/>
 <wire x1="233.68" y1="142.24" x2="238.76" y2="142.24" width="0.1524" layer="91"/>
 <junction x="238.76" y="142.24"/>
 <pinref part="R18" gate="G$1" pin="2"/>
-<pinref part="C37" gate="G$1" pin="1"/>
-<wire x1="236.22" y1="134.62" x2="238.76" y2="134.62" width="0.1524" layer="91"/>
-<junction x="238.76" y="134.62"/>
 </segment>
 <segment>
-<pinref part="R21" gate="G$1" pin="1"/>
-<wire x1="180.34" y1="106.68" x2="185.42" y2="106.68" width="0.1524" layer="91"/>
+<pinref part="R27" gate="G$1" pin="1"/>
+<wire x1="190.5" y1="106.68" x2="180.34" y2="106.68" width="0.1524" layer="91"/>
 <label x="180.34" y="106.68" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="LP2" class="0">
 <segment>
-<pinref part="C38" gate="G$1" pin="1"/>
-<pinref part="R21" gate="G$1" pin="2"/>
-<wire x1="195.58" y1="104.14" x2="195.58" y2="106.68" width="0.1524" layer="91"/>
-<pinref part="R27" gate="G$1" pin="1"/>
-<wire x1="195.58" y1="109.22" x2="195.58" y2="106.68" width="0.1524" layer="91"/>
-<junction x="195.58" y="106.68"/>
-</segment>
-</net>
-<net name="LP3" class="0">
-<segment>
-<pinref part="R27" gate="G$1" pin="2"/>
 <label x="213.36" y="109.22" size="1.778" layer="95"/>
-<pinref part="C39" gate="G$1" pin="1"/>
-<wire x1="205.74" y1="104.14" x2="205.74" y2="109.22" width="0.1524" layer="91"/>
 <pinref part="IC7" gate="B" pin="+IN"/>
 <wire x1="218.44" y1="109.22" x2="205.74" y2="109.22" width="0.1524" layer="91"/>
-<junction x="205.74" y="109.22"/>
+<pinref part="R27" gate="G$1" pin="2"/>
+<wire x1="200.66" y1="106.68" x2="205.74" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="205.74" y1="106.68" x2="205.74" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="C39" gate="G$1" pin="1"/>
+<wire x1="205.74" y1="106.68" x2="205.74" y2="104.14" width="0.1524" layer="91"/>
+<junction x="205.74" y="106.68"/>
 </segment>
 </net>
 <net name="LP-" class="0">
@@ -10842,6 +10816,8 @@ Ground</text>
 <approved hash="104,1,139.7,53.34,IC6,RFGND,RGND,,,"/>
 <approved hash="104,1,165.1,58.42,IC6,VCC,5V,,,"/>
 <approved hash="104,1,309.88,165.1,IC5,VIN,+9V,,,"/>
+<approved hash="104,1,223.52,149.86,IC7A,V+,5V,,,"/>
+<approved hash="104,1,223.52,134.62,IC7A,V-,GND,,,"/>
 <approved hash="104,1,353.06,38.1,D6,VCC,VS,,,"/>
 <approved hash="202,1,419.1,86.36,IC10,!EN,,,,"/>
 <approved hash="106,1,314.96,68.58,AL_L,,,,,"/>
