@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.5.0">
+<eagle version="7.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -2418,17 +2418,19 @@ Please make sure your boards conform to these design rules.</description>
 <vertex x="48.895" y="24.765"/>
 <vertex x="62.23" y="24.765"/>
 <vertex x="62.23" y="26.035"/>
-<vertex x="57.785" y="26.035"/>
-<vertex x="57.15" y="25.4"/>
-<vertex x="49.53" y="25.4"/>
-<vertex x="49.53" y="37.465"/>
-<vertex x="48.895" y="38.1"/>
+<vertex x="51.435" y="26.035"/>
+<vertex x="50.165" y="27.305"/>
+<vertex x="50.165" y="36.195"/>
+<vertex x="48.26" y="38.1"/>
 <vertex x="43.815" y="38.1"/>
 <vertex x="43.815" y="31.75"/>
 <vertex x="44.45" y="31.75"/>
 <vertex x="44.45" y="36.83"/>
 <vertex x="48.26" y="36.83"/>
-<vertex x="48.26" y="25.4"/>
+<vertex x="48.26" y="26.67"/>
+<vertex x="47.625" y="26.035"/>
+<vertex x="43.815" y="26.035"/>
+<vertex x="43.18" y="25.4"/>
 </polygon>
 <via x="59.69" y="25.4" extent="1-16" drill="0.5"/>
 <polygon width="0.2032" layer="16" isolate="0.2032" rank="3">
@@ -2686,7 +2688,9 @@ Please make sure your boards conform to these design rules.</description>
 <vertex x="23.495" y="13.97"/>
 <vertex x="22.86" y="14.605"/>
 <vertex x="22.86" y="19.05"/>
-<vertex x="19.05" y="22.86"/>
+<vertex x="19.685" y="22.225"/>
+<vertex x="19.685" y="38.735"/>
+<vertex x="19.05" y="39.37"/>
 <vertex x="19.05" y="48.895"/>
 <vertex x="20.32" y="50.165"/>
 <vertex x="29.21" y="50.165"/>
@@ -3570,8 +3574,8 @@ Please make sure your boards conform to these design rules.</description>
 <approved hash="19,16,7abc0c6ad07ba248"/>
 <approved hash="19,16,789216de14f8715e"/>
 <approved hash="19,16,d723524d1ae9946d"/>
-<approved hash="5,1,fa6c0d4d23bc212a"/>
 <approved hash="5,1,efe80e4520c437a6"/>
+<approved hash="5,1,fa6c0d4d23bc212a"/>
 <approved hash="5,1,8de97acd2fbc2d2f"/>
 <approved hash="5,1,a16a564d2fbc2d2c"/>
 <approved hash="5,1,b4ee55452cc43ba0"/>
