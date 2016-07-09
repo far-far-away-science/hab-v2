@@ -14,19 +14,6 @@ bool isAx25MessageEmtpy(const Ax25EncodedMessage* pMessage)
     return pMessage->size.chars == 0 && pMessage->size.lastCharBits == 0;
 }
 
-void advanceBitstreamBit(BitstreamSize* pResultBitstreamSize)
-{
-    if (pResultBitstreamSize->lastCharBits >= 7)
-    {
-        ++pResultBitstreamSize->chars;
-        pResultBitstreamSize->lastCharBits = 0;
-    }
-    else
-    {
-        ++pResultBitstreamSize->lastCharBits;
-    }
-}
-
 bool encodeAndAppendPrefixAsAx25(Ax25EncodingContext* pAx25EncodingContext, Ax25EncodedMessage* pResultAprsEncodedMessage)
 {
     pAx25EncodingContext->lastBit = 1;

@@ -1,10 +1,10 @@
-#include <signals/signals.h>
+#include "signals_impl.h"
 
-#include <mxconstants.h>
+#include "mxconstants.h"
 
-#include <stm32l073xx.h>
-#include <stm32l0xx_hal.h>
-#include <stm32l0xx_hal_conf.h>
+#include <stm32l0xx_hal_tim.h>
+
+ErrorsDetails g_errorsDetails = { 0 };
 
 static uint8_t g_errorsMask = 0;
 static TIM_HandleTypeDef g_timHandle = { 0 };
@@ -25,7 +25,7 @@ void initializeSignals(void)
 
     if (HAL_TIM_PWM_Init(&g_timHandle) != HAL_OK)
     {
-        ERROR_TIMER();
+        ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_INITIALIZE);
     }
 
     g_timOutputConfig.OCMode     = TIM_OCMODE_PWM1;
@@ -35,19 +35,19 @@ void initializeSignals(void)
     g_timOutputConfig.Pulse = PULSE_VALUE;
     if (HAL_TIM_PWM_ConfigChannel(&g_timHandle, &g_timOutputConfig, SIGNAL_TIMER_CHANNEL_RED) != HAL_OK)
     {
-        ERROR_TIMER();
+        ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_RED);
     }
 
     g_timOutputConfig.Pulse = PULSE_VALUE;
     if (HAL_TIM_PWM_ConfigChannel(&g_timHandle, &g_timOutputConfig, SIGNAL_TIMER_CHANNEL_GREEN) != HAL_OK)
     {
-        ERROR_TIMER();
+        ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_GREEN);
     }
 
     g_timOutputConfig.Pulse = PULSE_VALUE;
     if (HAL_TIM_PWM_ConfigChannel(&g_timHandle, &g_timOutputConfig, SIGNAL_TIMER_CHANNEL_BLUE) != HAL_OK)
     {
-        ERROR_TIMER();
+        ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_BLUE);
     }
 }
 
@@ -56,9 +56,15 @@ uint8_t getErrorsMask()
     return g_errorsMask;
 }
 
-void addError(uint8_t error)
+void addError(uint8_t errorId, uint32_t* pErrorDetails, uint32_t errorDetailId)
 {
-    g_errorsMask |= error;
+    g_errorsMask |= errorId;
+    *pErrorDetails |= errorDetailId;
+}
+
+void addErrorWithoutDetails(uint8_t errorId)
+{
+    g_errorsMask |= errorId;
 }
 
 void resetErrors()
@@ -72,7 +78,7 @@ void signalError(bool signal)
     {
         if (HAL_TIM_PWM_Start(&g_timHandle, SIGNAL_TIMER_CHANNEL_RED) != HAL_OK)
         {
-            ERROR_TIMER();
+            ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_SIGNAL_RED);
         }
     }
     else
@@ -87,7 +93,7 @@ void signalInitialized(bool signal)
     {
         if (HAL_TIM_PWM_Start(&g_timHandle, SIGNAL_TIMER_CHANNEL_GREEN) != HAL_OK)
         {
-            ERROR_TIMER();
+            ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_SIGNAL_GREEN);
         }
     }
     else
@@ -102,7 +108,7 @@ void signalTransmitting(bool signal)
     {
         if (HAL_TIM_PWM_Start(&g_timHandle, SIGNAL_TIMER_CHANNEL_BLUE) != HAL_OK)
         {
-            ERROR_TIMER();
+            ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_SIGNAL_BLUE);
         }
     }
     else
@@ -111,7 +117,7 @@ void signalTransmitting(bool signal)
     }
 }
 
-void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* pTimer)
+void initializeSignalsTimer(TIM_HandleTypeDef* pTimer)
 {
     if (pTimer->Instance == SIGNAL_TIMER)
     {

@@ -19,6 +19,8 @@ typedef struct AfskContext_t
 
 void resetAfskContext(AfskContext* pAfskContext);
 
+void advanceBitstreamBit(BitstreamSize* pResultBitstreamSize);
+
 /*
  * Should fill full requested length of the buffer. If no data available add Zeroes.
  *

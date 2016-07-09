@@ -49,7 +49,7 @@
     void assertIsTrue(bool value, uint32_t lineNumber);
     void assertIsFalse(bool value, uint32_t lineNumber);
 
-    void assertIntAreEqual(uint8_t expected, uint8_t actual, uint32_t lineNumber);
+    void assertIntAreEqual(uint32_t expected, uint32_t actual, uint32_t lineNumber);
     void assertStrAreEqual(const uint8_t* pExpected, const uint8_t* pActual, uint16_t size, uint32_t lineNumber);
     void assertBinaryAreEqual(const uint8_t* pExpected, const uint8_t* pActual, uint16_t size, uint32_t lineNumber);
 
@@ -59,6 +59,9 @@
 
     #define EXECUTE_TESTS() \
         executeTests();
+
+    #define ERROR_TEST_FAILED() \
+        signalError(true);
 
 #else
     #define HANG()

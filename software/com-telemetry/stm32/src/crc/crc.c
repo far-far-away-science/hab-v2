@@ -22,12 +22,12 @@ void resetCrc(uint32_t polynomial)
 
     if (HAL_CRC_DeInit(&g_crcHandle) != HAL_OK)
     {
-        ERROR_FCS();
+        ERROR_FCS(ED_FCS_FAILED_TO_DEINITIALIZE);
     }
 
     if (HAL_CRC_Init(&g_crcHandle) != HAL_OK)
     {
-        ERROR_FCS();
+        ERROR_FCS(ED_FCS_FAILED_TO_INITIALIZE);
     }
 }
 
@@ -45,7 +45,7 @@ void disableCrc()
 {
     if (HAL_CRC_DeInit(&g_crcHandle) != HAL_OK)
     {
-        ERROR_FCS();
+        ERROR_FCS(ED_FCS_FAILED_TO_DEINITIALIZE);
     }
 }
 

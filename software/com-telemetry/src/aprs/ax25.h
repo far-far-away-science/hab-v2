@@ -45,8 +45,6 @@ typedef struct Ax25EncodedMessage_t
 
 bool isAx25MessageEmtpy(const Ax25EncodedMessage* pMessage);
 
-void advanceBitstreamBit(BitstreamSize* pResultBitstreamSize);
-
 bool encodeAndAppendPrefixAsAx25(Ax25EncodingContext* pAx25EncodingContext, Ax25EncodedMessage* pResultAprsEncodedMessage);
 
 bool encodeAndAppendDataAsAx25(const uint8_t* pMessageData,

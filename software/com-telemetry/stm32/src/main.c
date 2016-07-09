@@ -9,7 +9,8 @@
 #include "stm32l0xx_hal_uart.h"
 #include "stm32l0xx_hal_uart_ex.h"
 
-#include "uart.h"
+#include <stm32l0xx_hal_rcc.h>
+
 #include "test/test.h"
 #include "gps/nmea_buffer.h"
 
@@ -19,6 +20,8 @@
 
 #include "test/trace_uart.h"
 
+#include "copernicus/copernicus.h"
+
 #include <signals/signals.h>
 
 #define HALF_BUFFER_LENGTH 128
@@ -27,8 +30,6 @@
 Telemetry g_telemetry = { 0 };
 AfskContext g_afskContext = { 0 };
 NmeaMessage g_nmeaMessage = { 0 };
-NmeaRingBuffer g_nmeaRingBuffer = { 0 };
-UART_HandleTypeDef g_copernicusUartHandle = { 0 };
 
 bool g_aprsMessageTransmitting = false;
 DAC_HandleTypeDef g_hx1DacHandle = { 0 };
@@ -36,12 +37,13 @@ DAC_ChannelConfTypeDef g_hx1DacConfig = { 0 };
 Ax25EncodedMessage g_ax25EncodedAprsMessage = { 0 };
 uint16_t g_DacBuffer[FULL_BUFFER_LENGTH] = { 0 };
 
+#include <string.h> // TODO
+
 void ErrorHandler(void);
 
 void SystemClock_Config(void);
 void MX_GPIO_Init(void);
 void MX_STLink_Init(void);
-void Copernicus_Uart_Init(void);
 
 void HX1_Timer_Init(void);
 void HX1_Dac_Init(void);
@@ -72,13 +74,18 @@ int main(void)
     initializeSignals();
     MX_GPIO_Init();
     MX_STLink_Init();
-    Copernicus_Uart_Init();
+    copernicusUartInit();
     HX1_Dac_Init();
     HX1_Timer_Init();
 
     signalInitialized(true);
 
-    bool hasGpsMessage = false;
+    // bool hasGpsMessage = false;
+    // TODO
+    bool hasGpsMessage = true;
+    g_nmeaMessage.size = 70;
+    memcpy(g_nmeaMessage.message, "$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76", g_nmeaMessage.size);
+    // TODO
 
     for (;;) {
         // TODO distinguish between modes:
@@ -181,29 +188,6 @@ void MX_STLink_Init(void)
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF4_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-}
-
-void Copernicus_Uart_Init(void)
-{
-    g_copernicusUartHandle.Instance                    = COPERNICUS_UART;
-    g_copernicusUartHandle.Init.BaudRate               = 4800;
-    g_copernicusUartHandle.Init.WordLength             = UART_WORDLENGTH_8B;
-    g_copernicusUartHandle.Init.StopBits               = UART_STOPBITS_1;
-    g_copernicusUartHandle.Init.Parity                 = UART_PARITY_NONE;
-    g_copernicusUartHandle.Init.HwFlowCtl              = UART_HWCONTROL_NONE;
-    g_copernicusUartHandle.Init.Mode                   = UART_MODE_RX;
-    g_copernicusUartHandle.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
-    g_copernicusUartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-
-    if (HAL_UART_Init(&g_copernicusUartHandle) != HAL_OK)
-    {
-        ErrorHandler();
-    }
-
-    if (EnableUart2ReceiveData(&g_copernicusUartHandle) != HAL_OK)
-    {
-        ErrorHandler();
-    }
 }
 
 void HX1_Timer_Init(void)

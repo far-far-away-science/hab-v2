@@ -8,4 +8,5 @@ bool encodeAprsMessage(const Callsign* pCallsign, const uint8_t* aprsPayloadBuff
 
 uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength);
 
+uint8_t uint8ToBinaryStr(uint8_t value, uint8_t* pBuffer);
 uint8_t threeDigitInt2str(uint16_t value, uint8_t* pBuffer);

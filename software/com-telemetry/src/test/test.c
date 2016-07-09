@@ -42,7 +42,7 @@
         }
     }
 
-    void assertIntAreEqual(uint8_t expected, uint8_t actual, uint32_t lineNumber)
+    void assertIntAreEqual(uint32_t expected, uint32_t actual, uint32_t lineNumber)
     {
         if (expected != actual)
         {

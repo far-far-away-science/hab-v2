@@ -1,1 +1,1 @@
-all software projects go into this folder
+all balloon software projects go to this folder

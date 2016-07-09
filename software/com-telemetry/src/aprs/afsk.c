@@ -15,6 +15,19 @@ void resetAfskContext(AfskContext* pAfskContext)
     RESET_CONTEXT_GENERATED_PART(pAfskContext);
 }
 
+void advanceBitstreamBit(BitstreamSize* pResultBitstreamSize)
+{
+    if (pResultBitstreamSize->lastCharBits >= 7)
+    {
+        ++pResultBitstreamSize->chars;
+        pResultBitstreamSize->lastCharBits = 0;
+    }
+    else
+    {
+        ++pResultBitstreamSize->lastCharBits;
+    }
+}
+
 bool encodeAx25MessageAsAfsk(Ax25EncodedMessage* pMessage,
                              AfskContext* pAfskContext,
                              uint16_t* pOutputBuffer,

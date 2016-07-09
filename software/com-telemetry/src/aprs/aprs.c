@@ -7,6 +7,8 @@
 
 #include <crc/crc.h>
 
+#include <signals/signals.h>
+
 #define CRC_POLYNOMIAL                0x1021
 #define CRC_POST_PROCESSING_XOR_VALUE 0xFFFF
 
@@ -125,6 +127,22 @@ uint8_t threeDigitInt2str(uint16_t value, uint8_t* pBuffer)
     return 3;
 }
 
+uint8_t uint8ToBinaryStr(uint8_t value, uint8_t* pBuffer)
+{
+    for (int8_t iBit = 0x80, idx = 0; iBit > 0; iBit >>= 1, ++idx)
+    {
+        if ((value & iBit) != 0)
+        {
+            pBuffer[idx] = '1';
+        }
+        else
+        {
+            pBuffer[idx] = '0';
+        }
+    }
+    return 8;
+}
+
 uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPayloadBuffer, uint8_t aprsPayloadBufferMaxLength)
 {
     if (aprsPayloadBufferMaxLength < 34)
@@ -153,8 +171,9 @@ uint8_t createTelemetryAprsPayload(const Telemetry* pTelemetry, uint8_t* pAprsPa
     pAprsPayloadBuffer[currentIdx++] = ',';
     currentIdx += threeDigitInt2str(pTelemetry->maxAccelerationOnAnyAxis, &pAprsPayloadBuffer[currentIdx]);
     pAprsPayloadBuffer[currentIdx++] = ',';
-    memcpy(&pAprsPayloadBuffer[currentIdx], "00000000", 8); // TODO send error bit mask here
-    currentIdx += 8;
+
+    const uint8_t errorMask = getErrorsMask();
+    currentIdx += uint8ToBinaryStr(errorMask, &pAprsPayloadBuffer[currentIdx]);
 
     return currentIdx;
 }
