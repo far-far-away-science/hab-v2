@@ -4,6 +4,7 @@
 #include <mxconstants.h>
 
 #include <stm32l0xx_hal_rcc.h>
+#include <stm32l0xx_hal_gpio.h>
 #include <stm32l0xx_hal_rcc_ex.h>
 #include <stm32l0xx_hal_cortex.h>
 

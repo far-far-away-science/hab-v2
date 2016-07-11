@@ -6,8 +6,6 @@
 
 #include <signals/signals.h>
 
-extern DAC_HandleTypeDef g_hx1DacHandle;
-
 void HardFault_Handler(void)
 {
     ERROR_ISR_FAULT(ED_ISRF_HARD);
@@ -43,9 +41,4 @@ void UsageFault_Handler(void)
 void SysTick_Handler(void)
 {
     HAL_IncTick();
-}
-
-void HX1_DMA_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(g_hx1DacHandle.DMA_Handle1);
 }

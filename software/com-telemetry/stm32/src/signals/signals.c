@@ -25,7 +25,7 @@ void initializeSignals(void)
 
     if (HAL_TIM_PWM_Init(&g_timHandle) != HAL_OK)
     {
-        ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_INITIALIZE);
+        ERROR_SIGNAL_TIMER(ED_ST_FAILED_TO_INITIALIZE);
     }
 
     g_timOutputConfig.OCMode     = TIM_OCMODE_PWM1;
@@ -35,19 +35,19 @@ void initializeSignals(void)
     g_timOutputConfig.Pulse = PULSE_VALUE;
     if (HAL_TIM_PWM_ConfigChannel(&g_timHandle, &g_timOutputConfig, SIGNAL_TIMER_CHANNEL_RED) != HAL_OK)
     {
-        ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_RED);
+        ERROR_SIGNAL_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_RED);
     }
 
     g_timOutputConfig.Pulse = PULSE_VALUE;
     if (HAL_TIM_PWM_ConfigChannel(&g_timHandle, &g_timOutputConfig, SIGNAL_TIMER_CHANNEL_GREEN) != HAL_OK)
     {
-        ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_GREEN);
+        ERROR_SIGNAL_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_GREEN);
     }
 
     g_timOutputConfig.Pulse = PULSE_VALUE;
     if (HAL_TIM_PWM_ConfigChannel(&g_timHandle, &g_timOutputConfig, SIGNAL_TIMER_CHANNEL_BLUE) != HAL_OK)
     {
-        ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_BLUE);
+        ERROR_SIGNAL_TIMER(ED_ST_FAILED_TO_CONFIGURE_CHANNEL_BLUE);
     }
 }
 
@@ -78,7 +78,7 @@ void signalError(bool signal)
     {
         if (HAL_TIM_PWM_Start(&g_timHandle, SIGNAL_TIMER_CHANNEL_RED) != HAL_OK)
         {
-            ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_SIGNAL_RED);
+            ERROR_SIGNAL_TIMER(ED_ST_FAILED_TO_SIGNAL_RED);
         }
     }
     else
@@ -93,7 +93,7 @@ void signalInitialized(bool signal)
     {
         if (HAL_TIM_PWM_Start(&g_timHandle, SIGNAL_TIMER_CHANNEL_GREEN) != HAL_OK)
         {
-            ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_SIGNAL_GREEN);
+            ERROR_SIGNAL_TIMER(ED_ST_FAILED_TO_SIGNAL_GREEN);
         }
     }
     else
@@ -108,7 +108,7 @@ void signalTransmitting(bool signal)
     {
         if (HAL_TIM_PWM_Start(&g_timHandle, SIGNAL_TIMER_CHANNEL_BLUE) != HAL_OK)
         {
-            ERROR_SIGNA_TIMER(ED_ST_FAILED_TO_SIGNAL_BLUE);
+            ERROR_SIGNAL_TIMER(ED_ST_FAILED_TO_SIGNAL_BLUE);
         }
     }
     else

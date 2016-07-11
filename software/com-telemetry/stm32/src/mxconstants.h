@@ -1,8 +1,5 @@
 #pragma once
 
-#include "stm32l073xx.h"
-#include "stm32l0xx_hal_gpio.h"
-
 #define COPERNICUS_GPIO               GPIOB
 #define COPERNICUS_UART               LPUART1
 #define COPERNICUS_UART_TX_Pin        GPIO_PIN_10
@@ -47,7 +44,7 @@
 #define HX1_DMA_IRQn            DMA1_Channel2_3_IRQn
 #define HX1_DMA_IRQHandler      DMA1_Channel2_3_IRQHandler
 #define HX1_DMA_CLK_ENABLE      __HAL_RCC_DMA1_CLK_ENABLE
-#define HX1_GPIO_CLK_ENABLE     __HAL_RCC_GPIOA_CLK_ENABLE
+#define HX1_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOA_CLK_ENABLE()
 #define HX1_GPIO_PIN            GPIO_PIN_4
 #define HX1_GPIO_PORT           GPIOA
 

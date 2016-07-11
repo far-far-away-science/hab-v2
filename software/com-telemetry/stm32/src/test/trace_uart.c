@@ -7,6 +7,7 @@
     #include <signals/signals.h>
 
     #include <stm32l0xx_hal_rcc.h>
+    #include <stm32l0xx_hal_gpio.h>
     #include <stm32l0xx_hal_cortex.h>
     #include <stm32l0xx_hal_uart_ex.h>
 
