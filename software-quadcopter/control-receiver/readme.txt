@@ -1,1 +1,0 @@
-Android software to receive messages received by quadcopter

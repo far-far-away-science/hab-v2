@@ -1,1 +1,0 @@
-hardware related to quadcopter
