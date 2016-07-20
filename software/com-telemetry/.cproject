@@ -30,7 +30,7 @@
 									<listOptionValue builtIn="false" value="DEBUG"/>
 								</option>
 								<option id="gnu.c.compiler.option.warnings.toerrors.853901766" name="Warnings as errors (-Werror)" superClass="gnu.c.compiler.option.warnings.toerrors" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="gnu.c.compiler.option.misc.other.1755743648" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mthumb -mcpu=cortex-m0plus --specs=nosys.specs" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.1755743648" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mthumb -mcpu=cortex-m0 --specs=nosys.specs -fdata-sections -ffunction-sections -Wl,--gc-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.2008750554" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/stm32/drivers/stm32l0xx_hal_driver/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\GNU Tools ARM Embedded\5.3 2016q1\arm-none-eabi\include&quot;"/>
@@ -49,7 +49,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.6214221" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.libs.447061030" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
 								<option id="gnu.c.link.option.paths.1142242794" name="Library search path (-L)" superClass="gnu.c.link.option.paths"/>
-								<option id="gnu.c.link.option.ldflags.174643802" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs" valueType="string"/>
+								<option id="gnu.c.link.option.ldflags.174643802" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs -Wl,--gc-sections" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.498414446" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -93,7 +93,7 @@
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.2034302960" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="STM32L073xx"/>
 								</option>
-								<option id="gnu.c.compiler.option.misc.other.800175519" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mthumb -mcpu=cortex-m0 --specs=nosys.specs" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.800175519" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mthumb -mcpu=cortex-m0 --specs=nosys.specs -fdata-sections -ffunction-sections -Wl,--gc-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.1452497641" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/stm32/drivers/stm32l0xx_hal_driver/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\GNU Tools ARM Embedded\5.3 2016q1\arm-none-eabi\include&quot;"/>
@@ -114,7 +114,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.761412981" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.libs.1250371765" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
 								<option id="gnu.c.link.option.paths.1947993387" name="Library search path (-L)" superClass="gnu.c.link.option.paths"/>
-								<option id="gnu.c.link.option.ldflags.2078560133" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs" valueType="string"/>
+								<option id="gnu.c.link.option.ldflags.2078560133" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs -Wl,--gc-sections" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1316588789" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -161,7 +161,7 @@
 									<listOptionValue builtIn="false" value="DEBUG"/>
 								</option>
 								<option id="gnu.c.compiler.option.warnings.toerrors.1033614646" name="Warnings as errors (-Werror)" superClass="gnu.c.compiler.option.warnings.toerrors" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="gnu.c.compiler.option.misc.other.286305505" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mthumb -mcpu=cortex-m0plus --specs=nosys.specs" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.286305505" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mthumb -mcpu=cortex-m0 --specs=nosys.specs -fdata-sections -ffunction-sections -Wl,--gc-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.1019796614" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/stm32/drivers/stm32l0xx_hal_driver/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\GNU Tools ARM Embedded\5.3 2016q1\arm-none-eabi\include&quot;"/>
@@ -181,7 +181,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.1527182252" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.libs.1822813986" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
 								<option id="gnu.c.link.option.paths.994236420" name="Library search path (-L)" superClass="gnu.c.link.option.paths"/>
-								<option id="gnu.c.link.option.ldflags.1320637590" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs" valueType="string"/>
+								<option id="gnu.c.link.option.ldflags.1320637590" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs -Wl,--gc-sections" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.2121558033" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -226,7 +226,7 @@
 									<listOptionValue builtIn="false" value="STM32L073xx"/>
 									<listOptionValue builtIn="false" value="TEST"/>
 								</option>
-								<option id="gnu.c.compiler.option.misc.other.859871213" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mthumb -mcpu=cortex-m0 --specs=nosys.specs" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.859871213" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mthumb -mcpu=cortex-m0 --specs=nosys.specs -fdata-sections -ffunction-sections -Wl,--gc-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.480428126" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/stm32/drivers/stm32l0xx_hal_driver/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\GNU Tools ARM Embedded\5.3 2016q1\arm-none-eabi\include&quot;"/>
@@ -247,7 +247,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.856586665" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.libs.1690750527" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
 								<option id="gnu.c.link.option.paths.197365115" name="Library search path (-L)" superClass="gnu.c.link.option.paths"/>
-								<option id="gnu.c.link.option.ldflags.826240384" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs" valueType="string"/>
+								<option id="gnu.c.link.option.ldflags.826240384" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-T${ProjDirPath}\\stm32\\STM32L073RZ_FLASH.ld -mthumb -mcpu=cortex-m0plus --specs=nosys.specs -Wl,--gc-sections" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.546399794" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

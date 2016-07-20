@@ -1,7 +1,4 @@
 eclipse.preferences.version=1
-environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.1845460377/PATH/delimiter=;
-environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.1845460377/PATH/operation=replace
-environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.1845460377/PATH/value="C\:\\Program Files (x86)\\GNU Tools ARM Embedded\\5.3 2016q1\\bin";C\:/Program Files/J2RE/bin/server;C\:/Program Files/J2RE/bin;C\:/Program Files/J2RE/lib/amd64;C\:\\ProgramData\\Oracle\\Java\\javapath;C\:\\Windows\\system32;C\:\\Windows;C\:\\Windows\\System32\\Wbem;C\:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C\:\\Program Files\\Git\\cmd;C\:\\Program Files (x86)\\Windows Live\\Shared;C\:\\Program Files (x86)\\Skype\\Phone\\;C\:\\Program Files (x86)\\QuickTime\\QTSystem\\;C\:\\cygwin\\bin;C\:\\IDE\\eclipse
 environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.1845460377/append=true
 environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.1845460377/appendContributed=true
 environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.511115172/PATH/delimiter=;
@@ -9,9 +6,6 @@ environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.51111
 environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.511115172/PATH/value="C\:\\Program Files (x86)\\GNU Tools ARM Embedded\\5.3 2016q1\\bin";C\:/Program Files/J2RE/bin/server;C\:/Program Files/J2RE/bin;C\:/Program Files/J2RE/lib/amd64;C\:\\ProgramData\\Oracle\\Java\\javapath;C\:\\Windows\\system32;C\:\\Windows;C\:\\Windows\\System32\\Wbem;C\:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C\:\\Program Files\\Git\\cmd;C\:\\Program Files (x86)\\Windows Live\\Shared;C\:\\Program Files (x86)\\Skype\\Phone\\;C\:\\Program Files (x86)\\QuickTime\\QTSystem\\;C\:\\cygwin\\bin;C\:\\IDE\\eclipse
 environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.511115172/append=true
 environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843.511115172/appendContributed=true
-environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843/PATH/delimiter=;
-environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843/PATH/operation=replace
-environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843/PATH/value="C\:\\Program Files (x86)\\GNU Tools ARM Embedded\\5.3 2016q1\\bin";C\:/Program Files/J2RE/bin/server;C\:/Program Files/J2RE/bin;C\:/Program Files/J2RE/lib/amd64;C\:\\ProgramData\\Oracle\\Java\\javapath;C\:\\Windows\\system32;C\:\\Windows;C\:\\Windows\\System32\\Wbem;C\:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C\:\\Program Files\\Git\\cmd;C\:\\Program Files (x86)\\Windows Live\\Shared;C\:\\Program Files (x86)\\Skype\\Phone\\;C\:\\Program Files (x86)\\QuickTime\\QTSystem\\;C\:\\cygwin\\bin;C\:\\IDE\\eclipse
 environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843/append=true
 environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1494302843/appendContributed=true
 org.eclipse.cdt.core.formatter.alignment_for_arguments_in_method_invocation=16
