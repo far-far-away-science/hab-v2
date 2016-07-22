@@ -8039,11 +8039,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="GND16" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="SUPPLY12" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
 <part name="J1" library="SparkFun-Connectors" deviceset="I2C_STANDARD" device="_NO_SILK" value="I2C1"/>
-<part name="J2" library="SparkFun-Connectors" deviceset="I2C_STANDARD" device="_NO_SILK" value="I2C2"/>
 <part name="SUPPLY13" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
-<part name="SUPPLY14" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
 <part name="GND17" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="GND18" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="R2" library="SparkFun-Passives" deviceset="RESISTOR-ARRAY" device="0603-ARV" value="10K"/>
 <part name="IC5" library="HAB" deviceset="TPS62160" device=""/>
 <part name="L1" library="HAB" deviceset="INDUCTOR" device="1008" value="2.2u"/>
@@ -8292,11 +8289,8 @@ Ground</text>
 <instance part="GND16" gate="1" x="88.9" y="106.68"/>
 <instance part="SUPPLY12" gate="G$1" x="101.6" y="124.46"/>
 <instance part="J1" gate="G$1" x="198.12" y="165.1"/>
-<instance part="J2" gate="G$1" x="226.06" y="165.1"/>
 <instance part="SUPPLY13" gate="G$1" x="210.82" y="177.8"/>
-<instance part="SUPPLY14" gate="G$1" x="238.76" y="177.8"/>
 <instance part="GND17" gate="1" x="210.82" y="162.56"/>
-<instance part="GND18" gate="1" x="238.76" y="162.56"/>
 <instance part="R2" gate="B" x="104.14" y="170.18" rot="R270"/>
 <instance part="R2" gate="C" x="96.52" y="170.18" rot="R270"/>
 <instance part="R2" gate="D" x="88.9" y="170.18" rot="R270"/>
@@ -8589,12 +8583,6 @@ Ground</text>
 <pinref part="GND16" gate="1" pin="GND"/>
 <pinref part="S2" gate="G$1" pin="1"/>
 <wire x1="88.9" y1="109.22" x2="88.9" y2="111.76" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="GND18" gate="1" pin="GND"/>
-<wire x1="238.76" y1="165.1" x2="238.76" y2="167.64" width="0.1524" layer="91"/>
-<pinref part="J2" gate="G$1" pin="1"/>
-<wire x1="238.76" y1="167.64" x2="236.22" y2="167.64" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="GND17" gate="1" pin="GND"/>
@@ -8989,12 +8977,6 @@ Ground</text>
 <wire x1="210.82" y1="170.18" x2="208.28" y2="170.18" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="SUPPLY14" gate="G$1" pin="3.3V"/>
-<wire x1="238.76" y1="177.8" x2="238.76" y2="170.18" width="0.1524" layer="91"/>
-<pinref part="J2" gate="G$1" pin="2"/>
-<wire x1="238.76" y1="170.18" x2="236.22" y2="170.18" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="J4" gate="G$1" pin="VCC"/>
 <wire x1="223.52" y1="68.58" x2="220.98" y2="68.58" width="0.1524" layer="91"/>
 <wire x1="220.98" y1="68.58" x2="220.98" y2="76.2" width="0.1524" layer="91"/>
@@ -9292,11 +9274,6 @@ Ground</text>
 <label x="213.36" y="175.26" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="J2" gate="G$1" pin="4"/>
-<wire x1="243.84" y1="175.26" x2="236.22" y2="175.26" width="0.1524" layer="91"/>
-<label x="241.3" y="175.26" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="D7" gate="G$1" pin="C"/>
 <wire x1="152.4" y1="142.24" x2="152.4" y2="147.32" width="0.1524" layer="91"/>
 <label x="152.4" y="144.78" size="1.778" layer="95" rot="R90"/>
@@ -9312,11 +9289,6 @@ Ground</text>
 <pinref part="IC4" gate="G$1" pin="PB9"/>
 <wire x1="58.42" y1="91.44" x2="58.42" y2="86.36" width="0.1524" layer="91"/>
 <label x="58.42" y="88.9" size="1.778" layer="95" rot="R90"/>
-</segment>
-<segment>
-<pinref part="J2" gate="G$1" pin="3"/>
-<wire x1="243.84" y1="172.72" x2="236.22" y2="172.72" width="0.1524" layer="91"/>
-<label x="241.3" y="172.72" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="J1" gate="G$1" pin="3"/>
