@@ -2,14 +2,14 @@
 
 HAL_StatusTypeDef EnableUart2ReceiveData(UART_HandleTypeDef* pUart)
 {
-    if((pUart->State == HAL_UART_STATE_READY) || (pUart->State == HAL_UART_STATE_BUSY_TX))
+    if((pUart->gState == HAL_UART_STATE_READY) || (pUart->gState == HAL_UART_STATE_BUSY_TX))
     {
         __HAL_LOCK(pUart);
 
         UART_MASK_COMPUTATION(pUart);
 
         pUart->ErrorCode = HAL_UART_ERROR_NONE;
-        pUart->State = HAL_UART_STATE_BUSY_RX;
+        pUart->gState = HAL_UART_STATE_BUSY_RX;
 
         __HAL_UART_ENABLE_IT(pUart, UART_IT_PE);
         __HAL_UART_ENABLE_IT(pUart, UART_IT_ERR);
@@ -31,9 +31,9 @@ void DisableUart2ReceiveData(UART_HandleTypeDef* pUart)
     __HAL_UART_DISABLE_IT(pUart, UART_IT_RXNE);
 
     /* Check if a transmit Process is ongoing or not */
-    if(pUart->State == HAL_UART_STATE_BUSY_TX_RX)
+    if(pUart->gState == HAL_UART_STATE_BUSY_TX_RX)
     {
-        pUart->State = HAL_UART_STATE_BUSY_TX;
+        pUart->gState = HAL_UART_STATE_BUSY_TX;
     }
     else
     {
@@ -43,7 +43,7 @@ void DisableUart2ReceiveData(UART_HandleTypeDef* pUart)
         /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
         __HAL_UART_DISABLE_IT(pUart, UART_IT_ERR);
 
-        pUart->State = HAL_UART_STATE_READY;
+        pUart->gState = HAL_UART_STATE_READY;
     }
 
     HAL_UART_RxCpltCallback(pUart);
@@ -101,7 +101,7 @@ bool UART_GetCharacter(UART_HandleTypeDef* pUart, uint8_t* pChar) {
     if((__HAL_UART_GET_IT(pUart, UART_IT_RXNE) != RESET) &&
        (__HAL_UART_GET_IT_SOURCE(pUart, UART_IT_RXNE) != RESET))
     {
-        if((pUart->State == HAL_UART_STATE_BUSY_RX) || (pUart->State == HAL_UART_STATE_BUSY_TX_RX))
+        if((pUart->gState == HAL_UART_STATE_BUSY_RX) || (pUart->gState == HAL_UART_STATE_BUSY_TX_RX))
         {
             *pChar = (uint8_t) (pUart->Instance->RDR & (uint8_t) pUart->Mask);
             return true;

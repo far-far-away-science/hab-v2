@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32l0xx.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    8-January-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
@@ -126,6 +126,7 @@
   */
   uint32_t SystemCoreClock = 2000000;
   const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+  const uint8_t APBPrescTable[8] = {0, 0, 0, 0, 1, 2, 3, 4};
   const uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
 
 /**
