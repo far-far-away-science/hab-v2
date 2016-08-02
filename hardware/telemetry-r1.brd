@@ -3218,11 +3218,13 @@ Please make sure your boards conform to these design rules.</description>
 <signal name="HXEN">
 <contactref element="IC6" pad="4"/>
 <contactref element="R23" pad="1"/>
-<contactref element="IC4" pad="15"/>
 <wire x1="37.73" y1="13.97" x2="37.73" y2="9.26" width="0.2032" layer="1"/>
 <wire x1="37.73" y1="9.26" x2="38.1" y2="8.89" width="0.2032" layer="1"/>
-<wire x1="37.62" y1="24.71" x2="37.62" y2="14.08" width="0.2032" layer="1"/>
 <wire x1="37.62" y1="14.08" x2="37.73" y2="13.97" width="0.2032" layer="1"/>
+<contactref element="IC4" pad="16"/>
+<wire x1="38.12" y1="24.71" x2="38.12" y2="18.435" width="0.2032" layer="1"/>
+<wire x1="37.73" y1="13.97" x2="37.73" y2="18.045" width="0.2032" layer="1"/>
+<wire x1="37.73" y1="18.045" x2="38.12" y2="18.435" width="0.2032" layer="1"/>
 </signal>
 <signal name="ADXL_SDO">
 <contactref element="IC8" pad="12"/>
@@ -3358,7 +3360,6 @@ Please make sure your boards conform to these design rules.</description>
 <signal name="PHOTO_GP2">
 <contactref element="J12" pad="3"/>
 <contactref element="D6" pad="3"/>
-<contactref element="IC4" pad="16"/>
 <wire x1="8.905" y1="32.17" x2="8.905" y2="29.225" width="0.2032" layer="1"/>
 <wire x1="8.905" y1="29.225" x2="8.255" y2="28.575" width="0.2032" layer="1"/>
 <wire x1="8.255" y1="28.575" x2="8.255" y2="22.86" width="0.2032" layer="1"/>
@@ -3370,8 +3371,10 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="17.78" y1="24.13" x2="13.335" y2="28.575" width="0.2032" layer="16"/>
 <wire x1="13.335" y1="28.575" x2="8.255" y2="28.575" width="0.2032" layer="16"/>
 <via x="8.255" y="28.575" extent="1-16" drill="0.5"/>
-<wire x1="38.12" y1="24.71" x2="38.12" y2="26.055" width="0.2032" layer="1"/>
 <wire x1="38.12" y1="26.055" x2="38.735" y2="26.67" width="0.2032" layer="1"/>
+<contactref element="IC4" pad="15"/>
+<wire x1="37.62" y1="24.71" x2="37.62" y2="25.555" width="0.2032" layer="1"/>
+<wire x1="37.62" y1="25.555" x2="38.735" y2="26.67" width="0.2032" layer="1"/>
 </signal>
 <signal name="USIN">
 <contactref element="IC4" pad="27"/>

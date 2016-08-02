@@ -9630,9 +9630,9 @@ Ground</text>
 <wire x1="124.46" y1="45.72" x2="124.46" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="IC4" gate="G$1" pin="PA5"/>
-<wire x1="60.96" y1="30.48" x2="60.96" y2="40.64" width="0.1524" layer="91"/>
-<label x="60.96" y="30.48" size="1.778" layer="95" rot="R90"/>
+<pinref part="IC4" gate="G$1" pin="PA6"/>
+<wire x1="63.5" y1="30.48" x2="63.5" y2="40.64" width="0.1524" layer="91"/>
+<label x="63.5" y="30.48" size="1.778" layer="95" rot="R90"/>
 </segment>
 </net>
 <net name="RC" class="0">
@@ -9857,9 +9857,9 @@ Ground</text>
 <label x="139.7" y="109.22" size="1.778" layer="95" rot="R90"/>
 </segment>
 <segment>
-<pinref part="IC4" gate="G$1" pin="PA6"/>
-<wire x1="63.5" y1="30.48" x2="63.5" y2="40.64" width="0.1524" layer="91"/>
-<label x="63.5" y="30.48" size="1.778" layer="95" rot="R90"/>
+<pinref part="IC4" gate="G$1" pin="PA5"/>
+<wire x1="60.96" y1="30.48" x2="60.96" y2="40.64" width="0.1524" layer="91"/>
+<label x="60.96" y="30.48" size="1.778" layer="95" rot="R90"/>
 </segment>
 </net>
 <net name="VS" class="0">
