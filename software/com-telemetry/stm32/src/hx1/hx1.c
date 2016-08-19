@@ -16,16 +16,16 @@
 #define HALF_BUFFER_LENGTH 128
 #define FULL_BUFFER_LENGTH ((HALF_BUFFER_LENGTH) * 2)
 
-Ax25EncodedMessage g_ax25EncodedAprsMessage = { 0 };
+Ax25EncodedMessage g_ax25EncodedAprsMessage;
 
 static bool g_aprsMessageTransmitting = false;
 
-static AfskContext g_afskContext = { 0 };
-static DAC_HandleTypeDef g_hx1DacHandle = { 0 };
-static TIM_HandleTypeDef g_hx1TimerHandle = { 0 };
-static DAC_ChannelConfTypeDef g_hx1DacConfig = { 0 };
-
-static uint16_t g_DacBuffer[FULL_BUFFER_LENGTH] = { 0 };
+static AfskContext g_afskContext;
+static DAC_HandleTypeDef g_hx1DacHandle;
+static TIM_HandleTypeDef g_hx1TimerHandle;
+static DAC_ChannelConfTypeDef g_hx1DacConfig;
+static DMA_HandleTypeDef g_dmaDac1;
+static uint16_t g_DacBuffer[FULL_BUFFER_LENGTH];
 
 void hx1GpioInit(void);
 void hx1DacInit(void);
@@ -91,20 +91,18 @@ void hx1DacMspInit(DAC_HandleTypeDef* pDac)
     gpioInitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(HX1_GPIO_PORT, &gpioInitStruct);
 
-    // it's important that this variable should be static
-    static DMA_HandleTypeDef dmaDac1 = { 0 };
-    dmaDac1.Instance                 = HX1_DMA_INSTANCE;
-    dmaDac1.Init.Request             = DMA_REQUEST_9;
-    dmaDac1.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-    dmaDac1.Init.PeriphInc           = DMA_PINC_DISABLE;
-    dmaDac1.Init.MemInc              = DMA_MINC_ENABLE;
-    dmaDac1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-    dmaDac1.Init.MemDataAlignment    = DMA_MDATAALIGN_HALFWORD;
-    dmaDac1.Init.Mode                = DMA_CIRCULAR;
-    dmaDac1.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
-    HAL_DMA_Init(&dmaDac1);
+    g_dmaDac1.Instance                 = HX1_DMA_INSTANCE;
+    g_dmaDac1.Init.Request             = DMA_REQUEST_9;
+    g_dmaDac1.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+    g_dmaDac1.Init.PeriphInc           = DMA_PINC_DISABLE;
+    g_dmaDac1.Init.MemInc              = DMA_MINC_ENABLE;
+    g_dmaDac1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    g_dmaDac1.Init.MemDataAlignment    = DMA_MDATAALIGN_HALFWORD;
+    g_dmaDac1.Init.Mode                = DMA_CIRCULAR;
+    g_dmaDac1.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
+    HAL_DMA_Init(&g_dmaDac1);
 
-    __HAL_LINKDMA(pDac, DMA_Handle1, dmaDac1);
+    __HAL_LINKDMA(pDac, DMA_Handle1, g_dmaDac1);
 
     HAL_NVIC_SetPriority(HX1_DMA_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(HX1_DMA_IRQn);
