@@ -1618,24 +1618,24 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="20.828" y="23.6855" size="0.6096" layer="25" ratio="15"/>
 <attribute name="VALUE" x="21.082" y="27.559" size="0.6096" layer="27" ratio="15" rot="R90"/>
 </element>
-<element name="C13" library="SparkFun-Passives" package="0805" value="1u" x="13.97" y="15.875" smashed="yes" rot="R270">
-<attribute name="NAME" x="14.732" y="18.2245" size="0.6096" layer="25" ratio="15" rot="R180"/>
+<element name="C13" library="SparkFun-Passives" package="0805" value="1u" x="13.97" y="15.24" smashed="yes" rot="R270">
+<attribute name="NAME" x="14.097" y="17.5895" size="0.6096" layer="25" ratio="15" rot="R180"/>
 </element>
-<element name="C14" library="SparkFun-Passives" package="0805" value="0.1u" x="20.32" y="18.415" smashed="yes" rot="R90">
-<attribute name="NAME" x="19.558" y="19.8755" size="0.6096" layer="25" ratio="15"/>
-<attribute name="VALUE" x="21.717" y="17.399" size="0.6096" layer="27" ratio="15" rot="R90"/>
+<element name="C14" library="SparkFun-Passives" package="0805" value="0.1u" x="19.685" y="18.415" smashed="yes" rot="R90">
+<attribute name="NAME" x="18.923" y="19.8755" size="0.6096" layer="25" ratio="15"/>
+<attribute name="VALUE" x="19.177" y="18.034" size="0.6096" layer="27" ratio="15" rot="R90"/>
 </element>
 <element name="C16" library="SparkFun-Passives" package="0805" value="0.1u" x="53.975" y="19.05" smashed="yes" rot="R270">
 <attribute name="NAME" x="54.483" y="20.5105" size="0.6096" layer="25" ratio="15"/>
 <attribute name="VALUE" x="52.832" y="18.034" size="0.6096" layer="27" ratio="15" rot="R90"/>
 </element>
-<element name="C18" library="SparkFun-Passives" package="0805" value="1u" x="18.415" y="14.605" smashed="yes" rot="R180">
-<attribute name="NAME" x="17.653" y="15.4305" size="0.6096" layer="25" ratio="15"/>
-<attribute name="VALUE" x="18.796" y="14.097" size="0.6096" layer="27" ratio="15" rot="R180"/>
+<element name="C18" library="SparkFun-Passives" package="0805" value="1u" x="19.685" y="15.24" smashed="yes" rot="R90">
+<attribute name="NAME" x="17.145" y="15.24" size="0.6096" layer="25" ratio="15"/>
+<attribute name="VALUE" x="21.082" y="14.859" size="0.6096" layer="27" ratio="15" rot="R90"/>
 </element>
-<element name="C19" library="SparkFun-Passives" package="0805" value="10u" x="33.02" y="17.145" smashed="yes">
-<attribute name="NAME" x="31.623" y="17.9705" size="0.6096" layer="25" ratio="15"/>
-<attribute name="VALUE" x="32.004" y="15.748" size="0.6096" layer="27" ratio="15"/>
+<element name="C19" library="SparkFun-Passives" package="0805" value="10u" x="22.225" y="17.78" smashed="yes" rot="R270">
+<attribute name="NAME" x="23.114" y="17.3355" size="0.6096" layer="25" ratio="15"/>
+<attribute name="VALUE" x="21.209" y="19.304" size="0.6096" layer="27" ratio="15"/>
 </element>
 <element name="C2" library="SparkFun-Passives" package="0805" value="0.1u" x="24.765" y="29.21" smashed="yes" rot="R180">
 <attribute name="NAME" x="22.987" y="29.6545" size="0.6096" layer="25" ratio="15" rot="R180"/>
@@ -1782,19 +1782,19 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="44.45" y="11.43" size="0.6096" layer="25" ratio="15" rot="R180"/>
 <attribute name="VALUE" x="41.021" y="11.43" size="0.6096" layer="27" ratio="15" rot="R270"/>
 </element>
-<element name="IC2" library="texas" package="SOT23-DBV" value="TPS70933" x="17.145" y="18.415" smashed="yes" rot="R90">
-<attribute name="OC_NEWARK" value="77C1187" x="17.145" y="18.415" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MF" value="TEXAS INSTRUMENTS" x="17.145" y="18.415" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MPN" value="TPS77033DBVT" x="17.145" y="18.415" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="OC_FARNELL" value="8461570" x="17.145" y="18.415" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="15.24" y="20.32" size="0.6096" layer="25" ratio="15"/>
-<attribute name="VALUE" x="17.399" y="16.51" size="0.6096" layer="27" ratio="15" rot="R90"/>
+<element name="IC2" library="texas" package="SOT23-DBV" value="TPS70933" x="16.51" y="18.415" smashed="yes" rot="R90">
+<attribute name="OC_NEWARK" value="77C1187" x="16.51" y="18.415" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MF" value="TEXAS INSTRUMENTS" x="16.51" y="18.415" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MPN" value="TPS77033DBVT" x="16.51" y="18.415" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="OC_FARNELL" value="8461570" x="16.51" y="18.415" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="NAME" x="14.605" y="20.32" size="0.6096" layer="25" ratio="15"/>
+<attribute name="VALUE" x="16.764" y="16.51" size="0.6096" layer="27" ratio="15" rot="R90"/>
 </element>
 <element name="IC4" library="stm32xx" package="TQFP48" value="STM32L052C8T6" x="29.845" y="33.655" smashed="yes" rot="R180">
 <attribute name="NAME" x="34.925" y="30.48" size="0.6096" layer="25" ratio="15" rot="R180"/>
 </element>
 <element name="IC5" library="HAB" package="MSOP8" value="TPS62160" x="24.13" y="14.605" smashed="yes" rot="R270">
-<attribute name="NAME" x="21.71" y="16.51" size="0.6096" layer="25" ratio="15"/>
+<attribute name="NAME" x="20.44" y="12.7" size="0.6096" layer="25" ratio="15"/>
 <attribute name="VALUE" x="23.48" y="16.129" size="0.6096" layer="27" ratio="15"/>
 </element>
 <element name="IC6" library="HAB" package="HX1" value="HX1" x="7.62" y="10.16" smashed="yes" rot="R90">
@@ -1877,9 +1877,9 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="20.193" y="40.1955" size="0.6096" layer="25" ratio="15"/>
 <attribute name="VALUE" x="19.558" y="39.751" size="0.6096" layer="27" ratio="15" rot="R270"/>
 </element>
-<element name="R19" library="SparkFun-Passives" package="0805" value="430K" x="18.415" y="12.7" smashed="yes">
-<attribute name="NAME" x="19.558" y="11.43" size="0.6096" layer="25" ratio="15"/>
-<attribute name="VALUE" x="17.399" y="11.303" size="0.6096" layer="27" ratio="15"/>
+<element name="R19" library="SparkFun-Passives" package="0805" value="430K" x="18.415" y="12.065" smashed="yes">
+<attribute name="NAME" x="19.558" y="10.795" size="0.6096" layer="25" ratio="15"/>
+<attribute name="VALUE" x="17.399" y="10.668" size="0.6096" layer="27" ratio="15"/>
 </element>
 <element name="R20" library="SparkFun-Passives" package="0805" value="100K" x="15.875" y="12.065" smashed="yes" rot="R90">
 <attribute name="NAME" x="15.113" y="13.5255" size="0.6096" layer="25" ratio="15"/>
@@ -1957,9 +1957,9 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="18.288" y="45.593" size="0.6096" layer="25" ratio="15"/>
 <attribute name="VALUE" x="16.764" y="45.593" size="0.6096" layer="27" ratio="15"/>
 </element>
-<element name="R9" library="SparkFun-Passives" package="0805" value="10K" x="25.4" y="17.145" smashed="yes" rot="R180">
-<attribute name="NAME" x="25.908" y="17.9705" size="0.6096" layer="25" ratio="15"/>
-<attribute name="VALUE" x="25.146" y="18.542" size="0.6096" layer="27" ratio="15" rot="R180"/>
+<element name="R9" library="SparkFun-Passives" package="0805" value="10K" x="26.035" y="17.78" smashed="yes" rot="R90">
+<attribute name="NAME" x="26.924" y="17.3355" size="0.6096" layer="25" ratio="15"/>
+<attribute name="VALUE" x="27.432" y="18.669" size="0.6096" layer="27" ratio="15" rot="R90"/>
 </element>
 <element name="S1" library="HAB" package="TACTILE-PTH-THIN" value="RST" x="38.735" y="19.05" smashed="yes" rot="R180"/>
 <element name="S2" library="HAB" package="TACTILE-PTH-THIN" value="BTN" x="48.26" y="46.355" smashed="yes" rot="R180"/>
@@ -1991,7 +1991,7 @@ Please make sure your boards conform to these design rules.</description>
 </element>
 <element name="D12" library="SparkFun-DiscreteSemi" package="SOD-323" value="5.6V" x="22.225" y="21.59" smashed="yes" rot="R270">
 <attribute name="PROD_ID" value="DIO-12442" x="22.225" y="21.59" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="23.241" y="20.066" size="0.6096" layer="25" ratio="15"/>
+<attribute name="NAME" x="23.114" y="20.701" size="0.6096" layer="25" ratio="15"/>
 </element>
 <element name="R32" library="SparkFun-Passives" package="0805" value="DNP" x="26.67" y="25.4" smashed="yes" rot="R180">
 <attribute name="NAME" x="29.972" y="26.4795" size="0.6096" layer="25" ratio="15" rot="R180"/>
@@ -2071,13 +2071,13 @@ Please make sure your boards conform to these design rules.</description>
 <vertex x="20.32" y="24.13"/>
 <vertex x="17.78" y="24.13"/>
 <vertex x="13.97" y="20.32"/>
-<vertex x="13.97" y="17.145"/>
-<vertex x="13.335" y="17.145"/>
-<vertex x="13.335" y="16.51"/>
-<vertex x="15.24" y="16.51"/>
-<vertex x="15.24" y="17.145"/>
-<vertex x="16.51" y="17.145"/>
-<vertex x="16.51" y="19.685"/>
+<vertex x="13.97" y="18.415"/>
+<vertex x="13.335" y="17.78"/>
+<vertex x="13.335" y="15.875"/>
+<vertex x="14.605" y="15.875"/>
+<vertex x="14.605" y="17.145"/>
+<vertex x="15.875" y="17.145"/>
+<vertex x="15.875" y="19.05"/>
 <vertex x="18.415" y="21.59"/>
 <vertex x="22.225" y="21.59"/>
 <vertex x="22.86" y="22.225"/>
@@ -2279,6 +2279,12 @@ Please make sure your boards conform to these design rules.</description>
 <via x="59.69" y="25.4" extent="1-16" drill="0.5"/>
 <via x="23.495" y="15.24" extent="1-16" drill="0.5"/>
 <via x="23.495" y="13.97" extent="1-16" drill="0.5"/>
+<polygon width="0.1524" layer="1" isolate="0.2032" thermals="no" rank="2">
+<vertex x="21.844" y="17.145"/>
+<vertex x="21.844" y="15.621"/>
+<vertex x="22.225" y="15.621"/>
+<vertex x="22.225" y="17.145"/>
+</polygon>
 </signal>
 <signal name="VDDA">
 <contactref element="IC4" pad="9"/>
@@ -2416,12 +2422,12 @@ Please make sure your boards conform to these design rules.</description>
 <vertex x="31.115" y="14.351"/>
 <vertex x="31.115" y="17.145"/>
 <vertex x="30.607" y="17.653"/>
-<vertex x="26.67" y="17.653"/>
-<vertex x="26.67" y="17.145"/>
+<vertex x="25.4" y="17.653"/>
+<vertex x="25.4" y="17.145"/>
 <vertex x="17.78" y="17.145"/>
 <vertex x="17.78" y="17.78"/>
-<vertex x="21.59" y="17.78"/>
-<vertex x="21.59" y="19.685"/>
+<vertex x="20.955" y="17.78"/>
+<vertex x="20.955" y="19.685"/>
 <vertex x="31.115" y="19.685"/>
 <vertex x="33.02" y="17.78"/>
 <vertex x="33.02" y="14.605"/>
@@ -2462,8 +2468,7 @@ Please make sure your boards conform to these design rules.</description>
 <vertex x="5.715" y="44.45"/>
 <vertex x="5.715" y="48.895"/>
 </polygon>
-<via x="23.495" y="19.05" extent="1-16" drill="0.6"/>
-<via x="24.765" y="19.05" extent="1-16" drill="0.6"/>
+<via x="23.495" y="19.304" extent="1-16" drill="0.5"/>
 <polygon width="0.2032" layer="16" isolate="0.3048" rank="3">
 <vertex x="25.4" y="20.32"/>
 <vertex x="25.4" y="17.78"/>
@@ -2481,7 +2486,6 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="6.72" y1="48.895" x2="6.72" y2="48.63" width="0.2032" layer="1"/>
 <via x="1.27" y="45.72" extent="1-16" drill="0.6"/>
 <via x="5.08" y="45.72" extent="1-16" drill="0.6"/>
-<via x="22.225" y="19.05" extent="1-16" drill="0.6"/>
 <via x="40.005" y="12.065" extent="1-16" drill="0.6"/>
 <wire x1="40.005" y1="12.065" x2="42.545" y2="9.525" width="0.4064" layer="16"/>
 <wire x1="42.545" y1="9.525" x2="57.15" y2="9.525" width="0.4064" layer="16"/>
@@ -2492,8 +2496,9 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="58.785" y1="13.065" x2="58.42" y2="12.7" width="0.4064" layer="1"/>
 <wire x1="26.33" y1="14.28" x2="25.09" y2="14.28" width="0.2032" layer="1"/>
 <wire x1="25.09" y1="14.28" x2="24.765" y2="14.605" width="0.2032" layer="1"/>
-<wire x1="24.765" y1="14.605" x2="24.765" y2="16.88" width="0.2032" layer="1"/>
-<wire x1="24.765" y1="16.88" x2="24.5" y2="17.145" width="0.2032" layer="1"/>
+<wire x1="24.765" y1="14.605" x2="24.765" y2="17.515" width="0.2032" layer="1"/>
+<via x="24.765" y="19.304" extent="1-16" drill="0.5"/>
+<via x="24.13" y="18.288" extent="1-16" drill="0.5"/>
 </signal>
 <signal name="SCL">
 <contactref element="IC4" pad="45"/>
@@ -2630,8 +2635,6 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="R20" pad="2"/>
 <contactref element="R19" pad="1"/>
 <contactref element="IC4" pad="15"/>
-<wire x1="15.875" y1="12.965" x2="17.25" y2="12.965" width="0.2032" layer="1"/>
-<wire x1="17.25" y1="12.965" x2="17.515" y2="12.7" width="0.2032" layer="1"/>
 <via x="19.685" y="34.925" extent="1-16" drill="0.5"/>
 <wire x1="20.955" y1="22.225" x2="22.225" y2="20.955" width="0.2032" layer="16"/>
 <wire x1="22.225" y1="20.955" x2="25.4" y2="20.955" width="0.2032" layer="16"/>
@@ -2647,6 +2650,9 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="20.955" y1="34.925" x2="19.685" y2="34.925" width="0.2032" layer="1"/>
 <wire x1="20.955" y1="22.225" x2="20.955" y2="33.655" width="0.2032" layer="16"/>
 <wire x1="20.955" y1="33.655" x2="19.685" y2="34.925" width="0.2032" layer="16"/>
+<wire x1="15.875" y1="12.965" x2="16.88" y2="12.965" width="0.2032" layer="1"/>
+<wire x1="17.515" y1="12.065" x2="17.515" y2="12.33" width="0.2032" layer="1"/>
+<wire x1="17.515" y1="12.33" x2="16.88" y2="12.965" width="0.2032" layer="1"/>
 </signal>
 <signal name="DAC">
 <contactref element="IC4" pad="14"/>
@@ -2746,8 +2752,8 @@ Please make sure your boards conform to these design rules.</description>
 <signal name="PG5">
 <contactref element="IC5" pad="8"/>
 <contactref element="R9" pad="1"/>
-<wire x1="26.3" y1="17.145" x2="26.3" y2="15.61" width="0.2032" layer="1"/>
-<wire x1="26.3" y1="15.61" x2="26.33" y2="15.58" width="0.2032" layer="1"/>
+<wire x1="26.33" y1="15.58" x2="26.33" y2="16.585" width="0.2032" layer="1"/>
+<wire x1="26.33" y1="16.585" x2="26.035" y2="16.88" width="0.2032" layer="1"/>
 </signal>
 <signal name="HXEN">
 <contactref element="IC6" pad="4"/>

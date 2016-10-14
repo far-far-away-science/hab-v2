@@ -7099,8 +7099,8 @@ Ground</text>
 <attribute name="NAME" x="106.68" y="25.8826" size="1.778" layer="95"/>
 <attribute name="VALUE" x="106.68" y="23.0886" size="1.778" layer="96"/>
 </instance>
-<instance part="R32" gate="G$1" x="198.12" y="45.72" rot="R90"/>
-<instance part="SUPPLY20" gate="G$1" x="198.12" y="53.34"/>
+<instance part="R32" gate="G$1" x="195.58" y="45.72" rot="R90"/>
+<instance part="SUPPLY20" gate="G$1" x="195.58" y="53.34"/>
 <instance part="R4" gate="G$1" x="368.3" y="137.16" rot="R180"/>
 <instance part="R25" gate="G$1" x="368.3" y="129.54" rot="R180"/>
 <instance part="R28" gate="G$1" x="368.3" y="121.92" rot="R180"/>
@@ -7604,7 +7604,7 @@ Ground</text>
 <segment>
 <pinref part="R32" gate="G$1" pin="2"/>
 <pinref part="SUPPLY20" gate="G$1" pin="3.3V"/>
-<wire x1="198.12" y1="53.34" x2="198.12" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="53.34" x2="195.58" y2="50.8" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <wire x1="96.52" y1="30.48" x2="88.9" y2="30.48" width="0.1524" layer="91"/>
@@ -8687,9 +8687,9 @@ Ground</text>
 </segment>
 <segment>
 <pinref part="R32" gate="G$1" pin="1"/>
-<wire x1="198.12" y1="40.64" x2="198.12" y2="38.1" width="0.1524" layer="91"/>
-<wire x1="198.12" y1="38.1" x2="203.2" y2="38.1" width="0.1524" layer="91"/>
-<label x="200.66" y="38.1" size="1.778" layer="95"/>
+<wire x1="195.58" y1="40.64" x2="195.58" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="38.1" x2="203.2" y2="38.1" width="0.1524" layer="91"/>
+<label x="198.12" y="38.1" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="IC4" gate="G$1" pin="PB15"/>
