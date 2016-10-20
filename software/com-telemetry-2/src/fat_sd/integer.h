@@ -1,0 +1,39 @@
+/*-------------------------------------------*/
+/* Integer type definitions for FatFs module */
+/*-------------------------------------------*/
+
+#ifndef _INTEGER
+
+#include <stdint.h>
+#include <stdbool.h>
+
+/* These types must be 16-bit, 32-bit or larger integer */
+typedef int16_t		INT;
+typedef uint16_t	UINT;
+
+/* These types must be 8-bit integer */
+typedef int8_t		CHAR;
+typedef uint8_t		UCHAR;
+typedef uint8_t		BYTE;
+
+/* These types must be 16-bit integer */
+typedef int16_t		SHORT;
+typedef uint16_t	USHORT;
+typedef uint16_t	WORD;
+typedef uint16_t	WCHAR;
+
+/* These types must be 32-bit integer */
+typedef int32_t		LONG;
+typedef uint32_t	ULONG;
+typedef uint32_t	DWORD;
+
+/* Boolean type */
+typedef bool BOOL;
+
+#ifndef FALSE
+#define FALSE false
+#define TRUE true
+#endif
+
+#define _INTEGER
+#endif
