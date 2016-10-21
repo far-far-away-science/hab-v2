@@ -8172,12 +8172,15 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="GND47" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="R34" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="1"/>
 <part name="JP4" library="SparkFun-Connectors" deviceset="M02" device="PTH" value="BAT2"/>
+<part name="R21" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="4.7K"/>
+<part name="R10" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="4.7K"/>
+<part name="SUPPLY23" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
 </parts>
 <sheets>
 <sheet>
 <plain>
 <text x="152.4" y="7.62" size="2.54" layer="94">Stephen Carlson</text>
-<text x="236.22" y="7.62" size="2.54" layer="94">1</text>
+<text x="236.22" y="7.62" size="2.54" layer="94">2</text>
 <text x="38.1" y="129.54" size="1.778" layer="90">535-10241-1-ND</text>
 <text x="7.62" y="129.54" size="1.778" layer="90">887-1233-ND</text>
 <text x="38.1" y="99.06" size="1.778" layer="90">YC164J-10KCT-ND</text>
@@ -8219,7 +8222,7 @@ Ground</text>
 <wire x1="332.74" y1="106.68" x2="403.86" y2="106.68" width="0.3048" layer="94"/>
 <wire x1="332.74" y1="53.34" x2="403.86" y2="53.34" width="0.3048" layer="94"/>
 <wire x1="403.86" y1="53.34" x2="403.86" y2="106.68" width="0.3048" layer="94"/>
-<text x="497.84" y="7.62" size="2.54" layer="94">1</text>
+<text x="497.84" y="7.62" size="2.54" layer="94">2</text>
 <wire x1="403.86" y1="53.34" x2="408.94" y2="53.34" width="0.3048" layer="94"/>
 <wire x1="408.94" y1="53.34" x2="408.94" y2="35.56" width="0.3048" layer="94"/>
 <text x="309.88" y="48.26" size="1.778" layer="90">SRN6045-100MCT-ND</text>
@@ -8460,6 +8463,9 @@ Ground</text>
 <instance part="R34" gate="G$1" x="309.88" y="96.52" rot="R90"/>
 <instance part="JP4" gate="G$1" x="327.66" y="88.9" rot="MR0"/>
 <instance part="R2" gate="A" x="111.76" y="170.18" rot="R270"/>
+<instance part="R21" gate="G$1" x="228.6" y="170.18" rot="R270"/>
+<instance part="R10" gate="G$1" x="238.76" y="170.18" rot="R270"/>
+<instance part="SUPPLY23" gate="G$1" x="233.68" y="177.8"/>
 </instances>
 <busses>
 </busses>
@@ -9016,6 +9022,15 @@ Ground</text>
 <wire x1="299.72" y1="68.58" x2="299.72" y2="78.74" width="0.1524" layer="91"/>
 <junction x="299.72" y="78.74"/>
 </segment>
+<segment>
+<pinref part="R21" gate="G$1" pin="1"/>
+<pinref part="R10" gate="G$1" pin="1"/>
+<wire x1="228.6" y1="175.26" x2="233.68" y2="175.26" width="0.1524" layer="91"/>
+<pinref part="SUPPLY23" gate="G$1" pin="3.3V"/>
+<wire x1="233.68" y1="175.26" x2="238.76" y2="175.26" width="0.1524" layer="91"/>
+<wire x1="233.68" y1="177.8" x2="233.68" y2="175.26" width="0.1524" layer="91"/>
+<junction x="233.68" y="175.26"/>
+</segment>
 </net>
 <net name="VDDA" class="0">
 <segment>
@@ -9283,6 +9298,12 @@ Ground</text>
 <wire x1="269.24" y1="81.28" x2="274.32" y2="81.28" width="0.1524" layer="91"/>
 <label x="269.24" y="81.28" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="R21" gate="G$1" pin="2"/>
+<wire x1="223.52" y1="162.56" x2="228.6" y2="162.56" width="0.1524" layer="91"/>
+<wire x1="228.6" y1="162.56" x2="228.6" y2="165.1" width="0.1524" layer="91"/>
+<label x="223.52" y="162.56" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="SDA" class="0">
 <segment>
@@ -9304,6 +9325,12 @@ Ground</text>
 <pinref part="U2" gate="G$1" pin="SDA"/>
 <wire x1="269.24" y1="86.36" x2="274.32" y2="86.36" width="0.1524" layer="91"/>
 <label x="269.24" y="86.36" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R10" gate="G$1" pin="2"/>
+<wire x1="223.52" y1="160.02" x2="238.76" y2="160.02" width="0.1524" layer="91"/>
+<wire x1="238.76" y1="160.02" x2="238.76" y2="165.1" width="0.1524" layer="91"/>
+<label x="223.52" y="160.02" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="RS0" class="0">
