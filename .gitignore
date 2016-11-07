@@ -3,3 +3,8 @@
 /software/afsk-utils/afsk-utils.VC.VC.opendb
 /software/afsk-utils/afsk-utils.VC.db
 *.db
+*.o
+*.a
+*.bin
+*.hex
+bin/

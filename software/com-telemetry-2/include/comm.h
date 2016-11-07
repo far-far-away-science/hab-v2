@@ -8,7 +8,6 @@
 #include <periph.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "usb_cdcacm.h"
 
 // Begin C++ extern to C
 #ifdef __cplusplus
@@ -49,7 +48,7 @@ void serialInit();
 void serialWriteByte(const char c);
 
 // Writes one character to the specified stream and returns the input value
-#define fputc(_value, _stream) usbAcmPut(_value)
+#define fputc(_value, _stream) serialWriteByte(_value)
 
 // End C++ extern to C
 #ifdef __cplusplus

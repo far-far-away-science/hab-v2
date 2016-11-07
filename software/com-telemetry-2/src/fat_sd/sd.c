@@ -39,6 +39,7 @@
 #include "ffconf.h"
 #include "diskio.h"
 
+#ifdef HABV2
 // Definitions for MMC/SDC commands
 // GO_IDLE_STATE
 #define GO_IDLE_STATE (0x40+0)
@@ -89,8 +90,8 @@
 
 // Commands to select and deselect the card
 #define SPI_RECV() spiWriteRead(0xFF)
-#define SPI_SELECT() ioSetOutput(PIN_CS, 0)
-#define SPI_DESELECT() ioSetOutput(PIN_CS, 1)
+#define SPI_SELECT() spiSelect(SPI_DEVICE_SD)
+#define SPI_DESELECT() spiSelect(SPI_DEVICE_NONE)
 
 // SD timeout in systick (10ms) units
 // Initial timeout
@@ -192,6 +193,25 @@ static bool sdReceive(uint8_t *buffer, uint32_t count) {
 	return true;
 }
 
+// Sends the specified data bytes to the SD card
+static bool sdSend(const uint8_t *buffer, uint32_t count) {
+	uint32_t crc = 0U;
+	uint8_t response;
+	// Token must be 0xFE
+	spiWrite(0xFEU);
+	// Send data
+	spiWriteReadBytes(NULL, buffer, count);
+	// Any CRC is acceptable
+	spiWriteReadBytes(NULL, &crc, 2);
+	// Read the data response
+	spiWriteReadBytes(&response, NULL, 1);
+	if ((response & 0x1FU) == 0x05U) {
+		sdWaitReady();
+		return true;
+	}
+	return false;
+}
+
 // Initialize the SD card
 DSTATUS disk_initialize(BYTE disk) {
 	uint8_t ocr[4];
@@ -271,6 +291,36 @@ DRESULT disk_read(BYTE disk, BYTE *buff, DWORD sector, BYTE count) {
 	return (count == 0) ? RES_OK : RES_ERROR;
 }
 
+// Writes the specified number of 512 byte blocks to disk, starting at the given sector
+DRESULT disk_write(BYTE disk, const BYTE *buff, DWORD sector, BYTE count) {
+	// Convert to byte address if necessary
+	if (!(sdStatus & CT_BLOCK)) sector *= SD_BLOCK;
+	sysTickEnable();
+	{
+		if (count == 1U) {
+			// Write one block
+			if (sdCommand(WRITE_BLOCK, sector) == 0U) {
+				if (sdSend(buff, SD_BLOCK))
+					count = 0U;
+			}
+		} else {
+			// Write more than one block
+			if (sdCommand(WRITE_MULTIPLE_BLOCK, sector) == 0U) {
+				for (; sdSend(buff, SD_BLOCK) && count--; buff += SD_BLOCK);
+				// Stop the transmission
+				sdCommand(STOP_TRANSMISSION, 0);
+				// Busy flag to purge the write
+				sdWaitReady();
+			}
+		}
+		// Release bus
+		SPI_DESELECT();
+		SPI_RECV();
+	}
+	sysTickDisable();
+	return (count == 0) ? RES_OK : RES_ERROR;
+}
+
 // Disables the SD card
 void sdShutdown(void) {
 	// Go into idle
@@ -278,3 +328,4 @@ void sdShutdown(void) {
 	SPI_RECV();
 	sdStatus = 0U;
 }
+#endif

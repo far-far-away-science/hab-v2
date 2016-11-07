@@ -3,7 +3,6 @@
  */
 
 #include <main.h>
-#include <display.h>
 #include <stmtime.h>
 #include <periph.h>
 
@@ -39,20 +38,6 @@ static uint32_t dayOfWeek(const uint32_t year, const uint32_t mon, uint32_t day)
 	return (day % 7U) + 1U;
 }
 
-// Adds or subtracts a specified number of minutes to the given time (up to 1439 minutes)
-void addTime(uint32_t *hour, uint32_t *min, int32_t add) {
-	uint32_t futureMin = *min;
-	if (add >= 0)
-		// Adding to the time
-		futureMin += (uint32_t)add;
-	else
-		// Subtracting from the time
-		futureMin += (uint32_t)(1440 + add);
-	*hour = (*hour + (futureMin / 60U)) % 24U;
-	// Leap second not a problem, DST?
-	*min = futureMin % 60U;
-}
-
 // Calculates the number of days in the given month -- year is 0-99 for 2000-2099
 uint32_t daysInMonth(uint32_t month, uint32_t year) {
 	switch (month) {
@@ -71,20 +56,6 @@ uint32_t daysInMonth(uint32_t month, uint32_t year) {
 		// January, March, May, July, August, October, December
 		return 31U;
 	}
-}
-
-// Disables the alarm
-void disableAlarm(void) {
-	// Enable RTC writes
-	RTC->WPR = RTC_WPR_INIT1;
-	RTC->WPR = RTC_WPR_INIT2;
-	__dsb();
-	// Disable alarm A
-	RTC->CR &= ~RTC_CR_ALRAE;
-	// Clear alarm A flag
-	RTC->ISR = RTC_ISR_NOP & ~RTC_ISR_ALRAF;
-	// Disable RTC writes
-	RTC->WPR = RTC_WPR_LOCK;
 }
 
 // Gets the current date
@@ -115,30 +86,6 @@ void getTime(uint32_t *hour, uint32_t *min, uint32_t *sec) {
 			RTC_TR_MNU_S);
 	if (sec != NULL)
 		*sec = ((now & RTC_TR_ST) >> RTC_TR_ST_S) * 10U + (now & RTC_TR_SU);
-}
-
-// Enables and sets the alarm to the specified HH:MM:SS time, insensitive to day, 24 hour
-void setAlarmTo(const uint32_t hour, const uint32_t min, const uint32_t sec) {
-	uint32_t timeout;
-	// Enable RTC writes
-	RTC->WPR = RTC_WPR_INIT1;
-	RTC->WPR = RTC_WPR_INIT2;
-	__dsb();
-	// Disable alarm A to allow writes
-	RTC->CR &= ~RTC_CR_ALRAE;
-	// Wait for alarm to be available to write
-	for (timeout = 0x100U; timeout && !(RTC->ISR & RTC_ISR_ALRAWF); timeout--);
-	if (timeout) {
-		// Able to write to alarm time, program it to ignore day/date but match the rest
-		// Time register and alarm register use the same bit masks!
-		RTC->ALRMAR = RTC_ALRMAR_MSK4 | hmsToRTCField(hour, min, sec);
-		RTC->ALRMASSR = 0U;
-	}
-	// Clear alarm A flag and re-enable it
-	RTC->ISR = RTC_ISR_NOP & ~RTC_ISR_ALRAF;
-	RTC->CR |= RTC_CR_ALRAE;
-	// Disable RTC writes
-	RTC->WPR = RTC_WPR_LOCK;
 }
 
 // Changes the current time in the RTC immediately

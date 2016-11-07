@@ -7,7 +7,8 @@
 
 // Results from the ADC will end up here
 // Due to errata 2.2 we should convert a useless channel first
-volatile uint16_t adcResults[2];
+// Max usage: Phoenix (3x Ubiquity LED, Battery, Int. Temperature, Bug Fix)
+volatile uint16_t adcResults[6];
 
 // Starts an ADC conversion
 void adcStart() {

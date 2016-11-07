@@ -5,7 +5,6 @@
 #include <comm.h>
 #include <main.h>
 #include <periph.h>
-#include <usb_cdcacm.h>
 
 // USART 1
 static RingBuffer_TypeDef rx;

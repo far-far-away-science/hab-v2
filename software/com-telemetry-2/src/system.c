@@ -54,12 +54,18 @@ static INLINE void initADC() {
 	__dsb();
 	RCC->APB2RSTR = temp;
 	// Configure for DMA mode, 12-bit resolution (+4 bits oversampling), automatic off mode
-	// Since conversions will occur at most once per second, auto-off is a big savings
+	// Since conversions will occur infrequently, auto-off is a big savings
 	ADC1->CFGR1 = ADC_CFGR1_AUTOFF | ADC_CFGR1_RES_12BIT;
 	ADC1->CFGR2 = ADC_CFGR2_CKMODE_PCLK_4 | ADC_CFGR2_OVSE | ADC_CFGR2_OVSR_16 |
 		ADC_CFGR2_OVSS_NONE;
 	// Enable only these two channels for conversions
-	ADC1->CHSELR = (1U << ADC_CHAN_PC) | (1U << ADC_CHAN_PWR);
+#ifdef PHOENIX
+	ADC1->CHSELR = (1U << ADC_CHAN_LED_1) | (1U << ADC_CHAN_LED_2) | (1U << ADC_CHAN_LED_3) |
+		(1U << ADC_CHAN_BAT);
+#else
+	ADC1->CHSELR = (1U << ADC_CHAN_TEMP_G) | (1U << ADC_CHAN_TEMP_B) | (1U << ADC_CHAN_BAT) |
+		(1U << ADC_CHAN_PHOTO_1) | (1U << ADC_CHAN_PHOTO_2);
+#endif
 	// Enable interrupts for calibration complete
 	ADC1->IER = ADC_IER_EOCAL;
 	// Clear ADC interrupt flags
@@ -189,21 +195,12 @@ static INLINE void initDMA() {
 
 // Initializes the external interrupts on the button pins
 static INLINE void initEXTI() {
-	// EXTI 0 -> A (!snooze)
-	// EXTI 1 -> B (!alarm)
-	// EXTI 5 -> A (!up)
-	// EXTI 8 -> A (!down)
-	SYSCFG->EXTICR[0] = 0x0010U;
-	SYSCFG->EXTICR[1] = 0x0000U;
-	SYSCFG->EXTICR[2] = 0x0000U;
-	// Enable falling-edge interrupts for UP, DN, SNOOZE, and ALARM
-	EXTI->FTSR = BTN_ALL_BIT;
 	// Configure EXTI line 17 (RTC) to interrupt in rising edge mode
 	EXTI->RTSR = RTC_BIT;
 	// Clear pending interrupts
 	EXTI->PR = 0x7BFFFFU;
 	// Unmask the interrupts
-	EXTI->IMR = BTN_ALL_BIT | RTC_BIT;
+	EXTI->IMR = RTC_BIT;
 }
 
 // Initializes the new I2C peripheral on L0 chips, different from I2C on other ST chips!
@@ -285,53 +282,88 @@ static INLINE void initPorts() {
 	__dsb();
 	RCC->IOPRSTR = temp;
 	// Disable the amp
-	ioSetOutput(PIN_AMP_SD, false);
-	ioSetDirection(PIN_AMP_SD, DDR_OUTPUT);
-	// Set up USB as alternate function output push pull, select some arbitrary function to
-	// avoid SPI1 trying to use these as inputs
-	ioSetDirection(PIN_USBDM, DDR_AFO);
-	ioSetDirection(PIN_USBDP, DDR_AFO);
-	ioSetAlternateFunction(PIN_USBDM, GPIO_AF2_EVENTOUT);
-	ioSetAlternateFunction(PIN_USBDP, GPIO_AF2_EVENTOUT);
+	ioSetOutput(PIN_HX1_EN, false);
+	ioSetDirection(PIN_HX1_EN, DDR_OUTPUT);
 	// Set USB, I2C, and SPI to high speed, leave A12 and A13 as they are in reset state
 	GPIOA->OSPEEDR = 0x0FC00000U;
-	GPIOB->OSPEEDR = 0x0000FFC0U;
+	GPIOB->OSPEEDR = 0x000F0FC0U;
+#ifdef PHOENIX
+	// PB6 and PB7 handle USART1
+	ioSetDirection(PIN_UART_RX, DDR_INPUT_PULLUP);
+	ioSetDirection(PIN_UART_TX, DDR_AFO);
+	ioSetAlternateFunction(PIN_UART_RX, GPIO_AF0_USART1);
+	ioSetAlternateFunction(PIN_UART_TX, GPIO_AF0_USART1);
+	// PA9 and PA10 handle USART1 (oops!)
 #if 0
-	// PA2 and PA3 handle USART1 (for now)
-	ioSetDirection(GPIOA, 9, DDR_AFO);
-	ioSetDirection(GPIOA, 10, DDR_AFO);
-	ioSetAlternateFunction(GPIOA, 9, GPIO_AF4_USART1);
-	ioSetAlternateFunction(GPIOA, 10, GPIO_AF4_USART1);
+	ioSetDirection(PIN_GPS_2_RX, DDR_INPUT_PULLUP);
+	ioSetDirection(PIN_GPS_2_TX, DDR_AFO);
+	ioSetAlternateFunction(PIN_GPS_2_RX, GPIO_AF4_USART1);
+	ioSetAlternateFunction(PIN_GPS_2_TX, GPIO_AF4_USART1);
 #endif
-	// PA0, PA5, PA8, and PB1 handle general purpose buttons
-	ioSetDirection(PIN_ALARM, DDR_INPUT_PULLUP);
-	ioSetDirection(PIN_DOWN, DDR_INPUT_PULLUP);
-	ioSetDirection(PIN_SNOOZE, DDR_INPUT_PULLUP);
-	ioSetDirection(PIN_UP, DDR_INPUT_PULLUP);
+#endif
+	// Low power UART
+	ioSetDirection(PIN_LPUART_RX, DDR_INPUT_PULLUP);
+	ioSetDirection(PIN_LPUART_TX, DDR_AFO);
+	ioSetAlternateFunction(PIN_LPUART_RX, GPIO_AF4_LPUART1);
+	ioSetAlternateFunction(PIN_LPUART_TX, GPIO_AF4_LPUART1);
 	// Analog pins
-	ioSetDirection(PIN_PHOTOCELL, DDR_INPUT_ANALOG);
-	ioSetDirection(PIN_POWER_DET, DDR_INPUT_ANALOG);
-	// PA6 and PA7 are timer outputs for LED and piezo respectively
-	ioSetDirection(PIN_LED, DDR_AFO_OD);
-	ioSetDirection(PIN_PIEZO, DDR_AFO);
-	ioSetAlternateFunction(PIN_LED, GPIO_AF5_TIM22);
-	ioSetAlternateFunction(PIN_PIEZO, GPIO_AF5_TIM22);
+#ifdef PHOENIX
+	ioSetDirection(PIN_BATTERY, DDR_INPUT_ANALOG);
+	ioSetDirection(PIN_LED_IN_1, DDR_INPUT_ANALOG);
+	ioSetDirection(PIN_LED_IN_2, DDR_INPUT_ANALOG);
+	ioSetDirection(PIN_LED_IN_3, DDR_INPUT_ANALOG);
+#else
+	ioSetDirection(PIN_TEMP_G, DDR_INPUT_ANALOG);
+	ioSetDirection(PIN_TEMP_B, DDR_INPUT_ANALOG);
+	ioSetDirection(PIN_PHOTO_1, DDR_INPUT_ANALOG);
+	ioSetDirection(PIN_BATTERY, DDR_INPUT_ANALOG);
+	ioSetDirection(PIN_PHOTO_2, DDR_INPUT_ANALOG);
+#endif
 	// SPI pins
 	ioSetDirection(PIN_SCK, DDR_AFO);
 	ioSetDirection(PIN_MISO, DDR_AFO_PU);
 	ioSetDirection(PIN_MOSI, DDR_AFO);
-	// CS pin
-	ioSetOutput(PIN_CS, 1);
-	ioSetDirection(PIN_CS, DDR_OUTPUT);
+	// CS pin (s)
+#ifdef PHOENIX
+	ioSetOutput(PIN_LORA_CS, true);
+	ioSetDirection(PIN_LORA_CS, DDR_OUTPUT);
+#else
+	ioSetOutput(PIN_LATCH_CS, true);
+	ioSetOutput(PIN_LATCH_A0, true);
+	ioSetOutput(PIN_LATCH_A1, true);
+	ioSetOutput(PIN_LATCH_A2, true);
+	ioSetDirection(PIN_LATCH_CS, DDR_OUTPUT);
+	ioSetDirection(PIN_LATCH_A0, DDR_OUTPUT);
+	ioSetDirection(PIN_LATCH_A1, DDR_OUTPUT);
+	ioSetDirection(PIN_LATCH_A2, DDR_OUTPUT);
+#endif
 	// I2C pins
 	ioSetDirection(PIN_SCL, DDR_AFO_OD);
 	ioSetDirection(PIN_SDA, DDR_AFO_OD);
 	ioSetAlternateFunction(PIN_SCL, GPIO_AF1_I2C1);
 	ioSetAlternateFunction(PIN_SDA, GPIO_AF1_I2C1);
+	// LED pins
+#ifdef PHOENIX
+	// No PWM control (L05x)
+	ioSetOutput(PIN_LED_R, true);
+	ioSetOutput(PIN_LED_G, true);
+	ioSetOutput(PIN_LED_B, true);
+	ioSetDirection(PIN_LED_R, DDR_OUTPUT_OD);
+	ioSetDirection(PIN_LED_G, DDR_OUTPUT_OD);
+	ioSetDirection(PIN_LED_B, DDR_OUTPUT_OD);
+#else
+	// PWM control on TIM3 (L07x)
+	ioSetDirection(PIN_LED_R, DDR_AFO_OD);
+	ioSetDirection(PIN_LED_G, DDR_AFO_OD);
+	ioSetDirection(PIN_LED_B, DDR_AFO_OD);
+	ioSetAlternateFunction(PIN_LED_R, GPIO_AF2_TIM3);
+	ioSetAlternateFunction(PIN_LED_G, GPIO_AF2_TIM3);
+	ioSetAlternateFunction(PIN_LED_B, GPIO_AF2_TIM3);
+#endif
 	// DAC
-	ioSetDirection(PIN_DAC, DDR_INPUT_PULLUP);
-	// Lock all pin modes except the DAC pin
-	lockPort(GPIOA, 0xFFEFU);
+	ioSetDirection(PIN_DAC, DDR_INPUT_ANALOG);
+	// Lock all pin modes
+	lockPort(GPIOA, 0xFFFFU);
 	lockPort(GPIOB, 0xFFFFU);
 }
 
@@ -376,20 +408,10 @@ static INLINE void initRTC() {
 	RTC->CALR = ((uint32_t)-(LSE_COMP) & 0x1FFU);
 #endif
 #endif
-	// Reset clock to Thu 6/5/2014 8:07 PM PST (1000 bonus points if you get the reference)
-	if (!(RTC->ISR & RTC_ISR_INITS)) {
-		//eeWrite(EE_REG_AL_1, (7U << 8) | 40U);
-		eeWrite(EE_REG_AL_1, (20U << 8) | 8U);
-		eeWrite(EE_REG_AL_2, (8U << 8) | 40U);
-#ifdef RESET_RTC_ON_BOOT
-	}
-#endif
-		RTC->TR = (uint32_t)((7U << RTC_TR_MNU_S) | (2U << RTC_TR_HT_S));
-		RTC->DR = (uint32_t)(5U | (6U << RTC_DR_MU_S) | (4U << RTC_DR_WDU_S) |
-			(4U << RTC_DR_YU_S) | (1U << RTC_DR_YT_S));
-#ifndef RESET_RTC_ON_BOOT
-	}
-#endif
+	// Reset clock to 1/1/2016 00:00:00 GMT
+	RTC->TR = 0U;
+	RTC->DR = (uint32_t)(1U | (1U << RTC_DR_MU_S) | RTC_DR_FRIDAY | (6U << RTC_DR_YU_S) |
+		(1U << RTC_DR_YT_S));
 	// Disable alarm A and B
 	RTC->CR &= ~(RTC_CR_ALRAE | RTC_CR_ALRAIE | RTC_CR_ALRBIE | RTC_CR_ALRBE | RTC_CR_WUTE);
 	__dsb();
@@ -412,7 +434,7 @@ static INLINE void initRTC() {
 #endif
 }
 
-// Initializes the SPI for SD card (does not actually start the card)
+// Initializes the SPI for SD card (does not actually start the card) and LoRA
 static INLINE void initSD() {
 	const uint32_t temp = RCC->APB2RSTR & ~RCC_APB2RSTR_SPI1RST;
 	// Turn on SPI clock and reset SPI
@@ -428,9 +450,12 @@ static INLINE void initSD() {
 #else
 	SPI1->CR1 = SPI_CR1_NSS_SOFT | SPI_CR1_DIV4 | SPI_CR1_MSTR | SPI_CR1_SPE;
 #endif
+#ifdef HABV2
+	spiSelect(SPI_DEVICE_NONE);
+#endif
 }
 
-// Initializes the timers, TIM2 for DAC, TIM22 for PWM
+// Initializes the timers, TIM2 for DAC, TIM3 for PWM on HAB only
 static INLINE void initTIM() {
 	const uint32_t temp1 = RCC->APB1RSTR & ~RCC_APB1RSTR_TIM2RST, temp2 =
 		RCC->APB2RSTR & ~RCC_APB2RSTR_TIM22RST;
@@ -456,20 +481,28 @@ static INLINE void initTIM() {
 	// Make the update event fire the DAC
 	TIM2->CR2 = TIM_CR2_MMS_UPDATE;
 	TIM2->CR1 = TIM_CR1_ARPE;
-	// TIM22 init for a reload of 65535 (maximum control!) and a divider of 1
-	TIM22->ARR = 0xFFFFU;
-	TIM22->PSC = 0U;
-	TIM22->DIER = 0U;
-	// LED is on channel 1, PA6, set as output, PWM mode 1
-	// Piezo buzzer is on channel 2, PA7, set as output, PWM mode 1
-	TIM22->CCMR1 = TIM_CCMR1_CC1S_OUT | TIM_CCMR1_OC1M_PWM1 | TIM_CCMR1_OC1PE |
-		TIM_CCMR1_CC2S_OUT | TIM_CCMR1_OC2PE | TIM_CCMR1_OC2M_PWM1;
-	TIM22->CCR1 = 0U;
-	TIM22->CCR2 = 0U;
-	// Set LED to active low, enable both channels
-	TIM22->CCER = TIM_CCER_CC1E | TIM_CCER_CC1P | TIM_CCER_CC2E;
+#ifdef HABV2
+	// LED dimming timers only on HABv2
+	// TIM3 init for a reload of 65535 (maximum control!) and a divider of 1
+	TIM3->ARR = 0xFFFFU;
+	TIM3->PSC = 0U;
+	TIM3->DIER = 0U;
+	// LED is on channel 2-4
+	TIM3->CCMR1 = TIM_CCMR1_CC2S_OUT | TIM_CCMR1_OC2M_PWM1 | TIM_CCMR1_OC2PE;
+	TIM3->CCMR2 = TIM_CCMR2_CC4S_OUT | TIM_CCMR2_OC4M_PWM1 | TIM_CCMR2_OC4PE |
+		TIM_CCMR2_CC3S_OUT | TIM_CCMR2_OC3M_PWM1 | TIM_CCMR2_OC3PE;
+	// PA7: green
+	TIM3->CCR2 = 0U;
+	// PB0: red
+	TIM3->CCR3 = 0U;
+	// PB1: blue
+	TIM3->CCR4 = 0U;
+	// Set LEDs to active low, enable all channels
+	TIM3->CCER = TIM_CCER_CC2E | TIM_CCER_CC2P | TIM_CCER_CC3E | TIM_CCER_CC3P | TIM_CCER_CC4E |
+		TIM_CCER_CC4P;
 	// Turn it on and away we go
-	TIM22->CR1 = TIM_CR1_CEN | TIM_CR1_ARPE;
+	TIM3->CR1 = TIM_CR1_CEN | TIM_CR1_ARPE;
+#endif
 }
 
 // Initializes the MCU
@@ -485,7 +518,6 @@ void initMCU() {
 	initDMA();
 	initADC();
 	initRTC();
-	bkupClearAll();
 	initInterrupts();
 }
 

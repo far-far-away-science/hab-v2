@@ -1164,6 +1164,7 @@ typedef struct {
 #define GPIO_AF3_I2C1 ((uint8_t)0x03)
 #define GPIO_AF3_TSC ((uint8_t)0x03)
 #define GPIO_AF3_EVENTOUT ((uint8_t)0x03)
+#define GPIO_AF3_TIM3 ((uint8_t)0x03)
 
 // AFIO 4 selection
 #define GPIO_AF4_I2C1 ((uint8_t)0x04)
