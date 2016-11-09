@@ -23,6 +23,8 @@ extern "C" {
 // LSE compensation in parts per 2^20 (approximately ppm), positive speeds it up, negative
 // slows it down
 #define LSE_COMP 0
+// Frequency used to configure the DAC in Hz
+#define AUDIO_FREQ 64000
 
 // Define one of HAB v2 or Phoenix
 #undef HAB_V2
@@ -122,17 +124,11 @@ void spiSelect(uint32_t device);
 #define ADC_IDX_PHOTO_2 4
 #define ADC_IDX_TEMP_I 5
 #endif
-// LEDs (different pins on HABv2 and Phoenix)
-#ifdef PHOENIX
+// LEDs (HABv2 supports dimming)
 #define PIN_LED_R GPIOB, 0
 #define PIN_LED_G GPIOA, 7
 #define PIN_LED_B GPIOB, 1
-#else
-#define PIN_LED_R GPIOA, 7
-#define PIN_LED_G GPIOB, 0
-#define PIN_LED_B GPIOB, 1
-#endif
-// Phoenix only PI and radio enable
+// Phoenix supports PI and radio enable
 #ifdef PHOENIX
 #define PIN_EN_PI GPIOA, 0
 #define PIN_EN_RAD GPIOA, 8

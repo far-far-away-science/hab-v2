@@ -28,6 +28,19 @@ struct {
 static uint8_t bitstream[APRS_BITSTREAM_SIZE];
 static uint16_t waveData[WAVE_BUFFER << 1];
 
+// Generates an AFSK bitstream into the bitstream array, returning the number of bits in
+// this stream
+static uint32_t generateBitStream(uint8_t *buffer, uint32_t size) {
+	uint32_t bits = 32U;
+	uint8_t *bs = &bitstream[0];
+	// Start with a minimum of 15 ones with no stuff, we use 24 (3 whole bytes)
+	*bs++ = 0xFFU;
+	*bs++ = 0xFFU;
+	*bs++ = 0xFFU;
+	// Frame separator = 0x7E
+	*bs++ = 0x7EU;
+}
+
 // Loads the buffer with wave data
 static uint32_t loadBuffer(uint16_t *buffer, uint32_t size) {
 	// Temporary buffer
@@ -76,7 +89,6 @@ void audioInit(void) {
 // Processes an audio interrupt in the main loop, returns TRUE iff audio has finished
 bool audioInterrupt(const uint32_t flags) {
 	uint32_t size = 0U;
-	// Flags must be cleared immediately to avoid missing alarm/RTC interrupts
 	if (flags & FLAG_HX1_FRONT)
 		// Front half of buffer needs filling
 		size = loadBuffer(&waveData[0], size);
@@ -101,7 +113,7 @@ void audioShutdown(void) {
 
 // Finishes audio by stopping the DAC/timer (does not shutdown amp!)
 void audioStop(void) {
-	// Tear down DAC, DMA, TIM2
+	// Tear down DMA, TIM2
 	TIM2->CR1 &= ~TIM_CR1_CEN;
 	DMA1_Channel4->CCR &= ~DMA_CCR_EN;
 }

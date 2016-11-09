@@ -140,6 +140,18 @@ static INLINE void initClocks() {
 	feedWatchdog();
 }
 
+// Initializes the CRC calculation module (used for AX.25 encoding)
+static INLINE void initCRC() {
+	const uint32_t temp = RCC->AHBRSTR & ~RCC_AHBRSTR_CRCRST;
+	// Turn on CRC clock and reset CRC
+	RCC->AHBENR |= RCC_AHBENR_CRCEN;
+	RCC->AHBRSTR = temp | RCC_AHBRSTR_CRCRST;
+	__dsb();
+	RCC->AHBRSTR = temp;
+	// 16-bit polynomial, enable reverse bit orders
+	CRC->CR = CRC_CR_POLYSIZE_16BIT | CRC_CR_REV_IN_HWORD | CRC_CR_REV_OUT;
+}
+
 // Initializes the digital-to-analog converter
 static INLINE void initDAC() {
 	const uint32_t temp = RCC->APB1RSTR & ~RCC_APB1RSTR_DACRST;
@@ -468,13 +480,14 @@ static INLINE void initTIM() {
 	RCC->APB1RSTR = temp1;
 	RCC->APB2RSTR = temp2;
 #ifdef PLL
-	// Set TIM2 up for a divider of 8 and a reload of 125 (32K / 500 = 32000)
-	TIM2->PSC = 7U;
-#else
-	// Set TIM2 up for a divider of 4 and a reload of 125 (16K / 500 = 32000)
+	// Set TIM2 up for a divider of 4 and a reload of 125 (32K / 500 = 64000)
 	TIM2->PSC = 3U;
+	TIM2->ARR = (((32000000U + (AUDIO_FREQ >> 1)) / AUDIO_FREQ) + 3U) >> 2;
+#else
+	// Set TIM2 up for a divider of 2 and a reload of 125 (16K / 250 = 64000)
+	TIM2->PSC = 1U;
+	TIM2->ARR = (((16000000U + (AUDIO_FREQ >> 1)) / AUDIO_FREQ) + 1U) >> 1;
 #endif
-	TIM2->ARR = 124U;
 	// Fire the DMA Ch4 through CCR4 (ugly hack to avoid channel clash!)
 	TIM2->CCR4 = 0U;
 	TIM2->DIER = TIM_DIER_CC4DE;

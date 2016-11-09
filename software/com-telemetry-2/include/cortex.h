@@ -138,6 +138,21 @@ typedef struct {
 	__IO uint32_t CSR;
 } COMP_TypeDef;
 
+// CRC register access structure
+typedef struct {
+	// Data register
+	__IO uint32_t DR;
+	// Independent data register
+	__IO uint32_t IDR;
+	// Control register
+	__IO uint32_t CR;
+	uint32_t RESERVED;
+	// Initial value register
+	__IO uint32_t INIT;
+	// Polynomial register
+	__IO uint32_t POL;
+} CRC_TypeDef;
+
 // Clock recovery system register access structure
 typedef struct {
 	// Control register
@@ -760,6 +775,9 @@ typedef struct {
 // Flash memory
 #define FLASH_R_BASE (AHBPERIPH_BASE + 0x2000)
 #define FLASH ((FLASH_TypeDef*)FLASH_R_BASE)
+// CRC
+#define CRC_BASE (AHBPERIPH_BASE + 0x00003000)
+#define CRC ((CRC_TypeDef*)CRC_BASE)
 // RNG
 #define RNG_BASE (AHBPERIPH_BASE + 0x00005000)
 
@@ -904,6 +922,36 @@ typedef struct {
 #define ADC_CFGR2_CKMODE_PCLK_4 ((uint32_t)0x80000000)
 // ADC clock mode using APB2CLK (may only be used in a few circumstances)
 #define ADC_CFGR2_CKMODE_PCLK ((uint32_t)0xC0000000)
+
+// CRC defines
+// Reset CRC
+#define CRC_CR_RESET ((uint32_t)0x00000001)
+// CRC polynomial size
+#define CRC_CR_POLYSIZE_0 ((uint32_t)0x00000008)
+#define CRC_CR_POLYSIZE_1 ((uint32_t)0x00000010)
+#define CRC_CR_POLYSIZE ((uint32_t)0x00000018)
+// 32-bit CRC polynomial
+#define CRC_CR_POLYSIZE_32BIT ((uint32_t)0x00000000)
+// 16-bit CRC polynomial
+#define CRC_CR_POLYSIZE_16BIT ((uint32_t)0x00000008)
+// 8-bit CRC polynomial
+#define CRC_CR_POLYSIZE_8BIT ((uint32_t)0x00000010)
+// 7-bit CRC polynomial
+#define CRC_CR_POLYSIZE_7BIT ((uint32_t)0x00000018)
+// Reverse CRC input data bits
+#define CRC_CR_REV_IN_0 ((uint32_t)0x00000020)
+#define CRC_CR_REV_IN_1 ((uint32_t)0x00000040)
+#define CRC_CR_REV_IN ((uint32_t)0x00000060)
+// No CRC input bits reverse
+#define CRC_CR_REV_IN_NONE ((uint32_t)0x00000000)
+// CRC input bits reversed by byte
+#define CRC_CR_REV_IN_BYTE ((uint32_t)0x00000020)
+// CRC input bits reversed by halfword
+#define CRC_CR_REV_IN_HWORD ((uint32_t)0x00000040)
+// CRC input bits reversed by word
+#define CRC_CR_REV_IN_WORD ((uint32_t)0x00000060)
+// Reverse CRC output bits
+#define CRC_CR_REV_OUT ((uint32_t)0x00000080)
 
 // CRS defines
 // Enable CRS automatic trimming

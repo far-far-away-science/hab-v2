@@ -2923,8 +2923,7 @@ Please make sure your boards conform to these design rules.</description>
 <vertex x="51.435" y="23.876"/>
 <vertex x="51.435" y="23.495"/>
 <vertex x="52.07" y="23.495"/>
-<vertex x="52.07" y="27.305"/>
-<vertex x="50.165" y="26.035"/>
+<vertex x="52.07" y="26.035"/>
 <vertex x="47.625" y="26.035"/>
 <vertex x="47.625" y="24.13"/>
 <vertex x="46.355" y="24.13"/>
