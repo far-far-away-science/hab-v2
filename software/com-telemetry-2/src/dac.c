@@ -43,12 +43,7 @@ static uint32_t generateBitStream(uint8_t *buffer, uint32_t size) {
 
 // Loads the buffer with wave data
 static uint32_t loadBuffer(uint16_t *buffer, uint32_t size) {
-	// Temporary buffer
-	int16_t temp[WAVE_BUFFER], *ptr = temp;
 	if (size > 0) {
-		// If at EOF, fill buffer with zeroes
-		for (uint32_t i = size; i < WAVE_BUFFER; i++)
-			temp[i] = 0U;
 		// Scale audio to stay out of the saturation regions and convert signed to unsigned
 		ptr = temp;
 		for (uint32_t i = WAVE_BUFFER; i; i--)

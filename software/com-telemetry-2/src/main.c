@@ -29,9 +29,9 @@ void spiSelect(uint32_t device) {
 // Sets the LED color values
 void setLED(uint32_t red, uint32_t green, uint32_t blue) {
 #ifdef PHOENIX
-	ioSetOutput(PIN_LED_R, red >= 0x8000U);
-	ioSetOutput(PIN_LED_G, green >= 0x8000U);
-	ioSetOutput(PIN_LED_B, blue >= 0x8000U);
+	ioSetOutput(PIN_LED_R, red < 0x8000U);
+	ioSetOutput(PIN_LED_G, green < 0x8000U);
+	ioSetOutput(PIN_LED_B, blue < 0x8000U);
 #else
 	TIM3->CCR2 = green & 0xFFFFU;
 	TIM3->CCR3 = red & 0xFFFFU;
