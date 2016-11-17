@@ -4,14 +4,11 @@
 
 #include <main.h>
 #include <dac.h>
-#include "fat_sd/ff.h"
 #include <periph.h>
 
-// Useful macro for reading from files
-#define F_READ(_file, _dest, _read) f_read((_file), &(_dest), sizeof(_dest), &(_read))
 // Scales the audio to size and re-centers to match amplifier reference to fix click and pop
 // Need to convert a signed 16-bit sample to the DAC levels (11 bits)
-#define SCALE_AUDIO(x) ((uint16_t)(((int32_t)(x) + 32775) >> 4) + 128U)
+#define SCALE_AUDIO(x) ((uint16_t)((int32_t)(x) + 32768) >> 4)
 // Wave buffer size, 2 buffers are allocated so array is twice this
 #define WAVE_BUFFER 256
 // Bitstream buffer size
@@ -22,15 +19,21 @@ struct {
 	uint32_t bit;
 	// Phase counter for the waves
 	uint32_t phase;
+	// Total number of bits left in the bitstream
+	uint32_t size;
+	// Samples left in the current bit time
+	int32_t time;
 } audioState;
 
-// WAVE file buffers
+// Bitstream buffer (packed bits, LSB first)
+// Note that the FCS is MSB first and needs to be reversed before going into here!
 static uint8_t bitstream[APRS_BITSTREAM_SIZE];
+// Buffer for DAC
 static uint16_t waveData[WAVE_BUFFER << 1];
 
 // Generates an AFSK bitstream into the bitstream array, returning the number of bits in
 // this stream
-static uint32_t generateBitStream(uint8_t *buffer, uint32_t size) {
+static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
 	uint32_t bits = 32U;
 	uint8_t *bs = &bitstream[0];
 	// Start with a minimum of 15 ones with no stuff, we use 24 (3 whole bytes)
@@ -39,21 +42,48 @@ static uint32_t generateBitStream(uint8_t *buffer, uint32_t size) {
 	*bs++ = 0xFFU;
 	// Frame separator = 0x7E
 	*bs++ = 0x7EU;
+	*bs++ = 0x00U;
+	bits += 8U;
+	return bits;
 }
 
 // Loads the buffer with wave data
 static uint32_t loadBuffer(uint16_t *buffer, uint32_t size) {
-	if (size > 0) {
-		// Scale audio to stay out of the saturation regions and convert signed to unsigned
-		ptr = temp;
-		for (uint32_t i = WAVE_BUFFER; i; i--)
-			*buffer++ = SCALE_AUDIO(*ptr++);
-	}
+	uint32_t phase = audioState.phase, bit = audioState.bit, left = WAVE_BUFFER;
+	int32_t time = audioState.time;
+	do {
+		uint32_t data = (uint32_t)bitstream[bit >> 3] & (1U << (bit & 0x07U)),
+			advance = data ? PHASE_22 : PHASE_12;
+		// Run out the current bit time
+		while (time > 0 && left > 0U) {
+			// Scale audio to stay out of the saturation regions and convert signed to unsigned
+			int32_t sample = sinfp(phase) >> 1;
+			*buffer++ = SCALE_AUDIO(sample);
+			phase += advance;
+			// Wrap around
+			if (phase > B_RAD)
+				phase -= B_RAD;
+			time -= (1 << F_S);
+			left--;
+		}
+		// If we are at a bit time end, hold the phase constant and move bit up one
+		if (time <= 0) {
+			time += BIT_TIME;
+			bit++;
+			size--;
+		}
+	} while (size > 0U && left > 0U);
+	audioState.bit = bit;
+	audioState.phase = phase;
+	audioState.time = time;
+	// Finish buffer with 0x0 if necessary
+	for (; left; left--)
+		*buffer++ = SCALE_AUDIO(0);
 	return size;
 }
 
 // Starts up audio by preparing the DAC/timer and buffer (does not precharge the caps!)
-static INLINE void setupAudio(const uint32_t size) {
+static INLINE void setupAudio() {
 	uint16_t *ptr = &waveData[0];
 	// Prepare first buffer
 	for (uint32_t i = (WAVE_BUFFER << 1); i; i--)
@@ -67,6 +97,9 @@ static INLINE void setupAudio(const uint32_t size) {
 	TIM2->CNT = 0U;
 	TIM2->EGR = TIM_EGR_CC4G;
 	TIM2->CR1 |= TIM_CR1_CEN;
+	// Clear phase timers
+	audioState.phase = 0U;
+	audioState.bit = 0U;
 	// Enable the HX1
 	ioSetOutput(PIN_HX1_EN, true);
 	sysFlags &= ~FLAG_HX1_ANY;
@@ -83,7 +116,7 @@ void audioInit(void) {
 
 // Processes an audio interrupt in the main loop, returns TRUE iff audio has finished
 bool audioInterrupt(const uint32_t flags) {
-	uint32_t size = 0U;
+	uint32_t size = audioState.size;
 	if (flags & FLAG_HX1_FRONT)
 		// Front half of buffer needs filling
 		size = loadBuffer(&waveData[0], size);
@@ -93,7 +126,19 @@ bool audioInterrupt(const uint32_t flags) {
 	// If audio is complete, shut down
 	if (size == 0U)
 		audioStop();
+	audioState.size = size;
 	return size == 0U;
+}
+
+// Plays the specified message as an APRS bit stream over the DAC port to the HX1
+uint32_t audioPlay(const void *data, uint32_t len) {
+	uint32_t bits;
+	setupAudio();
+	bits = generateBitStream(data, len);
+	// Select first bit
+	audioState.size = bits;
+	audioState.time = BIT_TIME;
+	return bits;
 }
 
 // Shuts down the audio pins
@@ -102,8 +147,6 @@ void audioShutdown(void) {
 	ioSetOutput(PIN_HX1_EN, false);
 	// Turn off the DAC
 	DAC->CR &= ~DAC_CR_EN1;
-	// Stop the SD card
-	sdShutdown();
 }
 
 // Finishes audio by stopping the DAC/timer (does not shutdown amp!)

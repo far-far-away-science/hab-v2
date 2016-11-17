@@ -2,12 +2,11 @@
  * main.c - Telemetry main code
  */
 
-#include <bkup.h>
 #include <main.h>
+#include <bkup.h>
+#include <printf.h>
 #include <dac.h>
 #include <periph.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stmtime.h>
 
 // System state register
@@ -39,14 +38,56 @@ void setLED(uint32_t red, uint32_t green, uint32_t blue) {
 #endif
 }
 
+#define APRS_LEN 12
+static const char * const APRS_DATA = "Hello world!";
+
 // Main program
 int main(void) {
 	while (1) {
+		uint32_t flags;
+		__disable_irq();
+		{
+			// Clear the flags with no risk of interrupt contention
+			flags = sysFlags;
+			sysFlags = flags & ~(FLAG_ADC_READY | FLAG_SYSTICK | FLAG_HX1_ANY | FLAG_RTC_1S);
+		}
+		__enable_irq();
+		// Check the flags
+		if ((flags & FLAG_HX1_ANY) != 0U && audioInterrupt(flags))
+			audioShutdown();
+		if (flags & FLAG_RTC_1S) {
+			audioInit();
+			audioPlay(APRS_DATA, APRS_LEN);
+		}
+		// Feed the watchdog
+		feedWatchdog();
+		__sleep();
 	}
 	return 0;
+}
+
+// RTC interrupt
+void ISR_RTC() {
+	const uint32_t isr = RTC->ISR;
+	// Clear EXTI17 flag since that is what actually ran this IRQ
+	EXTI->PR = RTC_BIT;
+#if 1
+	if (isr & RTC_ISR_ALRBF) {
+		// Clear Alarm B flag
+		RTC->ISR = ~RTC_ISR_ALRBF;
+		sysFlags |= FLAG_RTC_1S;
+	}
+#else
+	if (isr & RTC_ISR_WUTF) {
+		// Clear wakeup timer flag
+		RTC->ISR = ~RTC_ISR_WUTF;
+		sysFlags |= FLAG_RTC_1S;
+	}
+#endif
 }
 
 // Fires every 10 ms to update system timer
 void ISR_SysTick() {
 	sysTime++;
+	sysFlags |= FLAG_SYSTICK;
 }

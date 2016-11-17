@@ -1,5 +1,5 @@
-/* Include STM32L073 linker scripts */
-INCLUDE "STM32L073xx.ld"
+/* Include STM32L052 linker scripts */
+INCLUDE "STM32L052xx.ld"
 
 EXTERN ( _heapbegin );
 

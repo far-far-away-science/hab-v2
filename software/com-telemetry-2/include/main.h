@@ -30,6 +30,9 @@ extern "C" {
 #undef HAB_V2
 #define PHOENIX
 
+// If defined, enables USART2 on PA2/PA3 for Nucleo debugging
+#undef DEBUG_UART
+
 // Pin definitions
 // DAC
 #define PIN_DAC GPIOA, 4

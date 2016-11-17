@@ -267,9 +267,6 @@ static INLINE void initInterrupts() {
 	// IRQ channel 27 (USART1) enable
 	intSetPriority(USART1_IRQn, 2);
 	intEnable(USART1_IRQn);
-	// IRQ channel 31 (USB) enable
-	intSetPriority(USB_IRQn, 1);
-	intEnable(USB_IRQn);
 #ifdef PLL
 	// SysTick fires every 40000 clock cycles (32M / 8 / 40K = 100/s = 10 ms)
 	SysTick->LOAD = 39999U;
@@ -293,7 +290,7 @@ static INLINE void initPorts() {
 	RCC->IOPRSTR = temp | RCC_IOPRSTR_IOPARST | RCC_IOPRSTR_IOPBRST | RCC_IOPRSTR_IOPCRST;
 	__dsb();
 	RCC->IOPRSTR = temp;
-	// Disable the amp
+	// Disable the HX1
 	ioSetOutput(PIN_HX1_EN, false);
 	ioSetDirection(PIN_HX1_EN, DDR_OUTPUT);
 	// Set USB, I2C, and SPI to high speed, leave A12 and A13 as they are in reset state
@@ -320,9 +317,18 @@ static INLINE void initPorts() {
 	ioSetAlternateFunction(PIN_LPUART_TX, GPIO_AF4_LPUART1);
 	// Analog pins
 #ifdef PHOENIX
-	ioSetDirection(PIN_BATTERY, DDR_INPUT_ANALOG);
+	//ioSetDirection(PIN_BATTERY, DDR_INPUT_ANALOG);
+#ifdef DEBUG_UART
+	ioSetDirection(PIN_LED_IN_1, DDR_INPUT_PULLUP);
+	ioSetDirection(PIN_LED_IN_2, DDR_AFO);
+	ioSetAlternateFunction(PIN_LED_IN_1, GPIO_AF4_USART2);
+	ioSetAlternateFunction(PIN_LED_IN_2, GPIO_AF4_USART2);
+#else
 	ioSetDirection(PIN_LED_IN_1, DDR_INPUT_ANALOG);
 	ioSetDirection(PIN_LED_IN_2, DDR_INPUT_ANALOG);
+#endif
+	ioSetOutput(PIN_BATTERY, false);
+	ioSetDirection(PIN_BATTERY, DDR_OUTPUT);
 	ioSetDirection(PIN_LED_IN_3, DDR_INPUT_ANALOG);
 #else
 	ioSetDirection(PIN_TEMP_G, DDR_INPUT_ANALOG);
@@ -531,6 +537,8 @@ void initMCU() {
 	initDMA();
 	initADC();
 	initRTC();
+	initCRC();
+	serialInit();
 	initInterrupts();
 }
 

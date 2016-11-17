@@ -34,8 +34,25 @@ char serialReadByte() {
 
 // Initializes serial communications
 void serialInit() {
+	uint32_t temp;
 	// Turn on USART1 clock
 	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+#ifdef DEBUG_UART
+	// Turn on USART2 clock
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+#endif
+	// Reset USART1 and USART2
+	temp = RCC->APB2RSTR & ~RCC_APB2RSTR_USART1RST;
+	RCC->APB2RSTR = temp | RCC_APB2RSTR_USART1RST;
+	__dsb();
+	RCC->APB2RSTR = temp;
+#ifdef DEBUG_UART
+	temp = RCC->APB1RSTR & ~RCC_APB1RSTR_USART2RST;
+	RCC->APB1RSTR = temp | RCC_APB1RSTR_USART2RST;
+	__dsb();
+	RCC->APB1RSTR = temp;
+#endif
+	// Clear buffers
 	rx.head = 0U;
 	rx.tail = 0U;
 	tx.head = 0U;
@@ -50,13 +67,28 @@ void serialInit() {
 #endif
 	// Eight-N-One, nil parity or flow control
 	USART1->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE | USART_CR1_UE;
+#ifdef DEBUG_UART
+	// For debugging only
+#ifdef PLL
+	USART2->BRR = 0x116U;
+#else
+	USART2->BRR = 0x8BU;
+#endif
+	// Eight-N-One, nil parity or flow control
+	USART2->CR1 = USART_CR1_TE | USART_CR1_RXNEIE | USART_CR1_UE;
+#endif
 }
 
 // Writes a byte to the serial port
 void serialWriteByte(const char c) {
+#ifdef DEBUG_UART
+	while (!(USART2->ISR & USART_ISR_TXE));
+	USART2->TDR = c;
+#else
 	while (ringIsBufferFull(&tx)) __sleep();
 	ringQueueByte(&tx, c);
 	USART1->CR1 |= USART_CR1_TXEIE;
+#endif
 }
 
 // Buffered character I/O handler for UART port 2
