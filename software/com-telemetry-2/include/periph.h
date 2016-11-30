@@ -101,8 +101,8 @@ bool i2cWrite(uint8_t addr, const void *data, uint32_t count);
 bool i2cWriteRegister(uint8_t addr, uint8_t reg, uint8_t value);
 // Shuts down the SD card
 void sdShutdown(void);
-// Switches the system clock to the PLL (only used if #define PLL)
-void switchToPLL(void);
+// Leaves STOP mode and restores the correct clock settings
+void exitStopMode(void);
 
 // End C++ extern to C
 #ifdef __cplusplus

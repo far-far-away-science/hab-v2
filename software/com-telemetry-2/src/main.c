@@ -53,10 +53,13 @@ int main(void) {
 		}
 		__enable_irq();
 		// Check the flags
-		if ((flags & FLAG_HX1_ANY) != 0U && audioInterrupt(flags))
+		if ((flags & FLAG_HX1_ANY) != 0U && audioInterrupt(flags)) {
+			ioSetOutput(PIN_OW_TEMP, true);
 			audioShutdown();
+		}
 		if (flags & FLAG_RTC_1S) {
 			audioInit();
+			ioSetOutput(PIN_OW_TEMP, false);
 			audioPlay(APRS_DATA, APRS_LEN);
 		}
 		// Feed the watchdog

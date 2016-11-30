@@ -14,12 +14,15 @@ extern "C" {
 #endif
 
 // Enable these flags to adjust oscillator speeds
-// PLL sets core clock to 32 MHz (HSI * 2) and 1.8 V, otherwise uses 16 MHz (HSI) and 1.5 V
-#undef PLL
+// HS32 sets core clock to 32 MHz (HSI * 2, HSE * 4) and 1.8 V, otherwise uses 16 MHz and 1.5 V
+#undef HS32
+// If true, attempts to start the external 8 MHz crystal before falling back to the HSI
+#define HSE
 // LSE enables the 32.768 KHz crystal and RTC
 #define LSE
-// LSI uses the internal low-speed oscillator; LSE must also be defined to turn on the RTC
-#undef LSI
+// LSI uses the internal low-speed oscillator if the LSE fails to start; LSE must also be
+// defined to turn on the RTC
+#define LSI
 // LSE compensation in parts per 2^20 (approximately ppm), positive speeds it up, negative
 // slows it down
 #define LSE_COMP 0
@@ -153,6 +156,10 @@ void spiSelect(uint32_t device);
 #define FLAG_SYSTICK 0x0008U
 // Flag indicating ADC results are ready
 #define FLAG_ADC_READY 0x0010U
+// Flag indicating that the LSI is in use instead of the LSE
+#define FLAG_LSI 0x20000000U
+// Flag indicating that the HSI is in use instead of the HSE
+#define FLAG_HSI 0x40000000U
 // Flag indicating that a crash occurred
 #define FLAG_CRASHED 0x80000000U
 
@@ -162,6 +169,8 @@ extern volatile uint16_t adcResults[6];
 // System state register
 extern volatile uint32_t sysFlags;
 
+// Leaves STOP mode and restores the correct clock settings
+void exitStopMode();
 // MCU startup routine called by the startup.s
 void initMCU();
 // Called from the reset handler to run the program

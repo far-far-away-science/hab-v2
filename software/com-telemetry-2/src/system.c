@@ -8,6 +8,16 @@
 #include <periph.h>
 #include <stmtime.h>
 
+// Switches the system clock to the HSI
+static void switchToHSI();
+// Switches the system clock to the PLL
+static void switchToPLL();
+
+// # of MSI cycles to wait for the HSE to start
+#define HSE_WAIT 262144U
+// # of core clock cycles (16 or 32 MHz) to wait for the LSE to start (feeds watchdog in loop!)
+#define LSE_WAIT 524288U
+
 // Attention: Variable will overflow every now and then, must be handled
 volatile uint32_t sysTime;
 
@@ -78,7 +88,7 @@ static INLINE void initADC() {
 // No startup timeout is enforced since the program will fail anyways if the clock speed is
 // wrong...
 static INLINE void initClocks() {
-	const uint32_t temp = RCC->APB1RSTR & ~(RCC_APB1RSTR_PWRRST | RCC_APB1RSTR_CRSRST);
+	uint32_t temp = RCC->APB1RSTR & ~(RCC_APB1RSTR_PWRRST | RCC_APB1RSTR_CRSRST), count;
 	// If we crashed due to software, set the sysflag
 	if (RCC->CSR & (RCC_CSR_IWDGRSTF | RCC_CSR_SFTRSTF | RCC_CSR_WWDGRSTF))
 		sysFlags = FLAG_CRASHED;
@@ -98,33 +108,73 @@ static INLINE void initClocks() {
 	// Enable access to RTC domain to set up
 	PWR->CR |= PWR_CR_DBP;
 	__dsb();
+#ifdef HSE
+	// Turn on the HSE (8 MHz)
+	RCC->CR |= RCC_CR_HSEON;
+#else
 	// Turn on the HSI (16 MHz)
 	RCC->CR |= RCC_CR_HSI16ON;
-#ifdef PLL
+#endif
+#ifdef HS32
 	// Select Voltage Range 1 (1.8 V) required for 32 MHz
 	PWR->CR = (PWR->CR & ~PWR_CR_VOS) | PWR_CR_VOS_0;
-	// Wait until the voltage regulator is ready
-	while (PWR->CSR & PWR_CSR_VOSF);
-	// Wait for HSI to start up
-	while (!(RCC->CR & RCC_CR_HSI16RDYF));
-	// 1 wait state
-	FLASH->ACR |= FLASH_ACR_LATENCY | FLASH_ACR_PRFTBE;
-	// PLL enabled from HSI = 16 MHz * 2 = 32 MHz, use the HSI16 when waking up from STOP
-	RCC->CFGR = RCC_CFGR_PLLDIV_2 | RCC_CFGR_PLLMUL_4 | RCC_CFGR_STOPWUCK;
-	switchToPLL();
 #else
 	// Select Voltage Range 2 (1.5 V)
 	PWR->CR = (PWR->CR & ~PWR_CR_VOS) | PWR_CR_VOS_1;
+#endif
 	// Wait until the voltage regulator is ready
 	while (PWR->CSR & PWR_CSR_VOSF);
+#ifdef HSE
+	// Wait for HSE to start up
+	for (count = HSE_WAIT; count && !(RCC->CR & RCC_CR_HSERDY); count--);
+	if (!count) {
+		// HSE failed to start
+		RCC->CR = (RCC->CR & ~RCC_CR_HSEON) | RCC_CR_HSI16ON;
+		// Wait for HSI to start up
+		while (!(RCC->CR & RCC_CR_HSI16RDYF));
+		sysFlags |= FLAG_HSI;
+	}
+	// If HSE starts, we are at 8 MHz; else, HSI at 16 MHz
+#else
 	// Wait for HSI to start up
 	while (!(RCC->CR & RCC_CR_HSI16RDYF));
+	sysFlags |= FLAG_HSI;
+#endif
 	// 1 wait state
 	FLASH->ACR |= FLASH_ACR_LATENCY | FLASH_ACR_PRFTBE;
-	// Select HSI as system clock, use the HSI16 when waking up from STOP
-	RCC->CFGR = RCC_CFGR_STOPWUCK | RCC_CFGR_SW_HSI;
-	// Wait for system clock to become the HSI
-	while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI);
+#ifdef HSE
+#ifdef HS32
+	// If HSE is on, multiply by 4; else, multiply by 2
+	if (count)
+		temp = RCC_CFGR_PLLDIV_2 | RCC_CFGR_PLLMUL_8 | RCC_CFGR_PLLSRC_HSE;
+	else
+		temp = RCC_CFGR_PLLDIV_2 | RCC_CFGR_PLLMUL_4;
+#else
+	// If HSE is on, multiply by 2; else, multiply by 1
+	// PLL input between 2 and 24 MHz, but VCO (after multiplication) must be <= 48 MHz
+	if (count)
+		temp = RCC_CFGR_PLLDIV_2 | RCC_CFGR_PLLMUL_4 | RCC_CFGR_PLLSRC_HSE;
+	else
+		// Would use 2/2 but that is not supported
+		temp = 0;
+#endif
+	// Use HSI when waking up from STOP (exitStopMode switches back to PLL)
+	RCC->CFGR = temp | RCC_CFGR_STOPWUCK;
+	if (temp)
+		switchToPLL();
+	else
+		switchToHSI();
+#else
+	// Use HSI when waking up from STOP
+#ifdef HS32
+	// Always multiply HSI by 2
+	RCC->CFGR = RCC_CFGR_PLLDIV_2 | RCC_CFGR_PLLMUL_4 | RCC_CFGR_STOPWUCK;
+	switchToPLL();
+#else
+	// Use HSI directly
+	RCC->CFGR = RCC_CFGR_STOPWUCK;
+	switchToHSI();
+#endif
 #endif
 	// Turn off the MSI now that we are no longer using it to save juice!
 	RCC->CR &= ~RCC_CR_MSION;
@@ -267,7 +317,7 @@ static INLINE void initInterrupts() {
 	// IRQ channel 27 (USART1) enable
 	intSetPriority(USART1_IRQn, 2);
 	intEnable(USART1_IRQn);
-#ifdef PLL
+#ifdef HS32
 	// SysTick fires every 40000 clock cycles (32M / 8 / 40K = 100/s = 10 ms)
 	SysTick->LOAD = 39999U;
 #else
@@ -317,7 +367,7 @@ static INLINE void initPorts() {
 	ioSetAlternateFunction(PIN_LPUART_TX, GPIO_AF4_LPUART1);
 	// Analog pins
 #ifdef PHOENIX
-	//ioSetDirection(PIN_BATTERY, DDR_INPUT_ANALOG);
+	ioSetDirection(PIN_BATTERY, DDR_INPUT_ANALOG);
 #ifdef DEBUG_UART
 	ioSetDirection(PIN_LED_IN_1, DDR_INPUT_PULLUP);
 	ioSetDirection(PIN_LED_IN_2, DDR_AFO);
@@ -327,9 +377,10 @@ static INLINE void initPorts() {
 	ioSetDirection(PIN_LED_IN_1, DDR_INPUT_ANALOG);
 	ioSetDirection(PIN_LED_IN_2, DDR_INPUT_ANALOG);
 #endif
-	ioSetOutput(PIN_BATTERY, false);
-	ioSetDirection(PIN_BATTERY, DDR_OUTPUT);
 	ioSetDirection(PIN_LED_IN_3, DDR_INPUT_ANALOG);
+	// 1-wire temperature probes use open drain outputs
+	ioSetOutput(PIN_OW_TEMP, true);
+	ioSetDirection(PIN_OW_TEMP, DDR_OUTPUT_OD);
 #else
 	ioSetDirection(PIN_TEMP_G, DDR_INPUT_ANALOG);
 	ioSetDirection(PIN_TEMP_B, DDR_INPUT_ANALOG);
@@ -382,24 +433,34 @@ static INLINE void initPorts() {
 	ioSetDirection(PIN_DAC, DDR_INPUT_ANALOG);
 	// Lock all pin modes
 	lockPort(GPIOA, 0xFFFFU);
-	lockPort(GPIOB, 0xFFFFU);
+	lockPort(GPIOB, 0x7FFFU);
 }
 
 // Initializes the RTC
 static INLINE void initRTC() {
+	uint32_t count, temp;
 #ifdef LSE
-#ifdef LSI
-	// Turn on the LSI
-	RCC->CSR |= RCC_CSR_LSION;
-	// Wait for the LSI to be ready (there is no point in coming up if the LSI does not start!)
-	while (!(RCC->CSR & RCC_CSR_LSIRDY)) feedWatchdog();
-	// Set up the RTC to use LSI
-	RCC->CSR = (RCC->CSR & ~RCC_CSR_RTCSEL) | RCC_CSR_RTCEN | RCC_CSR_RTCSEL_LSI;
-#else
 	// Turn on the LSE
 	RCC->CSR |= RCC_CSR_LSEON | RCC_CSR_LSEDRV_0;
-	// Wait for the LSE to be ready (there is no point in coming up if the LSE does not start!)
-	feedWatchdog();
+	// Wait for the LSE to be ready
+#ifdef LSI
+	for (count = LSE_WAIT; count && !(RCC->CSR & RCC_CSR_LSERDY); count--)
+		feedWatchdog();
+	if (count)
+		// LSE is ready
+		temp = RCC_CSR_RTCSEL_LSE;
+	else {
+		temp = RCC_CSR_RTCSEL_LSI;
+		// Turn on the LSI
+		RCC->CSR = (RCC->CSR & ~RCC_CSR_LSEON) | RCC_CSR_LSION;
+		// Wait for the LSI to be ready (no last resort if the LSI does not start!)
+		while (!(RCC->CSR & RCC_CSR_LSIRDY))
+			feedWatchdog();
+		sysFlags |= FLAG_LSI;
+	}
+	// Set up the RTC to use the selected oscillator
+	RCC->CSR = (RCC->CSR & ~RCC_CSR_RTCSEL) | RCC_CSR_RTCEN | temp;
+#else
 	while (!(RCC->CSR & RCC_CSR_LSERDY));
 	// Set up the RTC to use LSE
 	RCC->CSR = (RCC->CSR & ~RCC_CSR_RTCSEL) | RCC_CSR_RTCEN | RCC_CSR_RTCSEL_LSE;
@@ -463,7 +524,7 @@ static INLINE void initSD() {
 	// SPI set up for CPHA 0, CPOL 0, no slave select, master mode, divide by 4, enable
 	// (observed on this board that /2 with no PLL generated less than full clock swing)
 	SPI1->CR2 = 0x0U;
-#ifdef PLL
+#ifdef HS32
 	SPI1->CR1 = SPI_CR1_NSS_SOFT | SPI_CR1_DIV8 | SPI_CR1_MSTR | SPI_CR1_SPE;
 #else
 	SPI1->CR1 = SPI_CR1_NSS_SOFT | SPI_CR1_DIV4 | SPI_CR1_MSTR | SPI_CR1_SPE;
@@ -485,7 +546,7 @@ static INLINE void initTIM() {
 	__dsb();
 	RCC->APB1RSTR = temp1;
 	RCC->APB2RSTR = temp2;
-#ifdef PLL
+#ifdef HS32
 	// Set TIM2 up for a divider of 4 and a reload of 125 (32K / 500 = 64000)
 	TIM2->PSC = 3U;
 	TIM2->ARR = (((32000000U + (AUDIO_FREQ >> 1)) / AUDIO_FREQ) + 3U) >> 2;
@@ -524,6 +585,19 @@ static INLINE void initTIM() {
 #endif
 }
 
+// Exits STOP mode and restores the system clock if necessary
+void exitStopMode() {
+#ifdef HSE
+	// If HSE was used, determine whether PLL is configured; if it was, then switch back
+	// The right settings were already set in the CFGR register for source and speed
+	if (RCC->CFGR & RCC_CFGR_PLLMUL)
+		switchToPLL();
+#elif defined(HS32)
+	// Restart PLL (not HSE, so unconditional *2)
+	switchToPLL();
+#endif
+}
+
 // Initializes the MCU
 void initMCU() {
 	sysFlags = 0U;
@@ -542,9 +616,16 @@ void initMCU() {
 	initInterrupts();
 }
 
-#ifdef PLL
+// Switches the system clock to the HSI
+static void switchToHSI() {
+	// Select HSI as system clock
+	RCC->CFGR |= RCC_CFGR_SW_HSI;
+	// Wait for system clock to become the HSI
+	while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI);
+}
+
 // Switches the system clock to the PLL
-void switchToPLL() {
+static void switchToPLL() {
 	// Turn PLL on
 	RCC->CR |= RCC_CR_PLLON;
 	// Wait for PLL to start up
@@ -554,4 +635,3 @@ void switchToPLL() {
 	// Wait for system clock to become the PLL
 	while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
 }
-#endif

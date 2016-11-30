@@ -1463,10 +1463,18 @@ typedef struct {
 #define RCC_CFGR_PLLMUL ((uint32_t)0x003C0000)
 // Bits for PLL divider
 #define RCC_CFGR_PLLDIV ((uint32_t)0x00C00000)
+// Multiply PLL by 3
+#define RCC_CFGR_PLLMUL_3 ((uint32_t)0x00000000)
 // Multiply PLL by 4
 #define RCC_CFGR_PLLMUL_4 ((uint32_t)0x00040000)
+// Multiply PLL by 8
+#define RCC_CFGR_PLLMUL_8 ((uint32_t)0x000C0000)
 // Divide PLL by 2
 #define RCC_CFGR_PLLDIV_2 ((uint32_t)0x00400000)
+// Divide PLL by 3
+#define RCC_CFGR_PLLDIV_3 ((uint32_t)0x00800000)
+// Divide PLL by 4
+#define RCC_CFGR_PLLDIV_4 ((uint32_t)0x00C00000)
 // Select HSI16 as clock when waking up from STOP
 #define RCC_CFGR_STOPWUCK ((uint32_t)0x00008000)
 // PLL source from HSE

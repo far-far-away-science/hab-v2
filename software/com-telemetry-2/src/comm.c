@@ -60,7 +60,7 @@ void serialInit() {
 	USART1->CR2 = 0U;
 	USART1->CR3 = 0U;
 	// RM0376 p. 682 (0x116 for PLL)
-#ifdef PLL
+#ifdef HS32
 	USART1->BRR = 0x116U;
 #else
 	USART1->BRR = 0x8BU;
@@ -69,7 +69,7 @@ void serialInit() {
 	USART1->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE | USART_CR1_UE;
 #ifdef DEBUG_UART
 	// For debugging only
-#ifdef PLL
+#ifdef HS32
 	USART2->BRR = 0x116U;
 #else
 	USART2->BRR = 0x8BU;
