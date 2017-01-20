@@ -33,8 +33,8 @@ extern volatile uint32_t sysTime;
 void addTime(uint32_t *hour, uint32_t *min, int32_t add);
 // Calculates the number of days in the given month -- year is 0-99 for 2000-2099
 uint32_t daysInMonth(uint32_t month, uint32_t year);
-// Blocks for the given number of milliseconds (test only!!)
-void __attribute__ ((deprecated)) delay(const uint32_t time);
+// Blocks for the given number of 10s of milliseconds (should avoid during runtime!)
+void delay(const uint32_t time);
 // Disables the alarm
 void disableAlarm(void);
 // Gets the current date

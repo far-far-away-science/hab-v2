@@ -4,6 +4,7 @@
 
 #include <main.h>
 #include <bkup.h>
+#include <bme280.h>
 #include <printf.h>
 #include <dac.h>
 #include <periph.h>
@@ -38,11 +39,9 @@ void setLED(uint32_t red, uint32_t green, uint32_t blue) {
 #endif
 }
 
-#define APRS_LEN 12
-static const char * const APRS_DATA = "Hello world!";
-
 // Main program
 int main(void) {
+	bme280Init();
 	while (1) {
 		uint32_t flags;
 		__disable_irq();
@@ -53,14 +52,17 @@ int main(void) {
 		}
 		__enable_irq();
 		// Check the flags
-		if ((flags & FLAG_HX1_ANY) != 0U && audioInterrupt(flags)) {
-			ioSetOutput(PIN_OW_TEMP, true);
-			audioShutdown();
-		}
 		if (flags & FLAG_RTC_1S) {
-			audioInit();
-			ioSetOutput(PIN_OW_TEMP, false);
-			audioPlay(APRS_DATA, APRS_LEN);
+			uint32_t p, h;
+			int32_t t;
+			setLED(0U, 65535U, 0U);
+			bme280Measure();
+			delay(12U);
+			if (bme280Read(&t, &p, &h))
+				printf("T=%d P=%u H=%u\r\n", t, p, h);
+			else
+				puts("Failed!\r");
+			setLED(0U, 0U, 0U);
 		}
 		// Feed the watchdog
 		feedWatchdog();

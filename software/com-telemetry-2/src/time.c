@@ -10,6 +10,20 @@
 // The enable and disable functions only run in thread mode so there are no updating issues
 static volatile uint32_t sysTickNesting;
 
+// Blocks for the given number of 10s of milliseconds (should avoid during runtime!)
+void delay(const uint32_t time) {
+	sysTickEnable();
+	{
+		const uint32_t target = sysTime + time;
+		// Wait until target is met (wrap around safe)
+		do {
+			feedWatchdog();
+			__sleep();
+		} while (sysTime < target);
+	}
+	sysTickDisable();
+}
+
 // Converts an hour:minute:second to the RTC bitfield for alarm and time registers
 static uint32_t hmsToRTCField(const uint32_t hour, const uint32_t min, const uint32_t sec) {
 	return (((hour / 10U) & 0x3U) << RTC_TR_HT_S) | ((hour % 10U) << RTC_TR_HU_S) |
