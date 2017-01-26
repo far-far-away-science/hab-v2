@@ -41,12 +41,13 @@ void serialInit() {
 	// Turn on USART2 clock
 	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
 #endif
-	// Reset USART1 and USART2
+	// Reset USART1
 	temp = RCC->APB2RSTR & ~RCC_APB2RSTR_USART1RST;
 	RCC->APB2RSTR = temp | RCC_APB2RSTR_USART1RST;
 	__dsb();
 	RCC->APB2RSTR = temp;
 #ifdef DEBUG_UART
+	// Reset USART2
 	temp = RCC->APB1RSTR & ~RCC_APB1RSTR_USART2RST;
 	RCC->APB1RSTR = temp | RCC_APB1RSTR_USART2RST;
 	__dsb();

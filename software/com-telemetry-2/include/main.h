@@ -76,8 +76,8 @@ void spiSelect(uint32_t device);
 #define PIN_SDA GPIOB, 9
 // UART
 #ifdef PHOENIX
-#define PIN_UART_RX GPIOB, 6
-#define PIN_UART_TX GPIOB, 7
+#define PIN_UART_RX GPIOB, 7
+#define PIN_UART_TX GPIOB, 6
 #define PIN_GPS_2_RX GPIOA, 10
 #define PIN_GPS_2_TX GPIOA, 9
 #endif
@@ -131,8 +131,8 @@ void spiSelect(uint32_t device);
 #define ADC_IDX_TEMP_I 5
 #endif
 // LEDs (HABv2 supports dimming)
-#define PIN_LED_R GPIOB, 0
-#define PIN_LED_G GPIOA, 7
+#define PIN_LED_R GPIOA, 7
+#define PIN_LED_G GPIOB, 0
 #define PIN_LED_B GPIOB, 1
 // Phoenix supports PI and radio enable
 #ifdef PHOENIX

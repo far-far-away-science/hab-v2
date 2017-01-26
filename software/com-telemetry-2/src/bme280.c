@@ -197,10 +197,10 @@ static uint32_t BME280_compensate_P(const int32_t adcPres, const int32_t tFine) 
 		12);
 	var1 = ((1LL << 47) + var1) * ((int64_t)bme280Cal.p1) >> 33;
 	if (var1 != 0LL) {
-		int32_t p13;
+		int64_t p13;
 		// Avoid exception caused by division by zero
-		p = 1048576 - adcPres;
-		p = (((p << 31) - var2) * 3125) / var1;
+		p = 1048576LL - (int64_t)adcPres;
+		p = (((p << 31) - var2) * 3125LL) / var1;
 		p13 = p >> 13;
 		var1 = ((int64_t)bme280Cal.p9 * p13 * p13) >> 25;
 		var2 = ((int64_t)bme280Cal.p8 * p) >> 19;

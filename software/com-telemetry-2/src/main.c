@@ -61,7 +61,7 @@ int main(void) {
 			if (bme280Read(&t, &p, &h))
 				printf("T=%d P=%u H=%u\r\n", t, p, h);
 			else
-				puts("Failed!\r");
+				print("Failed\r\n");
 			setLED(0U, 0U, 0U);
 		}
 		// Feed the watchdog

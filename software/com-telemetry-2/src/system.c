@@ -317,6 +317,11 @@ static INLINE void initInterrupts() {
 	// IRQ channel 27 (USART1) enable
 	intSetPriority(USART1_IRQn, 2);
 	intEnable(USART1_IRQn);
+#ifdef DEBUG_UART
+	// IRQ channel 28 (USART2) enable
+	intSetPriority(USART2_IRQn, 2);
+	intEnable(USART2_IRQn);
+#endif
 #ifdef HS32
 	// SysTick fires every 40000 clock cycles (32M / 8 / 40K = 100/s = 10 ms)
 	SysTick->LOAD = 39999U;
@@ -348,7 +353,7 @@ static INLINE void initPorts() {
 	GPIOB->OSPEEDR = 0x000F0FC0U;
 #ifdef PHOENIX
 	// PB6 and PB7 handle USART1
-	ioSetDirection(PIN_UART_RX, DDR_INPUT_PULLUP);
+	ioSetDirection(PIN_UART_RX, DDR_AFO);
 	ioSetDirection(PIN_UART_TX, DDR_AFO);
 	ioSetAlternateFunction(PIN_UART_RX, GPIO_AF0_USART1);
 	ioSetAlternateFunction(PIN_UART_TX, GPIO_AF0_USART1);
@@ -361,7 +366,7 @@ static INLINE void initPorts() {
 #endif
 #endif
 	// Low power UART
-	ioSetDirection(PIN_LPUART_RX, DDR_INPUT_PULLUP);
+	ioSetDirection(PIN_LPUART_RX, DDR_AFO);
 	ioSetDirection(PIN_LPUART_TX, DDR_AFO);
 	ioSetAlternateFunction(PIN_LPUART_RX, GPIO_AF4_LPUART1);
 	ioSetAlternateFunction(PIN_LPUART_TX, GPIO_AF4_LPUART1);
@@ -379,7 +384,6 @@ static INLINE void initPorts() {
 #endif
 	ioSetDirection(PIN_LED_IN_3, DDR_INPUT_ANALOG);
 	// 1-wire temperature probes use open drain outputs
-	ioSetOutput(PIN_OW_TEMP, true);
 	ioSetDirection(PIN_OW_TEMP, DDR_OUTPUT_OD);
 #else
 	ioSetDirection(PIN_TEMP_G, DDR_INPUT_ANALOG);
