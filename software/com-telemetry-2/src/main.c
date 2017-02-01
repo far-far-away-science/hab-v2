@@ -58,7 +58,7 @@ int main(void) {
 			setLED(0U, 65535U, 0U);
 			bme280Measure();
 			delay(12U);
-			if (bme280Read(&t, &p, &h))
+			if (bme280Read(&t, &h, &p))
 				printf("T=%d P=%u H=%u\r\n", t, p, h);
 			else
 				print("Failed\r\n");

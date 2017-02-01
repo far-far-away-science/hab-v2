@@ -6,10 +6,10 @@
 #include <periph.h>
 #include <stmtime.h>
 
-// BME280 I2C address if SDO is LOW
-#define BME280_I2C_ADDR_L 0x76
-// BME280 I2C address if SDO is HIGH
-#define BME280_I2C_ADDR_H 0x77
+// BME280 I2C address if SDO is LOW (shifted left one for STM32!)
+#define BME280_I2C_ADDR_L 0xEC
+// BME280 I2C address if SDO is HIGH (shifted left one for STM32!)
+#define BME280_I2C_ADDR_H 0xEE
 
 // BME280 registers
 
@@ -234,7 +234,7 @@ static uint32_t BME280_compensate_H(const int32_t adcHum, const int32_t tFine) {
 bool bme280Init() {
 	uint8_t temp[4];
 	// Correct version is 0x60 (datasheet page 25)
-	bool ok = i2cReadRegister(BME280_I2C_ADDR_L, BME280_REG_CHIPID, &temp[0], 1) &&
+	bool ok = i2cReadRegister(BME280_I2C_ADDR_L, BME280_REG_CHIPID, &temp[0], 1U) &&
 		temp[0] == 0x60U;
 	if (ok) {
 		uint32_t e5;
@@ -279,11 +279,12 @@ bool bme280Read(int32_t *temperature, uint32_t *humidity, uint32_t *pressure) {
 	bool ok = i2cReadRegister(BME280_I2C_ADDR_L, BME280_REG_PRESS, &meas[0], sizeof(meas));
 	if (ok) {
 		// Build up the values
-		int32_t press = (int32_t)(((uint32_t)meas[0] << 12) | ((uint32_t)meas[1] << 4) |
+		const int32_t press = (int32_t)(((uint32_t)meas[0] << 12) | ((uint32_t)meas[1] << 4) |
 			((uint32_t)meas[2] >> 4));
-		int32_t temp = (int32_t)(((uint32_t)meas[3] << 12) | ((uint32_t)meas[4] << 4) |
+		const int32_t temp = (int32_t)(((uint32_t)meas[3] << 12) | ((uint32_t)meas[4] << 4) |
 			((uint32_t)meas[5] >> 4));
-		int32_t hum = (int32_t)(((uint32_t)meas[6] << 8) | (uint32_t)meas[7]), tFine;
+		const int32_t hum = (int32_t)(((uint32_t)meas[6] << 8) | (uint32_t)meas[7]);
+		int32_t tFine;
 		// Pass to Bosch provided functions
 		*temperature = BME280_compensate_T(temp, &tFine);
 		*pressure = (BME280_compensate_P(press, tFine) + 128U) >> 8;

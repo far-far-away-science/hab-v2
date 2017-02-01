@@ -6,6 +6,10 @@
 #include <dac.h>
 #include <periph.h>
 
+// Because the DMA channel 4-7 interrupts are shared, the implementation needs to notify I2C
+// when the DMA is done
+extern volatile uint32_t i2cState;
+
 // Scales the audio to size and re-centers to match amplifier reference to fix click and pop
 // Need to convert a signed 16-bit sample to the DAC levels (11 bits)
 #define SCALE_AUDIO(x) ((uint16_t)((int32_t)(x) + 32768) >> 4)
@@ -168,5 +172,10 @@ void ISR_DMA1_Channel7_4() {
 		sysFlags = af | FLAG_HX1_FRONT;
 		// Clear flags
 		DMA1->IFCR = DMA_ISR_HTIF4;
+	}
+	if (isr & DMA_ISR_TCIF7) {
+		i2cState |= I2C_DATA_DONE;
+		// Clear flags
+		DMA1->IFCR = DMA_ISR_TCIF7;
 	}
 }

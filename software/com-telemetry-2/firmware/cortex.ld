@@ -57,6 +57,10 @@ SECTIONS {
 		_erdata = .;
 		_sidata = .;
 	} >FLASH
+	/* ARM exception unwinding, mandated by ARM EABI C++ standard (with -fno-exceptions?) */
+	.ARM.exidx : {
+		*(.ARM.exidx*)
+	} >FLASH
 	/* The program executes knowing that the data is in the RAM, but the loader puts the
 	 * initial values in the FLASH (inidata). The startup copies the initial values over */
 	.data : AT ( _sidata ) {
@@ -88,8 +92,6 @@ SECTIONS {
 		libstdc++.a ( * )
 		libsupc++.a ( * )
 	}
-	/* ARM exception unwinding, mandated by ARM EABI C++ standard (with -fno-exceptions?) */
-	.ARM.exidx 0 : { *(.ARM.exidx*) }
 	/* Stabs debugging sections */
 	.stab 0 : { *(.stab) }
 	.stabstr 0 : { *(.stabstr) }

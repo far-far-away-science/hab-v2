@@ -38,6 +38,11 @@ extern "C" {
 // Alternate function open-drain I/O with pull up
 #define DDR_AFO_ODPU 0x16
 
+// I2C flags for interrupts to notify when transfers complete
+#define I2C_DONE 0x01U
+#define I2C_ERROR 0x02U
+#define I2C_DATA_DONE 0x04U
+
 // Gets the digital value (1 or 0) of a pin configured as a digital input
 static INLINE bool ioGetInput(GPIO_TypeDef* port, uint32_t pin) {
 	const uint32_t mask = (uint32_t)(0x00000001 << (pin & 0x0F));

@@ -85,16 +85,15 @@ static INLINE void initADC() {
 }
 
 // Starts the MCU clocks at the intended speed (16 MHz for HSI-mode, 32 MHz for PLL-mode)
-// No startup timeout is enforced since the program will fail anyways if the clock speed is
-// wrong...
+// If the HSE or PLL times out, falls back automatically to the HSI
 static INLINE void initClocks() {
-	uint32_t temp = RCC->APB1RSTR & ~(RCC_APB1RSTR_PWRRST | RCC_APB1RSTR_CRSRST), count;
+	uint32_t temp = RCC->APB1RSTR & ~(RCC_APB1RSTR_PWRRST), count;
 	// If we crashed due to software, set the sysflag
 	if (RCC->CSR & (RCC_CSR_IWDGRSTF | RCC_CSR_SFTRSTF | RCC_CSR_WWDGRSTF))
 		sysFlags = FLAG_CRASHED;
 	RCC->CSR |= RCC_CSR_RMVF;
 	// Enable clock to PWR module and CRS module
-	RCC->APB1ENR |= RCC_APB1ENR_PWREN | RCC_APB1ENR_CRSEN;
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
 	// Enable clock to SYSCFG module
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 	// Reset the CRS, do not reset SYSCFG or PWR!
@@ -246,7 +245,7 @@ static INLINE void initDMA() {
 	DMA1_Channel6->CPAR = (uint32_t)&(I2C1->TXDR);
 	// DMA Ch7 handles I2C1 RX
 	DMA1_Channel7->CCR = DMA_CCR_SRC | DMA_CCR_DST_BYTE | DMA_CCR_SRC_BYTE | DMA_CCR_PRI_HIGH |
-		DMA_CCR_MEMINC;
+		DMA_CCR_MEMINC | DMA_CCR_TCIE;
 	DMA1_Channel7->CPAR = (uint32_t)&(I2C1->RXDR);
 	// Reset all interrupt flags
 	DMA1->IFCR = 0x0FFFFFFFU;
@@ -275,8 +274,13 @@ static INLINE void initI2C() {
 	RCC->APB1RSTR = temp;
 	// RM0376 p. 629 @ 400 KHz, p. 656 has bitfield
 	// PRESC = 0x1, SCLL = 0x9, SCLH = 0x3, SDADEL = 0x2, SCLDEL = 0x3
+#ifdef HS32
+	I2C1->TIMINGR = (0x3 << I2C_TIMINGR_PRESC_S) | (0x3 << I2C_TIMINGR_SCLDEL_S) |
+		(0x2 << I2C_TIMINGR_SDADEL_S) | (0x3 << I2C_TIMINGR_SCLH_S) | 0x9;
+#else
 	I2C1->TIMINGR = (0x1 << I2C_TIMINGR_PRESC_S) | (0x3 << I2C_TIMINGR_SCLDEL_S) |
 		(0x2 << I2C_TIMINGR_SDADEL_S) | (0x3 << I2C_TIMINGR_SCLH_S) | 0x9;
+#endif
 	// Not relevant in master mode
 	I2C1->OAR1 = 0x00;
 	I2C1->OAR2 = 0x00;
@@ -413,8 +417,8 @@ static INLINE void initPorts() {
 	// I2C pins
 	ioSetDirection(PIN_SCL, DDR_AFO_OD);
 	ioSetDirection(PIN_SDA, DDR_AFO_OD);
-	ioSetAlternateFunction(PIN_SCL, GPIO_AF1_I2C1);
-	ioSetAlternateFunction(PIN_SDA, GPIO_AF1_I2C1);
+	ioSetAlternateFunction(PIN_SCL, GPIO_AF4_I2C1);
+	ioSetAlternateFunction(PIN_SDA, GPIO_AF4_I2C1);
 	// LED pins
 #ifdef PHOENIX
 	// No PWM control (L05x)

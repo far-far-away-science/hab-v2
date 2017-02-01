@@ -1089,15 +1089,15 @@ typedef struct {
 // Remap DMA channel 6 to I2C1 TX
 #define DMA_CSELR_C6S_I2C1 ((uint32_t)0x00600000)
 // Remap DMA channel 7 to SPI2 TX
-#define DMA_CSELR_C7S_SPI2 ((uint32_t)0x00200000)
+#define DMA_CSELR_C7S_SPI2 ((uint32_t)0x02000000)
 // Remap DMA channel 7 to USART2 TX
-#define DMA_CSELR_C7S_USART2 ((uint32_t)0x00400000)
+#define DMA_CSELR_C7S_USART2 ((uint32_t)0x04000000)
 // Remap DMA channel 7 to LPUART1 TX
-#define DMA_CSELR_C7S_LPUART1 ((uint32_t)0x00500000)
+#define DMA_CSELR_C7S_LPUART1 ((uint32_t)0x05000000)
 // Remap DMA channel 7 to I2C1 RX
-#define DMA_CSELR_C7S_I2C1 ((uint32_t)0x00600000)
+#define DMA_CSELR_C7S_I2C1 ((uint32_t)0x06000000)
 // Remap DMA channel 7 to TIM2 CH2/CH4
-#define DMA_CSELR_C7S_TIM2 ((uint32_t)0x00800000)
+#define DMA_CSELR_C7S_TIM2 ((uint32_t)0x08000000)
 
 // Flags in the interrupt register
 // GIF = any flag, TCIF = complete flag, TEIF = error flag, HTIF = halfway done flag

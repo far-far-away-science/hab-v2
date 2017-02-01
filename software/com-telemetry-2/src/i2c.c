@@ -3,16 +3,14 @@
  */
 
 #include <periph.h>
-
-// I2C flags for interrupts to notify when transfers complete
-#define I2C_DONE 0x01U
-#define I2C_ERROR 0x02U
+#include <stmtime.h>
 
 volatile uint32_t i2cState;
 
 // Waits for I2C to complete, returning true if OK or false if errored out
 static bool _i2cWait() {
 	i2cState = 0U;
+	feedWatchdog();
 	do {
 		__sleep();
 	} while (i2cState == 0U);
@@ -52,8 +50,14 @@ bool i2cRead(uint8_t addr, void *data, uint32_t count) {
 	// Send the START condition
 	I2C1->CR2 = cr2;
 	I2C1->CR2 = cr2 | I2C_CR2_START;
-	// Wait for it, then kill DMA
+	// Wait for it
 	const bool ok = _i2cWait();
+	// DMA takes time to actually flush the data into the buffer
+	if (ok)
+		do {
+			__sleep();
+		} while (!(i2cState & I2C_DATA_DONE));
+	// Then kill DMA
 	DMA1_Channel7->CCR &= ~DMA_CCR_EN;
 	return ok;
 }
