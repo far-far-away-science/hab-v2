@@ -4,6 +4,7 @@
 
 #include <main.h>
 #include <bkup.h>
+#include <adxl345.h>
 #include <bme280.h>
 #include <printf.h>
 #include <dac.h>
@@ -41,7 +42,12 @@ void setLED(uint32_t red, uint32_t green, uint32_t blue) {
 
 // Main program
 int main(void) {
-	bme280Init();
+	// Bring up sensors, green for success, red for failure
+	if (bme280Init() && accelInit())
+		setLED(0U, 65535U, 0U);
+	else
+		setLED(65535U, 0U, 0U);
+	accelResume();
 	while (1) {
 		uint32_t flags;
 		__disable_irq();
@@ -54,12 +60,14 @@ int main(void) {
 		// Check the flags
 		if (flags & FLAG_RTC_1S) {
 			uint32_t p, h;
-			int32_t t;
-			setLED(0U, 65535U, 0U);
+			int32_t t, x, y, z;
+			// Max delay for longest oversampling is 120 ms
+			setLED(0U, 0U, 65535U);
 			bme280Measure();
 			delay(12U);
-			if (bme280Read(&t, &h, &p))
-				printf("T=%d P=%u H=%u\r\n", t, p, h);
+			// Display values in sensible units, convert accel to ~ mG
+			if (bme280Read(&t, &h, &p) && accelRead(&x, &y, &z))
+				printf("T=%d P=%u H=%u AX=%d AY=%d AZ=%d\r\n", t, p, h, x << 2, y << 2, z << 2);
 			else
 				print("Failed\r\n");
 			setLED(0U, 0U, 0U);

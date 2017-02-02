@@ -6,6 +6,8 @@
 #include <periph.h>
 #include <stmtime.h>
 
+#if 1
+
 // BME280 I2C address if SDO is LOW (shifted left one for STM32!)
 #define BME280_I2C_ADDR_L 0xEC
 // BME280 I2C address if SDO is HIGH (shifted left one for STM32!)
@@ -124,9 +126,10 @@
 // Normal (infinite loop) mode
 #define BME280_MODE_NORMAL 0x03
 
-
 // Selected pressure/temperature oversampling goes in the control register along with the mode
 #define BME280_CTRL (BME280_PRS_OVR_16X | BME280_TMP_OVR_16X)
+
+#endif
 
 // For the most part, matches BME280 memory layout exactly (little endian!)
 static struct {
