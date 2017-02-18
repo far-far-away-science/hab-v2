@@ -18,7 +18,7 @@ extern volatile uint32_t i2cState;
 // Bitstream buffer size
 #define APRS_BITSTREAM_SIZE 384
 
-struct {
+volatile struct {
 	// Offset into the bitstream
 	uint32_t bit;
 	// Phase counter for the waves
@@ -29,25 +29,79 @@ struct {
 	int32_t time;
 } audioState;
 
+// Bit stuffing counter
+static uint32_t bitOnes;
 // Bitstream buffer (packed bits, LSB first)
 // Note that the FCS is MSB first and needs to be reversed before going into here!
 static uint8_t bitstream[APRS_BITSTREAM_SIZE];
 // Buffer for DAC
 static uint16_t waveData[WAVE_BUFFER << 1];
 
+// Adds the specified byte to the global bitstream at the specified position
+static uint32_t stuffBits(uint32_t bitCount, uint8_t data) {
+	uint32_t ones = bitOnes;
+	// Add to CRC
+	for (uint32_t i = 8U; i; i--) {
+		// LSB First
+		if (data & 0x01U) {
+			uint8_t *bs = &bitstream[bitCount >> 3];
+			ones++;
+			// If buffer is initially zeroed, there is no need to write zeros directly
+			*bs |= 1U << (bitCount & 0x07U);
+			bitCount++;
+			if (ones >= 5U) {
+				// Stuff a zero after 5 consecutive ones
+				ones = 0U;
+				bitCount++;
+			}
+		} else {
+			// Zero, reset the bit stuff counter
+			ones = 0U;
+			bitCount++;
+		}
+		data >>= 1;
+	}
+	bitOnes = ones;
+	return bitCount;
+}
+
 // Generates an AFSK bitstream into the bitstream array, returning the number of bits in
 // this stream
 static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
-	uint32_t bits = 32U;
+	uint32_t bits = 32U, *quickZero = (uint32_t *)&bitstream[0], fcs;
 	uint8_t *bs = &bitstream[0];
+	bitOnes = 0U;
+	// Strict aliasing warning! But it zeroes the array way faster!
+	for (uint32_t i = (APRS_BITSTREAM_SIZE >> 2); i; i--)
+		*quickZero++ = 0U;
+	// Initialize CRC
+	CRC->POL = 0x1021U;
+	CRC->CR |= CRC_CR_RESET;
 	// Start with a minimum of 15 ones with no stuff, we use 24 (3 whole bytes)
 	*bs++ = 0xFFU;
+	CRC->DR = 0xFFU;
 	*bs++ = 0xFFU;
+	CRC->DR = 0xFFU;
 	*bs++ = 0xFFU;
+	CRC->DR = 0xFFU;
 	// Frame separator = 0x7E
-	*bs++ = 0x7EU;
-	*bs++ = 0x00U;
-	bits += 8U;
+	*bs = 0x7EU;
+	CRC->DR = 0x7EU;
+	// 0x00
+	bits = stuffBits(bits, 0x00U);
+	CRC->DR = 0x00U;
+	// 0xFF
+	bits = stuffBits(bits, 0xFFU);
+	CRC->DR = 0xFFU;
+	// FCS (note that the CRC system swapped the bits for us, so send "LSB First")
+	fcs = CRC->DR ^ 0xFFFFU;
+	bits = stuffBits(bits, fcs & 0x00FFU);
+	bits = stuffBits(bits, fcs & 0xFF00U);
+	// Stop flag, no bit stuff!
+	for (uint32_t i = 6U; i; i--) {
+		bits++;
+		bitstream[bits >> 3] |= 1U << (bits & 0x07U);
+	}
 	return bits;
 }
 
