@@ -59,17 +59,11 @@ int main(void) {
 		__enable_irq();
 		// Check the flags
 		if (flags & FLAG_RTC_1S) {
-			uint32_t p, h;
-			int32_t t, x, y, z;
-			// Max delay for longest oversampling is 120 ms
+			// "send" APRS data
 			setLED(0U, 0U, 65535U);
-			bme280Measure();
-			delay(12U);
-			// Display values in sensible units, convert accel to ~ mG
-			if (bme280Read(&t, &h, &p) && accelRead(&x, &y, &z))
-				printf("T=%d P=%u H=%u AX=%d AY=%d AZ=%d\r\n", t, p, h, x << 2, y << 2, z << 2);
-			else
-				print("Failed\r\n");
+			audioPlay("123456789", 9U);
+			audioDebugStream();
+			print("\r\n");
 			setLED(0U, 0U, 0U);
 		}
 		// Feed the watchdog

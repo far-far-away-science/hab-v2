@@ -66,44 +66,60 @@ static uint32_t stuffBits(uint32_t bitCount, uint8_t data) {
 }
 
 // Generates an AFSK bitstream into the bitstream array, returning the number of bits in
-// this stream
+// this stream (size must be greater than zero)
 static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
 	uint32_t bits = 32U, *quickZero = (uint32_t *)&bitstream[0], fcs;
-	uint8_t *bs = &bitstream[0];
+	uint8_t *bs = &bitstream[0], value;
 	bitOnes = 0U;
 	// Strict aliasing warning! But it zeroes the array way faster!
 	for (uint32_t i = (APRS_BITSTREAM_SIZE >> 2); i; i--)
 		*quickZero++ = 0U;
 	// Initialize CRC
-	CRC->POL = 0x1021U;
 	CRC->CR |= CRC_CR_RESET;
+	CRC->POL = 0x1021U;
 	// Start with a minimum of 15 ones with no stuff, we use 24 (3 whole bytes)
 	*bs++ = 0xFFU;
-	CRC->DR = 0xFFU;
 	*bs++ = 0xFFU;
-	CRC->DR = 0xFFU;
 	*bs++ = 0xFFU;
-	CRC->DR = 0xFFU;
 	// Frame separator = 0x7E
 	*bs = 0x7EU;
-	CRC->DR = 0x7EU;
-	// 0x00
-	bits = stuffBits(bits, 0x00U);
-	CRC->DR = 0x00U;
-	// 0xFF
-	bits = stuffBits(bits, 0xFFU);
-	CRC->DR = 0xFFU;
+	// Data
+	do {
+		value = *buffer++;
+		CRC->DR8 = value;
+		bits = stuffBits(bits, value);
+	} while (--size);
 	// FCS (note that the CRC system swapped the bits for us, so send "LSB First")
-	fcs = CRC->DR ^ 0xFFFFU;
+	fcs = ~(CRC->DR16);
 	bits = stuffBits(bits, fcs & 0x00FFU);
-	bits = stuffBits(bits, fcs & 0xFF00U);
+	bits = stuffBits(bits, (fcs & 0xFF00U) >> 8);
 	// Stop flag, no bit stuff!
 	for (uint32_t i = 6U; i; i--) {
 		bits++;
 		bitstream[bits >> 3] |= 1U << (bits & 0x07U);
 	}
-	return bits;
+	return bits + 1U;
 }
+
+#ifdef DEBUG_APRS
+#include "comm.h"
+
+// Dumps the bitstream to printf for debugging
+void audioDebugStream() {
+	uint8_t *bs = &bitstream[0];
+	uint32_t size = audioState.size, i, byt;
+	while (size) {
+		byt = (uint32_t)*bs++;
+		// Print the byte LSB first, trailing zeroes do not matter
+		for (i = 8U; i && size; i--) {
+			serialWriteByte((byt & 1U) ? '1' : '0');
+			byt >>= 1;
+			// Decrement the bit just printed
+			size--;
+		}
+	}
+}
+#endif
 
 // Loads the buffer with wave data
 static uint32_t loadBuffer(uint16_t *buffer, uint32_t size) {
@@ -190,12 +206,14 @@ bool audioInterrupt(const uint32_t flags) {
 
 // Plays the specified message as an APRS bit stream over the DAC port to the HX1
 uint32_t audioPlay(const void *data, uint32_t len) {
-	uint32_t bits;
-	setupAudio();
-	bits = generateBitStream(data, len);
-	// Select first bit
-	audioState.size = bits;
-	audioState.time = BIT_TIME;
+	uint32_t bits = 0U;
+	if (len > 0U) {
+		setupAudio();
+		bits = generateBitStream(data, len);
+		// Select first bit
+		audioState.size = bits;
+		audioState.time = BIT_TIME;
+	}
 	return bits;
 }
 

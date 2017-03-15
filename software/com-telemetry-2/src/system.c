@@ -197,10 +197,10 @@ static INLINE void initCRC() {
 	RCC->AHBRSTR = temp | RCC_AHBRSTR_CRCRST;
 	__dsb();
 	RCC->AHBRSTR = temp;
-	// 16-bit polynomial, enable reverse bit orders
+	// 16-bit polynomial just like Pavel said it would be: input reverse halfword, output
+	// reverse all
 	CRC->CR = CRC_CR_POLYSIZE_16BIT | CRC_CR_REV_IN_HWORD | CRC_CR_REV_OUT;
-	// Initial value is 0xFFFF
-	CRC->INIT = 0xFFFFU;
+	// Use default 0xFFFF init value
 }
 
 // Initializes the digital-to-analog converter

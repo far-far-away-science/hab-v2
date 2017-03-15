@@ -12,6 +12,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#define DEBUG_APRS
+
 // Core clock = 16 MHz
 // Audio frequency = 64 KHz
 // 1200 Hz (53.3) = 1, 2200 Hz (29) = 0
@@ -40,6 +42,11 @@ uint32_t audioPlay(const void *data, uint32_t len);
 void audioStop(void);
 // Shuts down the audio pins
 void audioShutdown(void);
+
+#ifdef DEBUG_APRS
+// Dumps the bitstream to printf for debugging
+void audioDebugStream();
+#endif
 
 // Calculates the sine of the unsigned angle in brad (65536)
 int32_t sinfp(uint32_t angle);

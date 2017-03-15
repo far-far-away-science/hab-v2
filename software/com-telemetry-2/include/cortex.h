@@ -140,8 +140,12 @@ typedef struct {
 
 // CRC register access structure
 typedef struct {
-	// Data register
-	__IO uint32_t DR;
+	// Data register (evil union hack)
+	union {
+		__IO uint32_t DR;
+		__IO uint16_t DR16;
+		__IO uint8_t DR8;
+	};
 	// Independent data register
 	__IO uint32_t IDR;
 	// Control register
