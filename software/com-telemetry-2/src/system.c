@@ -557,13 +557,13 @@ static INLINE void initTIM() {
 	RCC->APB1RSTR = temp1;
 	RCC->APB2RSTR = temp2;
 #ifdef HS32
-	// Set TIM2 up for a divider of 4 and a reload of 125 (32K / 500 = 64000)
-	TIM2->PSC = 3U;
-	TIM2->ARR = (((32000000U + (AUDIO_FREQ >> 1)) / AUDIO_FREQ) + 3U) >> 2;
-#else
-	// Set TIM2 up for a divider of 2 and a reload of 125 (16K / 250 = 64000)
+	// Set TIM2 up for a divider of 2 and a reload of 125 (32K / 500 = 128000)
 	TIM2->PSC = 1U;
-	TIM2->ARR = (((16000000U + (AUDIO_FREQ >> 1)) / AUDIO_FREQ) + 1U) >> 1;
+	TIM2->ARR = (((32000000U + (AUDIO_FREQ >> 1)) / AUDIO_FREQ) + 1U) >> 1;
+#else
+	// Set TIM2 up for a divider of 1 and a reload of 125 (16K / 250 = 128000)
+	TIM2->PSC = 0U;
+	TIM2->ARR = (16000000U + (AUDIO_FREQ >> 1)) / AUDIO_FREQ;
 #endif
 	// Fire the DMA Ch4 through CCR4 (ugly hack to avoid channel clash!)
 	TIM2->CCR4 = 0U;

@@ -61,9 +61,10 @@ int main(void) {
 		if (flags & FLAG_RTC_1S) {
 			// "send" APRS data
 			setLED(0U, 0U, 65535U);
-			audioPlay("123456789", 9U);
-			audioDebugStream();
-			print("\r\n");
+			aprsSend();
+		}
+		if ((flags & FLAG_HX1_ANY) != 0U && audioInterrupt(flags)) {
+			audioShutdown();
 			setLED(0U, 0U, 0U);
 		}
 		// Feed the watchdog

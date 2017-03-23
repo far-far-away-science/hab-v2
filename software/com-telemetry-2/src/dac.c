@@ -91,8 +91,8 @@ static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
 	} while (--size);
 	// FCS (note that the CRC system swapped the bits for us, so send "LSB First")
 	fcs = ~(CRC->DR16);
-	bits = stuffBits(bits, fcs & 0x00FFU);
-	bits = stuffBits(bits, (fcs & 0xFF00U) >> 8);
+	bits = stuffBits(bits, (uint8_t)fcs);
+	bits = stuffBits(bits, (uint8_t)(fcs >> 8));
 	// Stop flag, no bit stuff!
 	for (uint32_t i = 6U; i; i--) {
 		bits++;
@@ -126,12 +126,11 @@ static uint32_t loadBuffer(uint16_t *buffer, uint32_t size) {
 	uint32_t phase = audioState.phase, bit = audioState.bit, left = WAVE_BUFFER;
 	int32_t time = audioState.time;
 	do {
-		uint32_t data = (uint32_t)bitstream[bit >> 3] & (1U << (bit & 0x07U)),
-			advance = data ? PHASE_22 : PHASE_12;
+		uint32_t advance = (bitstream[bit >> 3] & (1U << (bit & 0x07U))) ? PHASE_12 : PHASE_22;
 		// Run out the current bit time
 		while (time > 0 && left > 0U) {
 			// Scale audio to stay out of the saturation regions and convert signed to unsigned
-			int32_t sample = sinfp(phase) >> 1;
+			int32_t sample = sinfp(phase);
 			*buffer++ = SCALE_AUDIO(sample);
 			phase += advance;
 			// Wrap around
@@ -208,11 +207,12 @@ bool audioInterrupt(const uint32_t flags) {
 uint32_t audioPlay(const void *data, uint32_t len) {
 	uint32_t bits = 0U;
 	if (len > 0U) {
-		setupAudio();
+		audioInit();
 		bits = generateBitStream(data, len);
 		// Select first bit
 		audioState.size = bits;
 		audioState.time = BIT_TIME;
+		setupAudio();
 	}
 	return bits;
 }
@@ -225,7 +225,7 @@ void audioShutdown(void) {
 	DAC->CR &= ~DAC_CR_EN1;
 }
 
-// Finishes audio by stopping the DAC/timer (does not shutdown amp!)
+// Finishes audio by stopping the DAC/timer (does not shutdown HX1!)
 void audioStop(void) {
 	// Tear down DMA, TIM2
 	TIM2->CR1 &= ~TIM_CR1_CEN;

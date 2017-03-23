@@ -27,7 +27,7 @@ extern "C" {
 // slows it down
 #define LSE_COMP 0
 // Frequency used to configure the DAC in Hz
-#define AUDIO_FREQ 64000
+#define AUDIO_FREQ 128000
 
 // Define one of HAB v2 or Phoenix
 #undef HAB_V2
@@ -169,6 +169,8 @@ extern volatile uint16_t adcResults[6];
 // System state register
 extern volatile uint32_t sysFlags;
 
+// Sends an APRS packet with the current telemetry values
+void aprsSend();
 // Leaves STOP mode and restores the correct clock settings
 void exitStopMode();
 // MCU startup routine called by the startup.s

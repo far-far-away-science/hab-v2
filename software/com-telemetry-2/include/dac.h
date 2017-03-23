@@ -12,7 +12,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DEBUG_APRS
+#undef DEBUG_APRS
 
 // Core clock = 16 MHz
 // Audio frequency = 64 KHz
