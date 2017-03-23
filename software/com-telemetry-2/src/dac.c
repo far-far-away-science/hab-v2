@@ -30,47 +30,67 @@ volatile struct {
 } audioState;
 
 // Bit stuffing counter
-static uint32_t bitOnes;
+static struct {
+	uint32_t bitOnes;
+	uint32_t lastBit;
+} bitStuff;
 // Bitstream buffer (packed bits, LSB first)
 // Note that the FCS is MSB first and needs to be reversed before going into here!
 static uint8_t bitstream[APRS_BITSTREAM_SIZE];
 // Buffer for DAC
 static uint16_t waveData[WAVE_BUFFER << 1];
 
+// Adds one bit to the current bitstream position, updating the pointer if necessary
+static uint8_t* addBit(uint8_t *bs, const uint32_t bitCount, const uint32_t bit) {
+	const uint32_t place = bitCount & 7U;
+	if (bit)
+		*bs |= 1U << place;
+	// If 7th bit was added, roll over
+	if (place == 7U)
+		bs++;
+	return bs;
+}
+
 // Adds the specified byte to the global bitstream at the specified position
-static uint32_t stuffBits(uint32_t bitCount, uint8_t data) {
-	uint32_t ones = bitOnes;
-	// Add to CRC
+static uint32_t addBits(uint32_t bitCount, uint8_t data, bool stuff) {
+	uint32_t ones = bitStuff.bitOnes, last = bitStuff.lastBit;
+	uint8_t *bs = &bitstream[bitCount >> 3];
 	for (uint32_t i = 8U; i; i--) {
 		// LSB First
 		if (data & 0x01U) {
-			uint8_t *bs = &bitstream[bitCount >> 3];
 			ones++;
-			// If buffer is initially zeroed, there is no need to write zeros directly
-			*bs |= 1U << (bitCount & 0x07U);
-			bitCount++;
+			// Ones = repeat previous bit
 			if (ones >= 5U) {
-				// Stuff a zero after 5 consecutive ones
+				// Stuff a zero after 5 consecutive ones if bit stuffing enabled
+				// Even if disabled, keep count of ones if stuffing gets turned on later
 				ones = 0U;
-				bitCount++;
+				if (stuff) {
+					bs = addBit(bs, bitCount++, last);
+					// Swap previous bit (one is added first, then the zero)
+					last = !last;
+				}
 			}
 		} else {
-			// Zero, reset the bit stuff counter
+			// Zero, swap previous bit and reset the bit stuff counter
 			ones = 0U;
-			bitCount++;
+			last = !last;
 		}
+		bs = addBit(bs, bitCount++, last);
 		data >>= 1;
 	}
-	bitOnes = ones;
+	// Store state for next bits
+	bitStuff.bitOnes = ones;
+	bitStuff.lastBit = last;
 	return bitCount;
 }
 
 // Generates an AFSK bitstream into the bitstream array, returning the number of bits in
 // this stream (size must be greater than zero)
 static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
-	uint32_t bits = 32U, *quickZero = (uint32_t *)&bitstream[0], fcs;
+	uint32_t bits = 24U, *quickZero = (uint32_t *)&bitstream[0], fcs;
 	uint8_t *bs = &bitstream[0], value;
-	bitOnes = 0U;
+	bitStuff.bitOnes = 0U;
+	bitStuff.lastBit = 1U;
 	// Strict aliasing warning! But it zeroes the array way faster!
 	for (uint32_t i = (APRS_BITSTREAM_SIZE >> 2); i; i--)
 		*quickZero++ = 0U;
@@ -82,23 +102,19 @@ static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
 	*bs++ = 0xFFU;
 	*bs++ = 0xFFU;
 	// Frame separator = 0x7E
-	*bs = 0x7EU;
+	bits = addBits(bits, 0x7EU, false);
 	// Data
 	do {
 		value = *buffer++;
 		CRC->DR8 = value;
-		bits = stuffBits(bits, value);
+		bits = addBits(bits, value, true);
 	} while (--size);
 	// FCS (note that the CRC system swapped the bits for us, so send "LSB First")
 	fcs = ~(CRC->DR16);
-	bits = stuffBits(bits, (uint8_t)fcs);
-	bits = stuffBits(bits, (uint8_t)(fcs >> 8));
-	// Stop flag, no bit stuff!
-	for (uint32_t i = 6U; i; i--) {
-		bits++;
-		bitstream[bits >> 3] |= 1U << (bits & 0x07U);
-	}
-	return bits + 1U;
+	bits = addBits(bits, (uint8_t)fcs, true);
+	bits = addBits(bits, (uint8_t)(fcs >> 8), true);
+	bits = addBits(bits, 0x7EU, false);
+	return bits;
 }
 
 #ifdef DEBUG_APRS
