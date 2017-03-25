@@ -16,7 +16,7 @@ extern volatile uint32_t i2cState;
 // Wave buffer size, 2 buffers are allocated so array is twice this
 #define WAVE_BUFFER 256
 // Bitstream buffer size
-#define APRS_BITSTREAM_SIZE 384
+#define APRS_BITSTREAM_SIZE 96
 
 volatile struct {
 	// Offset into the bitstream
@@ -36,17 +36,17 @@ static struct {
 } bitStuff;
 // Bitstream buffer (packed bits, LSB first)
 // Note that the FCS is MSB first and needs to be reversed before going into here!
-static uint8_t bitstream[APRS_BITSTREAM_SIZE];
+static uint32_t bitstream[APRS_BITSTREAM_SIZE];
 // Buffer for DAC
 static uint16_t waveData[WAVE_BUFFER << 1];
 
 // Adds one bit to the current bitstream position, updating the pointer if necessary
-static uint8_t* addBit(uint8_t *bs, const uint32_t bitCount, const uint32_t bit) {
-	const uint32_t place = bitCount & 7U;
+static uint32_t* addBit(uint32_t *bs, const uint32_t bitCount, const uint32_t bit) {
+	const uint32_t place = bitCount & 31U;
 	if (bit)
 		*bs |= 1U << place;
-	// If 7th bit was added, roll over
-	if (place == 7U)
+	// If 31st bit was added, roll over
+	if (place == 31U)
 		bs++;
 	return bs;
 }
@@ -54,7 +54,7 @@ static uint8_t* addBit(uint8_t *bs, const uint32_t bitCount, const uint32_t bit)
 // Adds the specified byte to the global bitstream at the specified position
 static uint32_t addBits(uint32_t bitCount, uint8_t data, bool stuff) {
 	uint32_t ones = bitStuff.bitOnes, last = bitStuff.lastBit;
-	uint8_t *bs = &bitstream[bitCount >> 3];
+	uint32_t *bs = &bitstream[bitCount >> 5];
 	for (uint32_t i = 8U; i; i--) {
 		// LSB First
 		if (data & 0x01U) {
@@ -87,20 +87,17 @@ static uint32_t addBits(uint32_t bitCount, uint8_t data, bool stuff) {
 // Generates an AFSK bitstream into the bitstream array, returning the number of bits in
 // this stream (size must be greater than zero)
 static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
-	uint32_t bits = 24U, *quickZero = (uint32_t *)&bitstream[0], fcs;
-	uint8_t *bs = &bitstream[0], value;
+	uint32_t bits = 24U, fcs, value;
+	uint32_t *bs = &bitstream[0], *bsZero = bs;
 	bitStuff.bitOnes = 0U;
 	bitStuff.lastBit = 1U;
-	// Strict aliasing warning! But it zeroes the array way faster!
-	for (uint32_t i = (APRS_BITSTREAM_SIZE >> 2); i; i--)
-		*quickZero++ = 0U;
+	for (uint32_t i = APRS_BITSTREAM_SIZE; i; i--)
+		*bsZero++ = 0U;
 	// Initialize CRC
 	CRC->CR |= CRC_CR_RESET;
 	CRC->POL = 0x1021U;
-	// Start with a minimum of 15 ones with no stuff, we use 24 (3 whole bytes)
-	*bs++ = 0xFFU;
-	*bs++ = 0xFFU;
-	*bs++ = 0xFFU;
+	// Start with a minimum of 15 ones with no stuff, we use 24 (3 whole bytes) LSB first
+	*bs++ = 0x00FFFFFFU;
 	// Frame separator = 0x7E
 	bits = addBits(bits, 0x7EU, false);
 	// Data
@@ -113,8 +110,7 @@ static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
 	fcs = ~(CRC->DR16);
 	bits = addBits(bits, (uint8_t)fcs, true);
 	bits = addBits(bits, (uint8_t)(fcs >> 8), true);
-	bits = addBits(bits, 0x7EU, false);
-	return bits;
+	return addBits(bits, 0x7EU, false);
 }
 
 #ifdef DEBUG_APRS
@@ -139,32 +135,41 @@ void audioDebugStream() {
 
 // Loads the buffer with wave data
 static uint32_t loadBuffer(uint16_t *buffer, uint32_t size) {
-	uint32_t phase = audioState.phase, bit = audioState.bit, left = WAVE_BUFFER;
-	int32_t time = audioState.time;
-	do {
-		uint32_t advance = (bitstream[bit >> 3] & (1U << (bit & 0x07U))) ? PHASE_12 : PHASE_22;
-		// Run out the current bit time
-		while (time > 0 && left > 0U) {
-			// Scale audio to stay out of the saturation regions and convert signed to unsigned
-			int32_t sample = sinfp(phase);
-			*buffer++ = SCALE_AUDIO(sample);
-			phase += advance;
-			// Wrap around
-			if (phase > B_RAD)
-				phase -= B_RAD;
-			time -= (1 << F_S);
-			left--;
-		}
-		// If we are at a bit time end, hold the phase constant and move bit up one
-		if (time <= 0) {
-			time += BIT_TIME;
-			bit++;
-			size--;
-		}
-	} while (size > 0U && left > 0U);
-	audioState.bit = bit;
-	audioState.phase = phase;
-	audioState.time = time;
+	uint32_t left = WAVE_BUFFER;
+	if (size == 0U) {
+		// If zero, use phase to count down 2 periods
+		audioState.phase--;
+	} else {
+		uint32_t phase = audioState.phase, bit = audioState.bit, advance;
+		int32_t time = audioState.time;
+		do {
+			advance = (bitstream[bit >> 5] & (1U << (bit & 31U))) ? PHASE_12 : PHASE_22;
+			// Run out the current bit time
+			while (time > 0 && left > 0U) {
+				// Scale audio to stay out of the saturation regions and convert signed to unsigned
+				int32_t sample = sinfp(phase);
+				*buffer++ = SCALE_AUDIO(sample);
+				phase += advance;
+				// Wrap around
+				if (phase > B_RAD)
+					phase -= B_RAD;
+				time -= (1 << F_S);
+				left--;
+			}
+			// If we are at a bit time end, hold the phase constant and move bit up one
+			if (time <= 0) {
+				time += BIT_TIME;
+				bit++;
+				size--;
+			}
+		} while (size > 0U && left > 0U);
+		// If out of time, reset phase to two to count out the buffer end
+		if (size == 0U)
+			phase = 2U;
+		audioState.bit = bit;
+		audioState.phase = phase;
+		audioState.time = time;
+	}
 	// Finish buffer with 0x0 if necessary
 	for (; left; left--)
 		*buffer++ = SCALE_AUDIO(0);
@@ -212,11 +217,8 @@ bool audioInterrupt(const uint32_t flags) {
 	else if (flags & FLAG_HX1_BACK)
 		// Back half of buffer needs filling
 		size = loadBuffer(&waveData[WAVE_BUFFER], size);
-	// If audio is complete, shut down
-	if (size == 0U)
-		audioStop();
 	audioState.size = size;
-	return size == 0U;
+	return size == 0U && audioState.phase == 0U;
 }
 
 // Plays the specified message as an APRS bit stream over the DAC port to the HX1
@@ -235,17 +237,13 @@ uint32_t audioPlay(const void *data, uint32_t len) {
 
 // Shuts down the audio pins
 void audioShutdown(void) {
+	// Tear down DMA, TIM2
+	TIM2->CR1 &= ~TIM_CR1_CEN;
+	DMA1_Channel4->CCR &= ~DMA_CCR_EN;
 	// Disable the HX1
 	ioSetOutput(PIN_HX1_EN, false);
 	// Turn off the DAC
 	DAC->CR &= ~DAC_CR_EN1;
-}
-
-// Finishes audio by stopping the DAC/timer (does not shutdown HX1!)
-void audioStop(void) {
-	// Tear down DMA, TIM2
-	TIM2->CR1 &= ~TIM_CR1_CEN;
-	DMA1_Channel4->CCR &= ~DMA_CCR_EN;
 }
 
 // Audio DMA requests
