@@ -7,7 +7,7 @@
 #include <adxl345.h>
 #include <bme280.h>
 #include <printf.h>
-#include <dac.h>
+#include <aprs.h>
 #include <periph.h>
 #include <stmtime.h>
 
@@ -42,12 +42,23 @@ void setLED(uint32_t red, uint32_t green, uint32_t blue) {
 
 // Main program
 int main(void) {
+	UTCTime time;
+	TelemetryData data;
 	// Bring up sensors, green for success, red for failure
 	if (bme280Init() && accelInit())
 		setLED(0U, 65535U, 0U);
 	else
 		setLED(65535U, 0U, 0U);
 	accelResume();
+	// Set time to 12:00:00 PM
+	time.hour = 12U;
+	time.minute = 0U;
+	time.second = 0U;
+	// Fill in fake telemetry
+	data.sequence = 1U;
+	data.powerLevel = 90U;
+	data.ambientTemp = 750U;
+	data.cpuTemp = 800U;
 	while (1) {
 		uint32_t flags;
 		__disable_irq();
@@ -58,10 +69,10 @@ int main(void) {
 		}
 		__enable_irq();
 		// Check the flags
-		if (flags & FLAG_RTC_1S) {
+		if ((flags & FLAG_RTC_1S) && (RTC->TR & RTC_TR_SU) % 2U == 0U) {
 			// "send" APRS data
 			setLED(0U, 0U, 65535U);
-			aprsSend();
+			aprsSend(&time, NULL, &data);
 		}
 		if ((flags & FLAG_HX1_ANY) != 0U && audioInterrupt(flags)) {
 			audioShutdown();

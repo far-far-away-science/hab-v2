@@ -110,7 +110,7 @@ static uint32_t generateBitStream(const uint8_t *buffer, uint32_t size) {
 	fcs = ~(CRC->DR16);
 	bits = addBits(bits, (uint8_t)fcs, true);
 	bits = addBits(bits, (uint8_t)(fcs >> 8), true);
-	return addBits(bits, 0x7EU, false);
+	return addBits(bits, 0x7EU, false) + 1U;
 }
 
 #ifdef DEBUG_APRS
