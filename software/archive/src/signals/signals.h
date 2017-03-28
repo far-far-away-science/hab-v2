@@ -12,6 +12,7 @@ typedef enum Errors_t
     ERR_SIGNAL_TIMER         = 0x08,
     ERR_HX1                  = 0x10,
     ERR_ISR                  = 0x20,
+    ERR_SPI                  = 0x40,
 } Errors;
 
 typedef enum ErrorsDetailsCrc_t
@@ -53,6 +54,12 @@ typedef enum ErrorsDetailsHx1_t
     ED_HX1_FAILED_TO_START_DAC_DMA         = 0x04,
 } ErrorsDetailsHx1;
 
+typedef enum ErrorsDetailsSpi_t
+{
+    ED_SPI_FAILED_TO_INITIALIZE_SPI        = 0x01,
+    ED_SPI_FAILED_TO_START_SPI_DMA         = 0x02,
+} ErrorsDetailsSpi;
+
 typedef struct ErrorsDetails_t
 {
     uint32_t isrFault;
@@ -60,6 +67,7 @@ typedef struct ErrorsDetails_t
     uint32_t uartCopernicus;
     uint32_t timer;
     uint32_t hx1;
+    uint32_t spi;
 } ErrorsDetails;
 
 extern ErrorsDetails g_errorsDetails;
@@ -97,6 +105,10 @@ void resetErrors();
 
 #define ERROR_NMEA_BUFFER_OVERFLOW(errorId) \
     addErrorWithoutDetails(ERR_NMEA_BUFFER_OVERFLOW); \
+    signalError(true);
+
+#define ERROR_SPI(errorId) \
+    addError(ERR_SPI, &g_errorsDetails.hx1, errorId); \
     signalError(true);
 
 #define ERROR_TRACE_UART() \

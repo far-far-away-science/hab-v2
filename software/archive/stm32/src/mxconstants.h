@@ -66,3 +66,11 @@
 #define SIGNAL_GPIO_AF_CHANNEL_BLUE      GPIO_AF2_TIM3
 #define SIGNAL_GPIO_PIN_BLUE             GPIO_PIN_1
 #define SIGNAL_GPIO_CHANNEL_BLUE         GPIOB
+
+#define SPI                              SPI1
+#define SPI_CLK_ENABLE                   __HAL_RCC_SPI1_CLK_ENABLE
+#define SPI_FORCE_RESET                  __HAL_RCC_SPI1_FORCE_RESET
+#define SPI_RELEASE_RESET                __HAL_RCC_SPI1_RELEASE_RESET
+#define SPI_GPIO_PORT                    GPIOB
+#define SPI_DMA_RX_INSTANCE              DMA1_Channel2
+#define SPI_DMA_TX_INSTANCE              DMA1_Channel3
