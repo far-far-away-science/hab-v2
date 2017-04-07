@@ -73,7 +73,7 @@ typedef struct {
 typedef struct {
 	// Packet sequence number 0-999
 	uint16_t sequence;
-	// Main battery voltage in volts * 100
+	// Main battery voltage in volts * 10
 	uint16_t powerLevel;
 	// Ambient temperature in (degrees C * 10) + offset: 0 C = 500, -50 C = 0, +49.9 C = 999
 	uint16_t ambientTemp;

@@ -15,7 +15,7 @@ void delay(const uint32_t time) {
 	sysTickEnable();
 	{
 		const uint32_t target = sysTime + time;
-		// Wait until target is met (wrap around safe)
+		// Wait until target is met
 		do {
 			feedWatchdog();
 			__sleep();

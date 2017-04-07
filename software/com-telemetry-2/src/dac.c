@@ -194,8 +194,6 @@ static INLINE void setupAudio() {
 	// Clear phase timers
 	audioState.phase = 0U;
 	audioState.bit = 0U;
-	// Enable the HX1
-	ioSetOutput(PIN_HX1_EN, true);
 	sysFlags &= ~FLAG_HX1_ANY;
 }
 
@@ -206,6 +204,8 @@ void audioInit(void) {
 	DAC->DHR12R1 = SCALE_AUDIO(0);
 	__dsb();
 	DAC->SWTRIGR = DAC_SWTRIGR_SWTRIG;
+	// Enable the HX1
+	ioSetOutput(PIN_HX1_EN, true);
 }
 
 // Processes an audio interrupt in the main loop, returns TRUE iff audio has finished
@@ -225,7 +225,6 @@ bool audioInterrupt(const uint32_t flags) {
 uint32_t audioPlay(const void *data, uint32_t len) {
 	uint32_t bits = 0U;
 	if (len > 0U) {
-		audioInit();
 		bits = generateBitStream(data, len);
 		// Select first bit
 		audioState.size = bits;

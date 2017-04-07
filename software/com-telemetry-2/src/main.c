@@ -11,6 +11,8 @@
 #include <periph.h>
 #include <stmtime.h>
 
+// Time when APRS data needs to be sent
+static volatile uint32_t aprsTime;
 // System state register
 volatile uint32_t sysFlags;
 
@@ -59,8 +61,9 @@ int main(void) {
 	data.powerLevel = 90U;
 	data.ambientTemp = 750U;
 	data.cpuTemp = 800U;
+	aprsTime = 0xFFFFFFFFU;
 	while (1) {
-		uint32_t flags;
+		uint32_t flags, now = sysTime, temp;
 		__disable_irq();
 		{
 			// Clear the flags with no risk of interrupt contention
@@ -69,12 +72,21 @@ int main(void) {
 		}
 		__enable_irq();
 		// Check the flags
+		temp = aprsTime;
 		if ((flags & FLAG_RTC_1S) && (RTC->TR & RTC_TR_SU) % 2U == 0U) {
-			// "send" APRS data
 			setLED(0U, 0U, 65535U);
+			audioInit();
+			// Start APRS once HX1 is ready
+			aprsTime = now + 8U;
+			sysTickEnable();
+		}
+		if ((flags & FLAG_SYSTICK) && temp == now) {
+			// "send" APRS data
+			sysTickDisable();
 			aprsSend(&time, NULL, &data);
 		}
 		if ((flags & FLAG_HX1_ANY) != 0U && audioInterrupt(flags)) {
+			// APRS data send
 			audioShutdown();
 			setLED(0U, 0U, 0U);
 		}
