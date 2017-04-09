@@ -5,10 +5,24 @@
 #include <main.h>
 #include <periph.h>
 
+// Addresses of the internal temperature calibration data
+// 30 C, 3 V
+#define ADC_TS_CAL1 ((volatile uint16_t *)0x1FF8007A)
+// 130 C, 3 V
+#define ADC_TS_CAL2 ((volatile uint16_t *)0x1FF8007E)
+
 // Results from the ADC will end up here
-// Due to errata 2.2 we should convert a useless channel first
-// Max usage: Phoenix (3x Ubiquity LED, Battery, Int. Temperature, Bug Fix)
+//  Errata 2.2 requires converting a useless channel first, but only affects Z series
+// Max usage: HAB V2 (Battery, CPU Temperature, 2x Camera photocell, 2x Analog temperature)
 volatile uint16_t adcResults[6];
+
+// Converts the CPU temperature using the calibration values to a value in degrees C * 10
+int32_t adcConvertCPUTemp(uint16_t value) {
+	// Account for 16x oversampling
+	const int32_t cal1 = ((int32_t)*ADC_TS_CAL1) << 4, cal2 = ((int32_t)*ADC_TS_CAL2) << 4,
+		diff = cal2 - cal1;
+	return ((int32_t)value - cal1) * 1000 / diff + 300;
+}
 
 // Starts an ADC conversion
 void adcStart() {

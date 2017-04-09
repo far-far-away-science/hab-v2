@@ -39,14 +39,9 @@ upload: all
 _force_look:
 	@true
 
-# Compiles library for general BOTS use
-library: clean $(BINDIR) $(SUBDIRS) $(ASMOBJ) $(COBJ) $(CPPOBJ)
-	# Get rid of junk that the user should be doing
-	-rm -f $(BINDIR)/main.o
-	$(MCUPREFIX)ar rvs libccos-maple.a $(BINDIR)/*.o
-
 # Looks in subdirectories for things to make
 $(SUBDIRS): %: _force_look
+	@cp -u include/callsign_template.h include/callsign.h
 	@$(MAKE) --no-print-directory -C $@
 
 # Ensure binary directory exists

@@ -927,6 +927,32 @@ typedef struct {
 // ADC clock mode using APB2CLK (may only be used in a few circumstances)
 #define ADC_CFGR2_CKMODE_PCLK ((uint32_t)0xC0000000)
 
+// Sampling time of 1.5 ADC clock cycles
+#define ADC_SMPR_SMP_1P5 ((uint32_t)0x00000000)
+// Sampling time of 3.5 ADC clock cycles
+#define ADC_SMPR_SMP_3P5 ((uint32_t)0x00000001)
+// Sampling time of 7.5 ADC clock cycles
+#define ADC_SMPR_SMP_7P5 ((uint32_t)0x00000002)
+// Sampling time of 12.5 ADC clock cycles
+#define ADC_SMPR_SMP_12P5 ((uint32_t)0x00000003)
+// Sampling time of 19.5 ADC clock cycles
+#define ADC_SMPR_SMP_19P5 ((uint32_t)0x00000004)
+// Sampling time of 39.5 ADC clock cycles
+#define ADC_SMPR_SMP_39P5 ((uint32_t)0x00000005)
+// Sampling time of 79.5 ADC clock cycles
+#define ADC_SMPR_SMP_79P5 ((uint32_t)0x00000006)
+// Sampling time of 160.5 ADC clock cycles
+#define ADC_SMPR_SMP_160P5 ((uint32_t)0x00000007)
+
+// Enable VREF
+#define ADC_CCR_VREFEN ((uint32_t)0x00400000)
+// Enable temperature sensor
+#define ADC_CCR_TSEN ((uint32_t)0x00800000)
+// Enable voltage to LCD
+#define ADC_CCR_VLCDEN ((uint32_t)0x01000000)
+// Enable low frequency mode
+#define ADC_CCR_LFMEN ((uint32_t)0x02000000)
+
 // CRC defines
 // Reset CRC
 #define CRC_CR_RESET ((uint32_t)0x00000001)

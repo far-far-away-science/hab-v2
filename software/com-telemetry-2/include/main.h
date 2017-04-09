@@ -140,12 +140,12 @@ void spiSelect(uint32_t device);
 #define PIN_EN_RAD GPIOA, 8
 #define PIN_OW_TEMP GPIOB, 15
 #endif
-// EXTI bit for the RTC
-#define RTC_BIT 0x020000
+// EXTI bits for the RTC
+#define RTC_BIT 0x120000U
 
 // Status and flags
-// RTC 1-second interrupt occurred
-#define FLAG_RTC_1S 0x0001U
+// RTC wakeup (30-second) interrupt occurred for HX1 transmission
+#define FLAG_RTC_30S 0x0001U
 // DAC HX1 transfer needed to front half (HTIE fired)
 #define FLAG_HX1_FRONT 0x0002U
 // DAC HX1 transfer needed to front half (TCIE fired)
@@ -156,6 +156,8 @@ void spiSelect(uint32_t device);
 #define FLAG_SYSTICK 0x0008U
 // Flag indicating ADC results are ready
 #define FLAG_ADC_READY 0x0010U
+// RTC one-second flag used to keep main loop running even with IWDG on
+#define FLAG_RTC_1S 0x0020U
 // Flag indicating that the LSI is in use instead of the LSE
 #define FLAG_LSI 0x20000000U
 // Flag indicating that the HSI is in use instead of the HSE

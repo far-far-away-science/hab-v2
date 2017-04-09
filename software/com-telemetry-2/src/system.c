@@ -68,13 +68,20 @@ static INLINE void initADC() {
 	ADC1->CFGR1 = ADC_CFGR1_AUTOFF | ADC_CFGR1_RES_12BIT;
 	ADC1->CFGR2 = ADC_CFGR2_CKMODE_PCLK_4 | ADC_CFGR2_OVSE | ADC_CFGR2_OVSR_16 |
 		ADC_CFGR2_OVSS_NONE;
-	// Enable only these two channels for conversions
+	ADC->CCR = ADC_CCR_TSEN;
+	// Set sampling time to 79.5 ADC clock cycles (16 MHz) or 160.5 cycles (32 MHz)
+#ifdef HS32
+	ADC1->SMPR = ADC_SMPR_SMP_160P5;
+#else
+	ADC1->SMPR = ADC_SMPR_SMP_79P5;
+#endif
+	// Enable only the required channels for conversions
 #ifdef PHOENIX
 	ADC1->CHSELR = (1U << ADC_CHAN_LED_1) | (1U << ADC_CHAN_LED_2) | (1U << ADC_CHAN_LED_3) |
-		(1U << ADC_CHAN_BAT);
+		(1U << ADC_CHAN_BAT) | (1U << ADC_CHAN_TEMP_I);
 #else
 	ADC1->CHSELR = (1U << ADC_CHAN_TEMP_G) | (1U << ADC_CHAN_TEMP_B) | (1U << ADC_CHAN_BAT) |
-		(1U << ADC_CHAN_PHOTO_1) | (1U << ADC_CHAN_PHOTO_2);
+		(1U << ADC_CHAN_PHOTO_1) | (1U << ADC_CHAN_PHOTO_2) | (1U << ADC_CHAN_TEMP_I);
 #endif
 	// Enable interrupts for calibration complete
 	ADC1->IER = ADC_IER_EOCAL;
@@ -258,12 +265,12 @@ static INLINE void initDMA() {
 
 // Initializes the external interrupts on the button pins
 static INLINE void initEXTI() {
-	// Configure EXTI line 17 (RTC) to interrupt in rising edge mode
+	// Configure EXTI line 17 (RTC) and 20 (RTC wakeup) to interrupt in rising edge mode
 	EXTI->RTSR = RTC_BIT;
 	// Clear pending interrupts
 	EXTI->PR = 0x7BFFFFU;
 	// Unmask the interrupts
-	EXTI->IMR = RTC_BIT;
+	EXTI->IMR |= RTC_BIT;
 }
 
 // Initializes the new I2C peripheral on L0 chips, different from I2C on other ST chips!
@@ -299,12 +306,6 @@ static INLINE void initInterrupts() {
 	intSetPriority(RTC_IRQn, 1);
 	intEnable(RTC_IRQn);
 #endif
-	// IRQ channel 5 (EXTI 0 and 1) enable
-	intSetPriority(EXTI1_0_IRQn, 2);
-	intEnable(EXTI1_0_IRQn);
-	// IRQ channel 7 (EXTI 4-15) enable
-	intSetPriority(EXTI15_4_IRQn, 2);
-	intEnable(EXTI15_4_IRQn);
 	// IRQ channel 9 (DMA channel 1) enable
 	intSetPriority(DMA1_Channel1_IRQn, 3);
 	intEnable(DMA1_Channel1_IRQn);
@@ -497,28 +498,22 @@ static INLINE void initRTC() {
 	RTC->CALR = ((uint32_t)-(LSE_COMP) & 0x1FFU);
 #endif
 #endif
-	// Reset clock to 1/1/2016 00:00:00 GMT
+	// Reset clock to 1/1/2017 00:00:00 GMT
 	RTC->TR = 0U;
-	RTC->DR = (uint32_t)(1U | (1U << RTC_DR_MU_S) | RTC_DR_FRIDAY | (6U << RTC_DR_YU_S) |
+	RTC->DR = (uint32_t)(1U | (1U << RTC_DR_MU_S) | RTC_DR_SUNDAY | (7U << RTC_DR_YU_S) |
 		(1U << RTC_DR_YT_S));
 	// Disable alarm A and B
-	RTC->CR &= ~(RTC_CR_ALRAE | RTC_CR_ALRAIE | RTC_CR_ALRBIE | RTC_CR_ALRBE | RTC_CR_WUTE);
+	RTC->CR = 0;
 	__dsb();
-#if 1
-	// Set up alarm B to trip every second
+	// Set up alarm B to trip every second to keep main loop alive
 	RTC->ALRMBR = RTC_ALRMAR_MSK4 | RTC_ALRMAR_MSK3 | RTC_ALRMAR_MSK2 | RTC_ALRMAR_MSK1;
 	RTC->ALRMBSSR = 0x00U;
-	RTC->CR |= RTC_CR_ALRAIE | RTC_CR_ALRBIE | RTC_CR_ALRBE;
+	// Use wakeup timer which is designed for repeated wakeups for the 30 second transmits
+	RTC->WUTR = 29U;
+	RTC->CR = RTC_CR_ALRAIE | RTC_CR_ALRBIE | RTC_CR_ALRBE | RTC_CR_WUTIE | RTC_CR_WUTE |
+		RTC_CR_WUCKSEL_SPRE;
 	// Exit initialization mode and enable write protection
-	RTC->ISR = RTC_ISR_NOP & ~(RTC_ISR_INIT | RTC_ISR_ALRAF | RTC_ISR_ALRBF);
-#else
-	// Use wakeup timer instead which is designed for 1s wakeups
-	// 32768 Hz / 16 = 2048
-	RTC->WUTR = 2047U;
-	RTC->CR |= RTC_CR_ALRAIE | RTC_CR_WUTIE | RTC_CR_WUTE | RTC_CR_WUCKSEL_16;
-	// Exit initialization mode and enable write protection
-	RTC->ISR = RTC_ISR_NOP & ~(RTC_ISR_INIT | RTC_ISR_ALRAF | RTC_ISR_WUTF);
-#endif
+	RTC->ISR = RTC_ISR_NOP & ~(RTC_ISR_INIT | RTC_ISR_WUTF | RTC_ISR_ALRAF | RTC_ISR_ALRBF);
 	RTC->WPR = RTC_WPR_LOCK;
 #endif
 }

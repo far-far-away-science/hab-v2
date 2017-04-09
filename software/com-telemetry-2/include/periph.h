@@ -85,6 +85,8 @@ static INLINE void ioSetDirection(GPIO_TypeDef* port, uint32_t pin, uint32_t typ
 		4) << pin2);
 }
 
+// Converts the CPU temperature using the calibration values to a value in degrees C * 10
+int32_t adcConvertCPUTemp(uint16_t value);
 // Starts an ADC conversion
 void adcStart(void);
 // Writes the given value out over SPI and ignores the value read in

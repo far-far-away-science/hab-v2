@@ -6,6 +6,7 @@
 #ifndef APRS_H_
 #define APRS_H_
 
+#include "callsign.h"
 #include <dac.h>
 
 // Control field is 0x03 (UI frame)
@@ -25,6 +26,8 @@
 #define APRS_LOCATION_LENGTH (APRS_LATITUDE_LENGTH + APRS_LONGITUDE_LENGTH + 2)
 // Length of APRS time field
 #define APRS_TIME_LENGTH 8
+// Length of APRS telemetry field
+#define APRS_TELEM_LENGTH 42
 
 // Last character is a flags byte
 // Bits 7-5 are always 1, 4-1 are the SSID, 0 is true for last address or false otherwise
@@ -37,19 +40,17 @@
 // WIDE2-2
 #define APRS_FLAGBITS_DEST_2 APRS_FLAGS(2, 1)
 #define APRS_CALLSIGN_DEST_2 "WIDE2 "
-// KI7LCY balloon (-11)
+// Our balloon callsign (balloon = -11)
 #define APRS_FLAGBITS_SRC    APRS_FLAGS(11, 0)
-#define APRS_CALLSIGN_SRC    "KI7LCY"
 
 // UTC time structure (obtained from GPS / RTC)
 typedef struct {
 	// Hour 00-23
-	uint8_t hour;
+	uint32_t hour;
 	// Minute 00-59
-	uint8_t minute;
+	uint32_t minute;
 	// Second 00-59
-	uint8_t second;
-	uint8_t RESERVED;
+	uint32_t second;
 } UTCTime;
 
 // GPS location structure
@@ -72,13 +73,13 @@ typedef struct {
 // Telemetry data to be sent to APRS
 typedef struct {
 	// Packet sequence number 0-999
-	uint16_t sequence;
+	uint32_t sequence;
 	// Main battery voltage in volts * 10
-	uint16_t powerLevel;
+	uint32_t powerLevel;
 	// Ambient temperature in (degrees C * 10) + offset: 0 C = 500, -50 C = 0, +49.9 C = 999
-	uint16_t ambientTemp;
+	uint32_t ambientTemp[2];
 	// CPU temperature using the same formula
-	uint16_t cpuTemp;
+	uint32_t cpuTemp;
 } TelemetryData;
 
 // Sends an APRS packet with the specified telemetry values

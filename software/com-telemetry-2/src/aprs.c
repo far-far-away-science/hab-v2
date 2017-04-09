@@ -47,7 +47,7 @@ void aprsSend(UTCTime *time, GPSLocation *location, TelemetryData *data) {
 	char *packet = &aprsPacket[size];
 	unsigned int alt = 0U;
 	// Add time in UTC, character / is for timestamped reports without APRS messaging
-	sprintf(packet, "/%02u%02u%02uh", (unsigned int)time->hour,
+	snprintf(packet, APRS_TIME_LENGTH + 1, "/%02u%02u%02uh", (unsigned int)time->hour,
 		(unsigned int)time->minute, (unsigned int)time->second);
 	packet += APRS_TIME_LENGTH;
 	if (location == NULL) {
@@ -69,19 +69,20 @@ void aprsSend(UTCTime *time, GPSLocation *location, TelemetryData *data) {
 			absLat = (unsigned int)lat;
 		alt = location->altitude;
 		// Add GPS coordinates to packet using balloon symbol again
-		sprintf(packet, "%04u.%02u%c/%05u.%02u%cO", absLat / 100U, absLat % 100U,
-			(lat < 0) ? 'S' : 'N', absLon / 100U, absLon % 100U, (lon < 0) ? 'W' : 'E');
+		snprintf(packet, APRS_LOCATION_LENGTH + 1, "%04u.%02u%c/%05u.%02u%cO", absLat / 100U,
+			absLat % 100U, (lat < 0) ? 'S' : 'N', absLon / 100U, absLon % 100U,
+			(lon < 0) ? 'W' : 'E');
 		packet += APRS_LOCATION_LENGTH;
 		// Course and speed in degrees and knots
-		sprintf(packet, "%03u/%03u", (unsigned int)location->heading,
+		snprintf(packet, APRS_CSE_LENGTH + 1, "%03u/%03u", (unsigned int)location->heading,
 			(unsigned int)location->speed);
 	}
 	packet += APRS_CSE_LENGTH;
 	// Append telemetry packet and update size
-	size += sprintf(packet, "T#%03u,%03u,%03u,%03u,000,000,00000000/a=%06u",
-		(unsigned int)data->sequence, (unsigned int)data->powerLevel,
-		(unsigned int)data->ambientTemp, (unsigned int)data->cpuTemp, alt) +
-		APRS_CSE_LENGTH + APRS_LOCATION_LENGTH + APRS_TIME_LENGTH;
+	size += snprintf(packet, APRS_TELEM_LENGTH + 1, "T#%03u,%03u,%03u,%03u,%03u,000,00000000"
+		"/a=%06u", (unsigned int)data->sequence, (unsigned int)data->powerLevel,
+		(unsigned int)data->cpuTemp, (unsigned int)data->ambientTemp[0],
+		(unsigned int)data->ambientTemp[1], alt) - 1;
 	// Output the audio stream minus zero terminator!
-	audioPlay(aprsPacket, size - 1U);
+	audioPlay(aprsPacket, size + APRS_CSE_LENGTH + APRS_LOCATION_LENGTH + APRS_TIME_LENGTH);
 }
