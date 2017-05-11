@@ -7156,6 +7156,10 @@ Ground</text>
 <wire x1="45.72" y1="111.76" x2="53.34" y2="111.76" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="109.22" x2="45.72" y2="111.76" width="0.1524" layer="91"/>
 <junction x="45.72" y="111.76"/>
+<pinref part="R26" gate="G$1" pin="2"/>
+<wire x1="66.04" y1="109.22" x2="53.34" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="53.34" y1="109.22" x2="53.34" y2="111.76" width="0.1524" layer="91"/>
+<junction x="53.34" y="111.76"/>
 </segment>
 <segment>
 <pinref part="IC4" gate="G$1" pin="VSSA"/>
@@ -7568,10 +7572,7 @@ Ground</text>
 <segment>
 <pinref part="SUPPLY11" gate="G$1" pin="3.3V"/>
 <wire x1="73.66" y1="111.76" x2="73.66" y2="109.22" width="0.1524" layer="91"/>
-<wire x1="73.66" y1="109.22" x2="66.04" y2="109.22" width="0.1524" layer="91"/>
 <pinref part="R6" gate="G$1" pin="2"/>
-<junction x="73.66" y="109.22"/>
-<pinref part="R26" gate="G$1" pin="2"/>
 </segment>
 <segment>
 <pinref part="SUPPLY12" gate="G$1" pin="3.3V"/>

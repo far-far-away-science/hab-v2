@@ -3346,7 +3346,6 @@ Proven layout and schematic for triple color LED in SMD package - common anode. 
 <sheet>
 <plain>
 <text x="55.88" y="101.6" size="1.778" layer="90">497-14904-ND</text>
-<text x="124.46" y="99.06" size="1.778" layer="90">TODO Adjust resistors based on OTRTAll</text>
 <text x="149.86" y="7.62" size="2.54" layer="94">Phoenix</text>
 <text x="236.22" y="7.62" size="2.54" layer="94">A</text>
 <text x="106.68" y="81.28" size="1.778" layer="90">CONN: 455-1671-ND

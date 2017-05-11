@@ -2278,14 +2278,34 @@ typedef struct {
 #define TIM_CCER_CC1E ((uint32_t)0x00000001)
 // Capture/compare I/O 1 polarity
 #define TIM_CCER_CC1P ((uint32_t)0x00000002)
+// Capture/compare inverted I/O 1 enable
+#define TIM_CCER_CC1NE ((uint32_t)0x00000004)
 // Capture/compare inverted I/O 1 polarity
 #define TIM_CCER_CC1NP ((uint32_t)0x00000008)
 // Capture/compare I/O 2 enable
 #define TIM_CCER_CC2E ((uint32_t)0x00000010)
 // Capture/compare I/O 2 polarity
 #define TIM_CCER_CC2P ((uint32_t)0x00000020)
+// Capture/compare inverted I/O 2 enable
+#define TIM_CCER_CC2NE ((uint32_t)0x00000040)
 // Capture/compare inverted I/O 2 polarity
 #define TIM_CCER_CC2NP ((uint32_t)0x00000080)
+// Capture/compare I/O 3 enable
+#define TIM_CCER_CC3E ((uint32_t)0x00000100)
+// Capture/compare I/O 3 polarity
+#define TIM_CCER_CC3P ((uint32_t)0x00000200)
+// Capture/compare inverted I/O 3 enable
+#define TIM_CCER_CC3NE ((uint32_t)0x00000400)
+// Capture/compare inverted I/O 3 polarity
+#define TIM_CCER_CC3NP ((uint32_t)0x00000800)
+// Capture/compare I/O 4 enable
+#define TIM_CCER_CC4E ((uint32_t)0x00000100)
+// Capture/compare I/O 4 polarity
+#define TIM_CCER_CC4P ((uint32_t)0x00000200)
+// Capture/compare inverted I/O 4 enable
+#define TIM_CCER_CC4NE ((uint32_t)0x00000400)
+// Capture/compare inverted I/O 4 polarity
+#define TIM_CCER_CC4NP ((uint32_t)0x00000800)
 
 // USART defines
 // Read data register full flag
