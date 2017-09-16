@@ -30,7 +30,7 @@ bool loRAGetTXStatus();
 // Retrieves the current SNR value in dB
 int32_t loRAGetSNR();
 // Initializes the LoRA radio
-void loRAInit();
+bool loRAInit();
 // Reads up to maxLen bytes of the received packet into *data, returning the actual number of
 // bytes read
 uint32_t loRAReadPacket(void *data, const uint32_t maxLen);

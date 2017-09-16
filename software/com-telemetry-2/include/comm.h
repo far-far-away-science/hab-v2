@@ -17,7 +17,7 @@ extern "C" {
 // ---- Ring buffer definitions ----
 // Size of buffer, in bytes, for the USART ring buffers
 // Can be at most 65536 before overflowing the space in a word; must be a power of two
-#define USART_BUFFER_SIZE 0x40
+#define USART_BUFFER_SIZE 0x80
 
 // Structure containing a ring buffer
 typedef struct {
@@ -40,10 +40,15 @@ static INLINE bool ringIsBufferFull(volatile RingBuffer_TypeDef* buffer) {
 char ringPullByte(volatile RingBuffer_TypeDef* buffer);
 // Queues a byte onto the tail of the given buffer
 void ringQueueByte(volatile RingBuffer_TypeDef* buffer, char value);
-// Reads a byte from the serial port
-char serialReadByte();
 // Initializes serial communications
 void serialInit();
+// Reads a byte from the serial port; only use when serialReady() is true!
+char serialReadByte();
+// Checks to see if data is available on the Pi serial port
+bool serialReady();
+// To achieve low power consumption while still handling LSE failures, allow the LPUART baud
+// rate to be adjusted at runtime according to the source clock
+void serialSetLPBaud(bool hsi16);
 // Writes a byte to the serial port
 void serialWriteByte(const char c);
 

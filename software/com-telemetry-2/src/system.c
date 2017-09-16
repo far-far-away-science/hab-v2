@@ -15,16 +15,17 @@ static void switchToPLL();
 
 // # of MSI cycles to wait for the HSE to start
 #define HSE_WAIT 262144U
-// # of core clock cycles (16 or 32 MHz) to wait for the LSE to start (feeds watchdog in loop!)
+// # of core clock cycles (16 or 32 MHz) to wait for the LSE to start
 #define LSE_WAIT 524288U
-
-// Attention: Variable will overflow every now and then, must be handled
-volatile uint32_t sysTime;
-
+// # of core clock cycles (16 or 32 MHz) to wait for the RTC flags to be ready
+#define RTC_WAIT 524288U
 // Utilities for the (harder) IRQ priority setting routine
 #define IRQ_SHIFT(_irq) (((uint32_t)(_irq) & 0x03) << 3)
 #define IRQ_SHP(_irq) ((((uint32_t)(_irq) & 0x0F) - 8) >> 2)
 #define IRQ_IP(_irq) ((uint32_t)(_irq) >> 2)
+
+// Attention: Variable will overflow every now and then, must be handled
+volatile uint32_t sysTime;
 
 // Enables a peripheral interrupt
 static INLINE void intEnable(IRQn_Type irq) {
@@ -63,12 +64,13 @@ static INLINE void initADC() {
 	RCC->APB2RSTR = temp | RCC_APB2RSTR_ADCRST;
 	__dsb();
 	RCC->APB2RSTR = temp;
+	// Turn on temperature sensor
+	ADC->CCR = ADC_CCR_TSEN;
 	// Configure for DMA mode, 12-bit resolution (+4 bits oversampling), automatic off mode
 	// Since conversions will occur infrequently, auto-off is a big savings
 	ADC1->CFGR1 = ADC_CFGR1_AUTOFF | ADC_CFGR1_RES_12BIT;
 	ADC1->CFGR2 = ADC_CFGR2_CKMODE_PCLK_4 | ADC_CFGR2_OVSE | ADC_CFGR2_OVSR_16 |
 		ADC_CFGR2_OVSS_NONE;
-	ADC->CCR = ADC_CCR_TSEN;
 	// Set sampling time to 79.5 ADC clock cycles (16 MHz) or 160.5 cycles (32 MHz)
 #ifdef HS32
 	ADC1->SMPR = ADC_SMPR_SMP_160P5;
@@ -94,7 +96,7 @@ static INLINE void initADC() {
 // Starts the MCU clocks at the intended speed (16 MHz for HSI-mode, 32 MHz for PLL-mode)
 // If the HSE or PLL times out, falls back automatically to the HSI
 static INLINE void initClocks() {
-	uint32_t temp = RCC->APB1RSTR & ~(RCC_APB1RSTR_PWRRST), count;
+	uint32_t temp = RCC->APB1RSTR & ~RCC_APB1RSTR_PWRRST, count;
 	// If we crashed due to software, set the sysflag
 	if (RCC->CSR & (RCC_CSR_IWDGRSTF | RCC_CSR_SFTRSTF | RCC_CSR_WWDGRSTF))
 		sysFlags = FLAG_CRASHED;
@@ -128,7 +130,8 @@ static INLINE void initClocks() {
 	// Select Voltage Range 2 (1.5 V)
 	PWR->CR = (PWR->CR & ~PWR_CR_VOS) | PWR_CR_VOS_1;
 #endif
-	// Wait until the voltage regulator is ready
+	// Wait until the voltage regulator is ready; we cannot run at 16 MHz in VR1 so no hope in
+	// continuing if it fails
 	while (PWR->CSR & PWR_CSR_VOSF);
 #ifdef HSE
 	// Wait for HSE to start up
@@ -136,10 +139,13 @@ static INLINE void initClocks() {
 	if (!count) {
 		// HSE failed to start
 		RCC->CR = (RCC->CR & ~RCC_CR_HSEON) | RCC_CR_HSI16ON;
-		// Wait for HSI to start up
+		// Wait for HSI to start up, should never fail, if it fails there is no hope in
+		// continuing anyways at <8 MHz
 		while (!(RCC->CR & RCC_CR_HSI16RDYF));
 		sysFlags |= FLAG_HSI;
-	}
+	} else
+		// Enable HSE clock security system
+		RCC->CR |= RCC_CR_CSSHSEON;
 	// If HSE starts, we are at 8 MHz; else, HSI at 16 MHz
 #else
 	// Wait for HSI to start up
@@ -185,15 +191,9 @@ static INLINE void initClocks() {
 	// Turn off the MSI now that we are no longer using it to save juice!
 	RCC->CR &= ~RCC_CR_MSION;
 #ifdef WATCHDOG_ON
-	// Start the independent watchdog
-	IWDG->KR = IWDG_KR_UNLOCK;
-	IWDG->PR = IWDG_PR_PR_DIV256;
-	// 40 KHz / 256 / 256 = 0.6 Hz < 1 Hz
-	IWDG->RLR = 0xFFU;
-	IWDG->KR = IWDG_KR_START;
-	__dsb();
+	// LSI must be on for the watchdog to work, even if LSI is set to false
+	RCC->CSR |= RCC_CSR_LSION;
 #endif
-	feedWatchdog();
 }
 
 // Initializes the CRC calculation module (used for AX.25 encoding)
@@ -267,10 +267,17 @@ static INLINE void initDMA() {
 static INLINE void initEXTI() {
 	// Configure EXTI line 17 (RTC) and 20 (RTC wakeup) to interrupt in rising edge mode
 	EXTI->RTSR = RTC_BIT;
+	// Configure EXTI line 13 (button) to interrupt in falling edge mode
+	EXTI->FTSR = BUTTON_BIT;
+	// Select source for EXTI line 13 to port C
+	SYSCFG->EXTICR[0] = 0x0000U;
+	SYSCFG->EXTICR[1] = 0x0000U;
+	SYSCFG->EXTICR[2] = 0x0000U;
+	SYSCFG->EXTICR[3] = 0x0020U;
 	// Clear pending interrupts
-	EXTI->PR = 0x7BFFFFU;
+	EXTI->PR = 0x37FFFFFFU;
 	// Unmask the interrupts
-	EXTI->IMR |= RTC_BIT;
+	EXTI->IMR |= RTC_BIT | BUTTON_BIT;
 }
 
 // Initializes the new I2C peripheral on L0 chips, different from I2C on other ST chips!
@@ -312,6 +319,9 @@ static INLINE void initInterrupts() {
 	// IRQ channel 10 (DMA channels 2 and 3) enable
 	intSetPriority(DMA1_Channel3_2_IRQn, 0);
 	intEnable(DMA1_Channel3_2_IRQn);
+	// IRQ channel 17 (TIM6) enable
+	intSetPriority(TIM6_DAC_IRQn, 1);
+	intEnable(TIM6_DAC_IRQn);
 	// IRQ channel 23 (I2C1) enable
 	intSetPriority(I2C1_IRQn, 2);
 	intEnable(I2C1_IRQn);
@@ -324,6 +334,12 @@ static INLINE void initInterrupts() {
 	// IRQ channel 27 (USART1) enable
 	intSetPriority(USART1_IRQn, 2);
 	intEnable(USART1_IRQn);
+	// IRQ channel 29 (LPUART1) enable
+	intSetPriority(RNG_LPUART1_IRQn, 2);
+	intEnable(RNG_LPUART1_IRQn);
+	// IRQ channel 7 (External interrupts 4-15) enable
+	intSetPriority(EXTI15_4_IRQn, 3);
+	intEnable(EXTI15_4_IRQn);
 #ifdef DEBUG_UART
 	// IRQ channel 28 (USART2) enable
 	intSetPriority(USART2_IRQn, 2);
@@ -357,19 +373,18 @@ static INLINE void initPorts() {
 	ioSetDirection(PIN_HX1_EN, DDR_OUTPUT);
 	// Set USB, I2C, and SPI to high speed, leave A12 and A13 as they are in reset state
 	GPIOA->OSPEEDR = 0x0FC00000U;
-	GPIOB->OSPEEDR = 0x000F0FC0U;
+	GPIOB->OSPEEDR = 0xC00F0FC0U;
 #ifdef PHOENIX
-	// PB6 and PB7 handle USART1
-	ioSetDirection(PIN_UART_RX, DDR_AFO);
+	// PB6 and PB7 handle USART1 TX only
 	ioSetDirection(PIN_UART_TX, DDR_AFO);
-	ioSetAlternateFunction(PIN_UART_RX, GPIO_AF0_USART1);
 	ioSetAlternateFunction(PIN_UART_TX, GPIO_AF0_USART1);
-	// PA9 and PA10 handle USART1 (oops!)
-#if 0
-	ioSetDirection(PIN_GPS_2_RX, DDR_INPUT_PULLUP);
-	ioSetDirection(PIN_GPS_2_TX, DDR_AFO);
+	// PA9 and PA10 handle USART1 RX only
+#ifdef DUAL_GPS
+	ioSetDirection(PIN_GPS_2_RX, DDR_AFO);
 	ioSetAlternateFunction(PIN_GPS_2_RX, GPIO_AF4_USART1);
-	ioSetAlternateFunction(PIN_GPS_2_TX, GPIO_AF4_USART1);
+#else
+	ioSetDirection(PIN_UART_RX, DDR_AFO);
+	ioSetAlternateFunction(PIN_UART_RX, GPIO_AF0_USART1);
 #endif
 #endif
 	// Low power UART
@@ -391,6 +406,7 @@ static INLINE void initPorts() {
 #endif
 	ioSetDirection(PIN_LED_IN_3, DDR_INPUT_ANALOG);
 	// 1-wire temperature probes use open drain outputs
+	ioSetOutput(PIN_OW_TEMP, true);
 	ioSetDirection(PIN_OW_TEMP, DDR_OUTPUT_OD);
 #else
 	ioSetDirection(PIN_TEMP_G, DDR_INPUT_ANALOG);
@@ -424,13 +440,18 @@ static INLINE void initPorts() {
 	ioSetAlternateFunction(PIN_SDA, GPIO_AF4_I2C1);
 	// LED pins
 #ifdef PHOENIX
-	// No PWM control (L05x)
-	ioSetOutput(PIN_LED_R, true);
+	// PWM control (L05x) only on red (if enabled)
 	ioSetOutput(PIN_LED_G, true);
 	ioSetOutput(PIN_LED_B, true);
+#ifdef PHOENIX_LED_PWM
+	ioSetDirection(PIN_LED_R, DDR_AFO_OD);
+#else
+	ioSetOutput(PIN_LED_R, true);
 	ioSetDirection(PIN_LED_R, DDR_OUTPUT_OD);
+#endif
 	ioSetDirection(PIN_LED_G, DDR_OUTPUT_OD);
 	ioSetDirection(PIN_LED_B, DDR_OUTPUT_OD);
+	ioSetAlternateFunction(PIN_LED_R, GPIO_AF5_TIM22);
 #else
 	// PWM control on TIM3 (L07x)
 	ioSetDirection(PIN_LED_R, DDR_AFO_OD);
@@ -442,7 +463,16 @@ static INLINE void initPorts() {
 #endif
 	// DAC
 	ioSetDirection(PIN_DAC, DDR_INPUT_ANALOG);
-	// Lock all pin modes
+	// I/O control pins
+#ifdef PHOENIX
+	ioSetOutput(PIN_EN_PI, false);
+	ioSetOutput(PIN_EN_RAD, false);
+	ioSetDirection(PIN_EN_PI, DDR_OUTPUT);
+	ioSetDirection(PIN_EN_RAD, DDR_OUTPUT);
+#endif
+	// Button pin
+	ioSetDirection(PIN_BUTTON, DDR_INPUT_PULLUP);
+	// Lock all pin modes except for the 1-Wire pin (to allow parasite power)
 	lockPort(GPIOA, 0xFFFFU);
 	lockPort(GPIOB, 0x7FFFU);
 }
@@ -455,18 +485,16 @@ static INLINE void initRTC() {
 	RCC->CSR |= RCC_CSR_LSEON | RCC_CSR_LSEDRV_0;
 	// Wait for the LSE to be ready
 #ifdef LSI
-	for (count = LSE_WAIT; count && !(RCC->CSR & RCC_CSR_LSERDY); count--)
-		feedWatchdog();
+	for (count = LSE_WAIT; count && !(RCC->CSR & RCC_CSR_LSERDY); count--);
 	if (count)
 		// LSE is ready
-		temp = RCC_CSR_RTCSEL_LSE;
+		temp = RCC_CSR_RTCSEL_LSE | RCC_CSR_CSSLSEON;
 	else {
 		temp = RCC_CSR_RTCSEL_LSI;
 		// Turn on the LSI
 		RCC->CSR = (RCC->CSR & ~RCC_CSR_LSEON) | RCC_CSR_LSION;
-		// Wait for the LSI to be ready (no last resort if the LSI does not start!)
-		while (!(RCC->CSR & RCC_CSR_LSIRDY))
-			feedWatchdog();
+		// Wait for the LSI to be ready, should never fail but just in case...
+		for (count = LSE_WAIT; count && !(RCC->CSR & RCC_CSR_LSIRDY); count--);
 		sysFlags |= FLAG_LSI;
 	}
 	// Set up the RTC to use the selected oscillator
@@ -483,8 +511,10 @@ static INLINE void initRTC() {
 	__dsb();
 	// Clears all event flags
 	RTC->ISR = RTC_ISR_INIT;
-	feedWatchdog();
-	while (!(RTC->ISR & RTC_ISR_INITF));
+	for (count = RTC_WAIT; count && !(RTC->ISR & RTC_ISR_INITF); count--);
+	// Disable alarm A and B
+	RTC->CR = 0U;
+	__dsb();
 	// Configure RTC prescalars for 1 Hz clock (32.768 KHz / (127 + 1) / (255 + 1) = 1 Hz)
 	RTC->PRER = (RTC->PRER & ~RTC_PRER_PREDIV_A) | (uint32_t)(127U << 16);
 	RTC->PRER = (RTC->PRER & ~RTC_PRER_PREDIV_S) | (uint32_t)(255U);
@@ -502,20 +532,20 @@ static INLINE void initRTC() {
 	RTC->TR = 0U;
 	RTC->DR = (uint32_t)(1U | (1U << RTC_DR_MU_S) | RTC_DR_SUNDAY | (7U << RTC_DR_YU_S) |
 		(1U << RTC_DR_YT_S));
-	// Disable alarm A and B
-	RTC->CR = 0;
-	__dsb();
 	// Set up alarm B to trip every second to keep main loop alive
 	RTC->ALRMBR = RTC_ALRMAR_MSK4 | RTC_ALRMAR_MSK3 | RTC_ALRMAR_MSK2 | RTC_ALRMAR_MSK1;
 	RTC->ALRMBSSR = 0x00U;
-	// Use wakeup timer which is designed for repeated wakeups for the 30 second transmits
-	RTC->WUTR = 29U;
+	// Necessary in order to actually reset the wakeup timer
+	for (count = RTC_WAIT; count && !(RTC->ISR & RTC_ISR_WUTWF); count--);
+	// Use wakeup timer (which is designed for repeated wakeups) for transmitting
+	RTC->WUTR = (APRS_INTERVAL - 1U);
 	RTC->CR = RTC_CR_ALRAIE | RTC_CR_ALRBIE | RTC_CR_ALRBE | RTC_CR_WUTIE | RTC_CR_WUTE |
 		RTC_CR_WUCKSEL_SPRE;
 	// Exit initialization mode and enable write protection
 	RTC->ISR = RTC_ISR_NOP & ~(RTC_ISR_INIT | RTC_ISR_WUTF | RTC_ISR_ALRAF | RTC_ISR_ALRBF);
 	RTC->WPR = RTC_WPR_LOCK;
 #endif
+	// Do not lock the RTC/RCC registers with DBP - they are changed on resume from STOP mode
 }
 
 // Initializes the SPI for SD card (does not actually start the card) and LoRA
@@ -539,14 +569,14 @@ static INLINE void initSD() {
 #endif
 }
 
-// Initializes the timers, TIM2 for DAC, TIM3 for PWM on HAB only
+// Initializes the timers, TIM2 for DAC, TIM22 for PWM on Phoenix, TIM3 for PWM on HABv2
 static INLINE void initTIM() {
-	const uint32_t temp1 = RCC->APB1RSTR & ~RCC_APB1RSTR_TIM2RST, temp2 =
-		RCC->APB2RSTR & ~RCC_APB2RSTR_TIM22RST;
-	// Turn on TIM2 and TIM22 clock and reset both
-	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+	const uint32_t temp1 = RCC->APB1RSTR & ~(RCC_APB1RSTR_TIM2RST | RCC_APB1RSTR_TIM6RST),
+		temp2 = RCC->APB2RSTR & ~RCC_APB2RSTR_TIM22RST;
+	// Turn on TIM2, TIM22, and TIM6 clock and reset all
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN | RCC_APB1ENR_TIM6EN;
 	RCC->APB2ENR |= RCC_APB2ENR_TIM22EN;
-	RCC->APB1RSTR = temp1 | RCC_APB1RSTR_TIM2RST;
+	RCC->APB1RSTR = temp1 | (RCC_APB1RSTR_TIM2RST | RCC_APB1RSTR_TIM6RST);
 	RCC->APB2RSTR = temp2 | RCC_APB2RSTR_TIM22RST;
 	__dsb();
 	RCC->APB1RSTR = temp1;
@@ -567,10 +597,14 @@ static INLINE void initTIM() {
 	TIM2->CR2 = TIM_CR2_MMS_UPDATE;
 	TIM2->CR1 = TIM_CR1_ARPE;
 #ifdef HABV2
-	// LED dimming timers only on HABv2
-	// TIM3 init for a reload of 65535 (maximum control!) and a divider of 1
+	// LED dimming timers on HABv2
+	// TIM3 init for a reload of 65535 (maximum control) and a divider of 2 (about 122 Hz)
 	TIM3->ARR = 0xFFFFU;
-	TIM3->PSC = 0U;
+#ifdef HS32
+	TIM3->PSC = 3U;
+#else
+	TIM3->PSC = 1U;
+#endif
 	TIM3->DIER = 0U;
 	// LED is on channel 2-4
 	TIM3->CCMR1 = TIM_CCMR1_CC2S_OUT | TIM_CCMR1_OC2M_PWM1 | TIM_CCMR1_OC2PE;
@@ -587,6 +621,33 @@ static INLINE void initTIM() {
 		TIM_CCER_CC4P;
 	// Turn it on and away we go
 	TIM3->CR1 = TIM_CR1_CEN | TIM_CR1_ARPE;
+#elif defined(PHOENIX_LED_PWM)
+	// Red LED only dimming timer on Phoenix
+	// TIM22 init for a reload of 65535 (maximum control) and a divider of 2 (about 122 Hz)
+	TIM22->ARR = 0xFFFFU;
+#ifdef HS32
+	TIM22->PSC = 3U;
+#else
+	TIM22->PSC = 1U;
+#endif
+	TIM22->DIER = 0U;
+	// LED is on channel 2
+	TIM22->CCMR1 = TIM_CCMR1_CC2S_OUT | TIM_CCMR1_OC2M_PWM1 | TIM_CCMR1_OC2PE;
+	// PA7: red
+	TIM22->CCR2 = 0U;
+	// Set LED to active low, enable channel
+	TIM22->CCER = TIM_CCER_CC2E | TIM_CCER_CC2P;
+	// Turn it on and away we go
+	TIM22->CR1 = TIM_CR1_CEN | TIM_CR1_ARPE;
+#endif
+	// TIM6 is used for interrupts only with a 1us period
+	TIM6->CR1 = TIM_CR1_URS | TIM_CR1_ARPE;
+	TIM6->SR = 0U;
+	TIM6->DIER = TIM_DIER_UIE;
+#ifdef HS32
+	TIM6->PSC = 31U;
+#else
+	TIM6->PSC = 15U;
 #endif
 }
 
@@ -640,3 +701,45 @@ static void switchToPLL() {
 	// Wait for system clock to become the PLL
 	while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
 }
+
+#if defined(HSE) || defined(LSI)
+void ISR_NMI() {
+	uint32_t clock = RCC->CIFR;
+	// Clock security issues will end up here
+#ifdef HSE
+	if (clock & RCC_CIFR_CSSHSEF) {
+		// HSE clock failed, go back to HSI (clock security system auto disables oscillator)
+#ifdef HS32
+		// PLL configured to x2 on HSI
+		RCC->CFGR = (RCC->CFGR & ~(RCC_CFGR_PLLDIV | RCC_CFGR_PLLMUL | RCC_CFGR_PLLSRC_HSE)) |
+			(RCC_CFGR_PLLDIV_2 | RCC_CFGR_PLLMUL_4);
+		__dsb();
+		switchToPLL();
+#else
+		switchToHSI();
+		// Shut off PLL if it was on
+		RCC->CR &= ~RCC_CR_PLLON;
+		__dsb();
+		// Make sure that the PLLMUL bits are cleared after it is off so that future restarts
+		// from STOP mode will not try to re-enable the PLL
+		RCC->CFGR &= ~RCC_CFGR_PLLMUL;
+#endif
+		RCC->CICR = RCC_CICR_CSSHSEF;
+	}
+#endif
+#ifdef LSI
+	if (clock & RCC_CIFR_CSSLSEF) {
+		// LSE clock failed, go back to LSI (must manually stop the oscillator)
+		RCC->CSR = (RCC->CSR & ~(RCC_CSR_LSEON | RCC_CSR_CSSLSEON)) | RCC_CSR_LSION;
+		// Wait for the LSI to be ready (do not feed watchdog - in that case LSI is already on)
+		while (!(RCC->CSR & RCC_CSR_LSIRDY));
+		sysFlags |= FLAG_LSI;
+		// Switch over the RTC to LSI
+		RCC->CSR = (RCC->CSR & ~RCC_CSR_RTCSEL_LSE) | RCC_CSR_RTCSEL_LSI;
+		RCC->CICR = RCC_CICR_CSSLSEF;
+		// Switch LPUART1 to HSI
+		serialSetLPBaud(true);
+	}
+#endif
+}
+#endif

@@ -62,7 +62,8 @@ int32_t loRAGetSNR() {
 }
 
 // Initializes the LoRA radio
-void loRAInit() {
+bool loRAInit() {
+	bool ok;
 	// Initialize range settings in sleep mode
 	sx1276WriteRegister(REG_LR_OPMODE, RFLR_OPMODE_SLEEP | RFLR_OPMODE_FREQMODE_ACCESS_LF);
 	// Set LNA gain
@@ -73,6 +74,7 @@ void loRAInit() {
 	sx1276WriteRegister(REG_LR_SYMBTIMEOUTLSB, 0xFFU);
 	// Set preamble length
 	sx1276WriteRegister(REG_LR_PREAMBLELSB, 0x0CU);
+	ok = sx1276ReadRegister(REG_LR_OCP) == RFLR_OCP_TRIM_100_MA;
 	// Set frequency
 	loRASetFrequency(RF_FREQUENCY);
 	// Enter LoRA mode
@@ -90,6 +92,7 @@ void loRAInit() {
 	sx1276WriteRegister(REG_LR_IRQFLAGSMASK, 0U);
 	// Clear all interrupt flags
 	sx1276WriteRegister(REG_LR_IRQFLAGS, 0xFFU);
+	return ok;
 }
 
 // Reads up to maxLen bytes of the received packet into *data, returning the actual number of

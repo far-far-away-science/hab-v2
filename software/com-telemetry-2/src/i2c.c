@@ -10,7 +10,6 @@ volatile uint32_t i2cState;
 // Waits for I2C to complete, returning true if OK or false if errored out
 static bool _i2cWait() {
 	i2cState = 0U;
-	feedWatchdog();
 	do {
 		__sleep();
 	} while (i2cState == 0U);

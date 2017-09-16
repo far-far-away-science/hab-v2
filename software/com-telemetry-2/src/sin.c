@@ -10,7 +10,7 @@
 #define SIN_SCALAR (B_RAD / (4 * SIN_TABLE_ENTRIES))
 
 // SIN[x] should be 30000 * sin(pi * x / 32768), except having 16,384 16bit sine entries
-// is too much; therefore, SIN[x] = 30000 * sin(pi * x / 2048)
+// is too much; therefore, SIN[x] = 30000 * sin(pi * x / 1024)
 //  30K is used because SCALE_AUDIO takes signed 16-bit, and we want to avoid saturating
 static const uint16_t SIN[SIN_TABLE_ENTRIES + 1] = {
 	0, 92, 184, 276, 368, 460, 552, 644, 736, 828, 920, 1012, 1104, 1196, 1288, 1380, 1472,

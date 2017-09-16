@@ -30,9 +30,15 @@ extern "C" {
 #define PHASE_22 ((B_RAD * 2200 + (AUDIO_FREQ >> 1)) / AUDIO_FREQ)
 // How many audio samples one bit lasts in fixed point steps
 #define BIT_TIME (AUDIO_FREQ * (1 << F_S) / BAUD)
+// Wave buffer size, 2 buffers are allocated so array is twice this
+#define WAVE_BUFFER 256
 
 // CRC polynomial for transmission with AX.25 data
 #define CRC_POLYNOMIAL 0x1021U
+
+// Scales the audio to size and re-centers to avoid underflowing or overflowing
+// Need to convert a signed 16-bit sample to the DAC levels (11 bits)
+#define SCALE_AUDIO(x) ((uint16_t)((int32_t)(x) + 32768) >> 4)
 
 // Starts precharge of the audio pins
 void audioInit(void);

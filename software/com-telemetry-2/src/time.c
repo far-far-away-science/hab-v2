@@ -6,22 +6,45 @@
 #include <stmtime.h>
 #include <periph.h>
 
-// SysTick nesting counter to allow multiple sources to use the timer simultaneously
-// The enable and disable functions only run in thread mode so there are no updating issues
-static volatile uint32_t sysTickNesting;
+// Adds or subtracts a specified number of minutes to the given time (up to 1439 minutes)
+void addTime(uint32_t *hour, uint32_t *min, int32_t add) {
+	uint32_t futureMin = *min;
+	if (add >= 0)
+		// Adding to the time
+		futureMin += (uint32_t)add;
+	else
+		// Subtracting from the time
+		futureMin += (uint32_t)(1440 + add);
+	*hour = (*hour + (futureMin / 60U)) % 24U;
+	// Leap second not a problem, DST?
+	*min = futureMin % 60U;
+}
 
-// Blocks for the given number of 10s of milliseconds (should avoid during runtime!)
+// Blocks for the given number of 10s of milliseconds (does not feed the dog!)
 void delay(const uint32_t time) {
 	sysTickEnable();
 	{
 		const uint32_t target = sysTime + time;
 		// Wait until target is met
 		do {
-			feedWatchdog();
 			__sleep();
 		} while (sysTime < target);
 	}
 	sysTickDisable();
+}
+
+// Disables the alarm
+void disableAlarm(void) {
+	// Enable RTC writes
+	RTC->WPR = RTC_WPR_INIT1;
+	RTC->WPR = RTC_WPR_INIT2;
+	__dsb();
+	// Disable alarm A
+	RTC->CR &= ~RTC_CR_ALRAE;
+	// Clear alarm A flag
+	RTC->ISR = RTC_ISR_NOP & ~RTC_ISR_ALRAF;
+	// Disable RTC writes
+	RTC->WPR = RTC_WPR_LOCK;
 }
 
 // Converts an hour:minute:second to the RTC bitfield for alarm and time registers
@@ -102,10 +125,33 @@ void getTime(uint32_t *hour, uint32_t *min, uint32_t *sec) {
 		*sec = ((now & RTC_TR_ST) >> RTC_TR_ST_S) * 10U + (now & RTC_TR_SU);
 }
 
+// Enables and sets the alarm to the specified HH:MM:SS time, insensitive to day, 24 hour
+void setAlarmTo(const uint32_t hour, const uint32_t min, const uint32_t sec) {
+	uint32_t timeout;
+	// Enable RTC writes
+	RTC->WPR = RTC_WPR_INIT1;
+	RTC->WPR = RTC_WPR_INIT2;
+	__dsb();
+	// Disable alarm A to allow writes
+	RTC->CR &= ~RTC_CR_ALRAE;
+	// Wait for alarm to be available to write
+	for (timeout = 0x100U; timeout && !(RTC->ISR & RTC_ISR_ALRAWF); timeout--);
+	if (timeout) {
+		// Able to write to alarm time, program it to ignore day/date but match the rest
+		// Time register and alarm register use the same bit masks!
+		RTC->ALRMAR = RTC_ALRMAR_MSK4 | hmsToRTCField(hour, min, sec);
+		RTC->ALRMASSR = 0U;
+	}
+	// Clear alarm A flag and re-enable it
+	RTC->ISR = RTC_ISR_NOP & ~RTC_ISR_ALRAF;
+	RTC->CR |= RTC_CR_ALRAE;
+	// Disable RTC writes
+	RTC->WPR = RTC_WPR_LOCK;
+}
+
 // Changes the current time in the RTC immediately
-void setTime(const uint32_t hour, const uint32_t min, const uint32_t year, const uint32_t mon,
-		const uint32_t day) {
-	uint32_t sec;
+void setTime(const uint32_t hour, const uint32_t min, const uint32_t sec, const uint32_t year,
+		const uint32_t mon, const uint32_t day) {
 	// Enter initialization mode
 	RTC->WPR = RTC_WPR_INIT1;
 	RTC->WPR = RTC_WPR_INIT2;
@@ -113,7 +159,6 @@ void setTime(const uint32_t hour, const uint32_t min, const uint32_t year, const
 	RTC->ISR = RTC_ISR_NOP | RTC_ISR_INIT;
 	while (!(RTC->ISR & RTC_ISR_INITF));
 	// Update time and calculate the new day of week
-	getTime(NULL, NULL, &sec);
 	RTC->TR = hmsToRTCField(hour, min, sec);
 	RTC->DR = ymdToRTCField(year, mon, day) | (dayOfWeek(year, mon, day) << RTC_DR_WDU_S);
 	// Exit initialization mode and enable write protection
@@ -123,19 +168,12 @@ void setTime(const uint32_t hour, const uint32_t min, const uint32_t year, const
 
 // Enables the SysTick interrupt for 10ms time base
 void sysTickEnable(void) {
-	const uint32_t nest = sysTickNesting;
-	if (!nest)
-		SysTick->CTRL = SysTick_CTRL_TICKINT | SysTick_CTRL_ENABLE;
-	sysTickNesting = nest + 1U;
+	SysTick->CTRL = SysTick_CTRL_TICKINT | SysTick_CTRL_ENABLE;
 }
 
 // Disables the SysTick interrupt
 void sysTickDisable(void) {
-	const uint32_t nest = sysTickNesting;
-	if (nest)
-		sysTickNesting = nest - 1U;
-	if (nest < 2U)
-		SysTick->CTRL = 0U;
+	SysTick->CTRL = 0U;
 }
 
 // Clears and then waits for the RTC register synchronization flag to be set
@@ -149,4 +187,17 @@ void waitForRSF(void) {
 	while (!(RTC->ISR & RTC_ISR_RSF));
 	// Disable RTC writes
 	RTC->WPR = RTC_WPR_LOCK;
+}
+
+// Starts the independent watchdog once the main loop is ready
+void watchdogStart(void) {
+#ifdef WATCHDOG_ON
+	// Start the independent watchdog
+	IWDG->KR = IWDG_KR_UNLOCK;
+	IWDG->PR = IWDG_PR_PR_DIV256;
+	// 40 KHz / 256 / 256 = 0.6 Hz < 1 Hz
+	IWDG->RLR = 0xFFU;
+	IWDG->KR = IWDG_KR_START;
+	__dsb();
+#endif
 }

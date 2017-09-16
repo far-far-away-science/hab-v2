@@ -737,7 +737,7 @@ typedef struct {
 #define ADC1 ((ADC_TypeDef*)ADC1_BASE)
 // ADC common
 #define ADC_BASE (APB2PERIPH_BASE + 0x00002708)
-#define ADC ((ADC_Common_TypeDef*)ADC1_BASE)
+#define ADC ((ADC_Common_TypeDef*)ADC_BASE)
 // SPI #1
 #define SPI1_BASE (APB2PERIPH_BASE + 0x00003000)
 #define SPI1 ((SPI_TypeDef*)SPI1_BASE)
@@ -1459,6 +1459,8 @@ typedef struct {
 #define RCC_CR_HSERDY ((uint32_t)0x00020000)
 // Bypass HSE for external oscillator
 #define RCC_CR_HSEBYP ((uint32_t)0x00040000)
+// Enable HSE clock security
+#define RCC_CR_CSSHSEON ((uint32_t)0x00080000)
 // Enable PLL
 #define RCC_CR_PLLON ((uint32_t)0x01000000)
 // PLL ready?
@@ -1509,6 +1511,16 @@ typedef struct {
 #define RCC_CFGR_STOPWUCK ((uint32_t)0x00008000)
 // PLL source from HSE
 #define RCC_CFGR_PLLSRC_HSE ((uint32_t)0x00010000)
+
+// HSE clock failure interrupt flag
+#define RCC_CIFR_CSSHSEF ((uint32_t)0x00000100)
+// LSE clock failure interrupt flag
+#define RCC_CIFR_CSSLSEF ((uint32_t)0x00000080)
+
+// Clear HSE clock failure interrupt flag
+#define RCC_CICR_CSSHSEF ((uint32_t)0x00000100)
+// Clear LSE clock failure interrupt flag
+#define RCC_CICR_CSSLSEF ((uint32_t)0x00000080)
 
 // Reset I/O port A
 #define RCC_IOPRSTR_IOPARST ((uint32_t)0x00000001)
@@ -1642,53 +1654,65 @@ typedef struct {
 // Enable LPTIM1 on APB1
 #define RCC_APB1ENR_LPTIM1EN ((uint32_t)0x80000000)
 
-// Low-power reset flag
-#define RCC_CSR_LPWRRSTF ((uint32_t)0x80000000)
-// Window watchdog reset flag
-#define RCC_CSR_WWDGRSTF ((uint32_t)0x40000000)
-// Independent watchdog reset flag
-#define RCC_CSR_IWDGRSTF ((uint32_t)0x20000000)
-// Software reset flag
-#define RCC_CSR_SFTRSTF ((uint32_t)0x10000000)
-// Power on reset flag
-#define RCC_CSR_PORRSTF ((uint32_t)0x08000000)
-// Reset by !RESET! pin flag
-#define RCC_CSR_PINRSTF ((uint32_t)0x04000000)
-// Option byte reset flag
-#define RCC_CSR_OBLRSTF ((uint32_t)0x02000000)
-// Remove reset flags
-#define RCC_CSR_RMVF ((uint32_t)0x01000000)
-// RTC reset
-#define RCC_CSR_RTCRST ((uint32_t)0x00080000)
-// RTC enable
-#define RCC_CSR_RTCEN ((uint32_t)0x00040000)
-// RTC source select bits
-#define RCC_CSR_RTCSEL ((uint32_t)0x00030000)
-#define RCC_CSR_RTCSEL_LSE ((uint32_t)0x00010000)
-#define RCC_CSR_RTCSEL_LSI ((uint32_t)0x00020000)
+// LSI enable
+#define RCC_CSR_LSION ((uint32_t)0x00000001)
+// LSI ready?
+#define RCC_CSR_LSIRDY ((uint32_t)0x00000002)
+// LSE enable
+#define RCC_CSR_LSEON ((uint32_t)0x00000100)
+// LSE ready?
+#define RCC_CSR_LSERDY ((uint32_t)0x00000200)
+// LSE bypass
+#define RCC_CSR_LSEBYP ((uint32_t)0x00000400)
 // LSE drive strength bits
 #define RCC_CSR_LSEDRV ((uint32_t)0x00001800)
 #define RCC_CSR_LSEDRV_0 ((uint32_t)0x00000800)
 #define RCC_CSR_LSEDRV_1 ((uint32_t)0x00001000)
-// LSE bypass
-#define RCC_CSR_LSEBYP ((uint32_t)0x00000400)
-// LSE ready?
-#define RCC_CSR_LSERDY ((uint32_t)0x00000200)
-// LSE enable
-#define RCC_CSR_LSEON ((uint32_t)0x00000100)
-// LSI ready?
-#define RCC_CSR_LSIRDY ((uint32_t)0x00000002)
-// LSI enable
-#define RCC_CSR_LSION ((uint32_t)0x00000001)
+// LSE clock failure detected flag
+#define RCC_CSR_CSSLSED ((uint32_t)0x00004000)
+// Clock security system for LSE enable
+#define RCC_CSR_CSSLSEON ((uint32_t)0x00002000)
+// RTC source select bits
+#define RCC_CSR_RTCSEL ((uint32_t)0x00030000)
+#define RCC_CSR_RTCSEL_LSE ((uint32_t)0x00010000)
+#define RCC_CSR_RTCSEL_LSI ((uint32_t)0x00020000)
+// RTC enable
+#define RCC_CSR_RTCEN ((uint32_t)0x00040000)
+// RTC reset
+#define RCC_CSR_RTCRST ((uint32_t)0x00080000)
+// Remove reset flags
+#define RCC_CSR_RMVF ((uint32_t)0x01000000)
+// Option byte reset flag
+#define RCC_CSR_OBLRSTF ((uint32_t)0x02000000)
+// Reset by !RESET! pin flag
+#define RCC_CSR_PINRSTF ((uint32_t)0x04000000)
+// Power on reset flag
+#define RCC_CSR_PORRSTF ((uint32_t)0x08000000)
+// Software reset flag
+#define RCC_CSR_SFTRSTF ((uint32_t)0x10000000)
+// Independent watchdog reset flag
+#define RCC_CSR_IWDGRSTF ((uint32_t)0x20000000)
+// Window watchdog reset flag
+#define RCC_CSR_WWDGRSTF ((uint32_t)0x40000000)
+// Low-power reset flag
+#define RCC_CSR_LPWRRSTF ((uint32_t)0x80000000)
 
-// Selects the HSI 48 clock for USB
-#define RCC_CCIPR_HSI48SEL ((uint32_t)0x04000000)
+// Selects the HSI clock for I2C1
+#define RCC_CCIPR_LPUART1SEL_APB ((uint32_t)0x00000000)
+// Selects the system clock for I2C1
+#define RCC_CCIPR_LPUART1SEL_SYS ((uint32_t)0x00000200)
+// Selects the HSI clock for I2C1
+#define RCC_CCIPR_LPUART1SEL_HSI ((uint32_t)0x00000400)
+// Selects the LSE clock for I2C1
+#define RCC_CCIPR_LPUART1SEL_LSE ((uint32_t)0x00000600)
 // Selects the APB clock for I2C1
 #define RCC_CCIPR_I2C1SEL_APB ((uint32_t)0x00000000)
 // Selects the system clock for I2C1
 #define RCC_CCIPR_I2C1SEL_SYS ((uint32_t)0x00001000)
 // Selects the HSI clock for I2C1
 #define RCC_CCIPR_I2C1SEL_HSI ((uint32_t)0x00002000)
+// Selects the HSI 48 clock for USB
+#define RCC_CCIPR_HSI48SEL ((uint32_t)0x04000000)
 
 // RTC registers
 // AM/PM (in 24 hour use AM)
@@ -2072,10 +2096,14 @@ typedef struct {
 #define SysTick_CTRL_CLKSOURCE ((uint32_t)0x0000004)
 
 // Timer defines
-// Auto reload preload enable
-#define TIM_CR1_ARPE ((uint32_t)0x00000080)
 // Count enable [run timer]
 #define TIM_CR1_CEN ((uint32_t)0x00000001)
+// Update event source selection
+#define TIM_CR1_URS ((uint32_t)0x00000004)
+// One-pulse mode enable
+#define TIM_CR1_OPM ((uint32_t)0x00000008)
+// Auto reload preload enable
+#define TIM_CR1_ARPE ((uint32_t)0x00000080)
 
 // Master mode selection to trigger on update [act as prescaler]
 #define TIM_CR2_MMS_UPDATE ((uint32_t)0x00000020)
@@ -2299,15 +2327,17 @@ typedef struct {
 // Capture/compare inverted I/O 3 polarity
 #define TIM_CCER_CC3NP ((uint32_t)0x00000800)
 // Capture/compare I/O 4 enable
-#define TIM_CCER_CC4E ((uint32_t)0x00000100)
+#define TIM_CCER_CC4E ((uint32_t)0x00001000)
 // Capture/compare I/O 4 polarity
-#define TIM_CCER_CC4P ((uint32_t)0x00000200)
+#define TIM_CCER_CC4P ((uint32_t)0x00002000)
 // Capture/compare inverted I/O 4 enable
-#define TIM_CCER_CC4NE ((uint32_t)0x00000400)
+#define TIM_CCER_CC4NE ((uint32_t)0x00004000)
 // Capture/compare inverted I/O 4 polarity
-#define TIM_CCER_CC4NP ((uint32_t)0x00000800)
+#define TIM_CCER_CC4NP ((uint32_t)0x00008000)
 
 // USART defines
+// Data overrun flag
+#define USART_ISR_ORE ((uint32_t)0x0008)
 // Read data register full flag
 #define USART_ISR_RXNE ((uint32_t)0x0020)
 // Transmit data register empty flag
@@ -2315,6 +2345,8 @@ typedef struct {
 
 // USART enable flag
 #define USART_CR1_UE ((uint32_t)0x0001)
+// (LPUART only) UART enable in stop mode flag
+#define USART_CR1_UESM ((uint32_t)0x0002)
 // Reciever enable flag
 #define USART_CR1_RE ((uint32_t)0x0004)
 // Transmitter enable flag
@@ -2347,6 +2379,16 @@ typedef struct {
 #define USART_CR3_RTSE ((uint32_t)0x0100)
 // Flow control CTS enable
 #define USART_CR3_CTSE ((uint32_t)0x0200)
+// (LPUART only) Wake-up from STOP mode enable
+#define USART_CR3_WUFIE ((uint32_t)0x00400000)
+// (LPUART only) Wake-up interrupt select bits
+#define USART_CR3_WUS ((uint32_t)0x00300000)
+// (LPUART only) Wake-up interrupt on address match
+#define USART_CR3_WUS_ADDR ((uint32_t)0x00000000)
+// (LPUART only) Wake-up interrupt on START bit
+#define USART_CR3_WUS_START ((uint32_t)0x00200000)
+// (LPUART only) Wake-up interrupt on RXNE set
+#define USART_CR3_WUS_RXNE ((uint32_t)0x00300000)
 
 // USB defines
 // Endpoint correct transfer RX

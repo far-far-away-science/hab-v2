@@ -6,9 +6,9 @@
 #include <periph.h>
 
 // Addresses of the internal temperature calibration data
-// 30 C, 3 V
+// 30 C, 3 V (0x0295 = 661)
 #define ADC_TS_CAL1 ((volatile uint16_t *)0x1FF8007A)
-// 130 C, 3 V
+// 130 C, 3 V (0x0379 = 889)
 #define ADC_TS_CAL2 ((volatile uint16_t *)0x1FF8007E)
 
 // Results from the ADC will end up here

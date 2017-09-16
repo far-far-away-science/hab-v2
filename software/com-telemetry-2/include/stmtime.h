@@ -46,14 +46,16 @@ void getTime(uint32_t *hour, uint32_t *min, uint32_t *sec);
 // Enables and sets the alarm to the specified HH:MM:SS time, insensitive to day, 24 hour
 void setAlarmTo(const uint32_t hour, const uint32_t min, const uint32_t sec);
 // Changes the current time in the RTC immediately
-void setTime(const uint32_t hour, const uint32_t min, const uint32_t year, const uint32_t mon,
-	const uint32_t day);
+void setTime(const uint32_t hour, const uint32_t min, const uint32_t sec, const uint32_t year,
+	const uint32_t mon, const uint32_t day);
 // Enables the SysTick interrupt for 10ms time base (NOT IRQ safe)
 void sysTickEnable(void);
 // Disables the SysTick interrupt (NOT IRQ safe)
 void sysTickDisable(void);
 // Clears and then waits for the RTC register synchronization flag to be set (NOT IRQ safe)
 void waitForRSF(void);
+// Starts the independent watchdog once the main loop is ready
+void watchdogStart(void);
 
 #ifdef __cplusplus
 }
