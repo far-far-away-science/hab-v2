@@ -1666,7 +1666,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="41.783" y="16.0655" size="0.6096" layer="25" ratio="15"/>
 <attribute name="VALUE" x="44.958" y="18.161" size="0.6096" layer="27" ratio="15" rot="R270"/>
 </element>
-<element name="C25" library="SparkFun-Passives" package="0805" value="330p" x="19.685" y="36.195" smashed="yes" rot="R180">
+<element name="C25" library="SparkFun-Passives" package="0805" value="100p" x="19.685" y="36.195" smashed="yes" rot="R180">
 <attribute name="NAME" x="22.352" y="35.3695" size="0.6096" layer="25" ratio="15" rot="R180"/>
 <attribute name="VALUE" x="20.701" y="37.592" size="0.6096" layer="27" ratio="15" rot="R180"/>
 </element>
@@ -1842,7 +1842,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="22.733" y="27.4955" size="0.6096" layer="25" ratio="15"/>
 <attribute name="VALUE" x="25.527" y="26.289" size="0.6096" layer="27" ratio="15" rot="R90"/>
 </element>
-<element name="R56" library="SparkFun-Passives" package="0805" value="430K" x="21.59" y="43.18" smashed="yes" rot="R270">
+<element name="R56" library="SparkFun-Passives" package="0805" value="330K" x="21.59" y="43.18" smashed="yes" rot="R270">
 <attribute name="NAME" x="20.828" y="44.6405" size="0.6096" layer="25" ratio="15"/>
 <attribute name="VALUE" x="22.733" y="44.196" size="0.6096" layer="27" ratio="15" rot="R270"/>
 </element>

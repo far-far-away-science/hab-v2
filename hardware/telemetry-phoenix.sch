@@ -6710,7 +6710,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="IC7" library="SparkFun-AnalogIC" deviceset="OPAMP-DUAL" device="U" value="LMP7702"/>
 <part name="SUPPLY22" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="GND25" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="C25" library="SparkFun-Passives" deviceset="CAP" device="0805" value="330p"/>
+<part name="C25" library="SparkFun-Passives" deviceset="CAP" device="0805" value="100p"/>
 <part name="R16" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="820K"/>
 <part name="R17" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="220K"/>
 <part name="R18" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="680K"/>
@@ -6746,7 +6746,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="D10" library="SparkFun-DiscreteSemi" deviceset="DIODE-ZENER" device="5.6V" value="5.6V"/>
 <part name="GND40" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="GND48" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="R56" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="430K"/>
+<part name="R56" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="330K"/>
 <part name="SUPPLY25" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="R27" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="330K"/>
 <part name="C39" library="SparkFun-Passives" deviceset="CAP" device="0805" value="100p"/>
