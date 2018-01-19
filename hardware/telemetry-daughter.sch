@@ -3353,6 +3353,7 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <part name="J1" library="SparkFun-Connectors" deviceset="CONN_04" device="JST-PTH" value="I2C"/>
 <part name="SUPPLY5" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
 <part name="GND8" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
+<part name="GND7" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -3410,6 +3411,7 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <instance part="J1" gate="G$1" x="124.46" y="48.26"/>
 <instance part="SUPPLY5" gate="G$1" x="132.08" y="55.88"/>
 <instance part="GND8" gate="1" x="132.08" y="40.64"/>
+<instance part="GND7" gate="1" x="177.8" y="104.14"/>
 </instances>
 <busses>
 </busses>
@@ -3489,6 +3491,16 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <pinref part="GND8" gate="1" pin="GND"/>
 <wire x1="129.54" y1="50.8" x2="132.08" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="132.08" y1="50.8" x2="132.08" y2="43.18" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="U2" gate="G$1" pin="!CS"/>
+<wire x1="162.56" y1="116.84" x2="177.8" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="177.8" y1="116.84" x2="177.8" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="U2" gate="G$1" pin="AD0/SDO"/>
+<wire x1="177.8" y1="109.22" x2="162.56" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="GND7" gate="1" pin="GND"/>
+<wire x1="177.8" y1="106.68" x2="177.8" y2="109.22" width="0.1524" layer="91"/>
+<junction x="177.8" y="109.22"/>
 </segment>
 </net>
 <net name="3.3V" class="0">
@@ -3795,40 +3807,9 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 </sheet>
 </sheets>
 <errors>
-<approved hash="104,1,45.72,78.74,IC4,VLCD,3.3V,,,"/>
-<approved hash="104,1,45.72,60.96,IC4,VSSA,GND,,,"/>
-<approved hash="104,1,81.28,40.64,IC4,VSS,GND,,,"/>
-<approved hash="104,1,83.82,40.64,IC4,VDD,3.3V,,,"/>
-<approved hash="104,1,96.52,76.2,IC4,VDD_USB,3.3V,,,"/>
-<approved hash="202,1,12.7,15.24,IC2,!EN,,,,"/>
-<approved hash="104,1,139.7,53.34,IC6,RFGND,RGND,,,"/>
-<approved hash="104,1,165.1,58.42,IC6,VCC,5V,,,"/>
-<approved hash="104,1,309.88,165.1,IC5,VIN,VBAT,,,"/>
-<approved hash="104,1,223.52,149.86,IC7A,V+,5V,,,"/>
-<approved hash="104,1,223.52,134.62,IC7A,V-,GND,,,"/>
-<approved hash="202,1,350.52,106.68,IC10,!EN,,,,"/>
-<approved hash="104,1,434.34,124.46,J2,3.3V,3V_PI,,,"/>
-<approved hash="104,1,434.34,121.92,J2,3.3V,3V_PI2,,,"/>
-<approved hash="104,1,434.34,127,J2,5V,5V_PI,,,"/>
-<approved hash="104,1,434.34,129.54,J2,5V,5V_PI,,,"/>
-<approved hash="104,1,551.18,160.02,IC9,VCC,5V,,,"/>
-<approved hash="104,1,551.18,124.46,IC11,VCC,VBAT,,,"/>
-<approved hash="104,1,553.72,71.12,IC12,VIN,15V_OUT,,,"/>
-<approved hash="104,1,553.72,50.8,IC12,AGND,GND,,,"/>
-<approved hash="104,1,579.12,71.12,IC12,SW,SW15,,,"/>
-<approved hash="104,1,579.12,50.8,IC12,PGND,GND,,,"/>
-<approved hash="106,1,434.34,124.46,3V_PI,,,,,"/>
-<approved hash="106,1,434.34,121.92,3V_PI2,,,,,"/>
-<approved hash="106,1,309.88,114.3,INT,,,,,"/>
-<approved hash="106,1,309.88,111.76,INT2,,,,,"/>
-<approved hash="106,1,76.2,152.4,PPS,,,,,"/>
-<approved hash="106,1,464.82,106.68,R_CS0,,,,,"/>
-<approved hash="106,1,464.82,104.14,R_CS1,,,,,"/>
-<approved hash="209,1,464.82,111.76,R_MISO,,,,,"/>
-<approved hash="106,1,464.82,111.76,R_MISO,,,,,"/>
-<approved hash="106,1,464.82,109.22,R_MOSI,,,,,"/>
-<approved hash="106,1,464.82,114.3,R_SCK,,,,,"/>
-<approved hash="106,1,76.2,162.56,TXA,,,,,"/>
+<approved hash="104,1,231.14,127,U1,AGND,RGND,,,"/>
+<approved hash="104,1,198.12,96.52,U1,VCC,3.3V,,,"/>
+<approved hash="113,1,214.63,112.882,U1,,,,,"/>
 </errors>
 </schematic>
 </drawing>
