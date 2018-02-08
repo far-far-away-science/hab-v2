@@ -1709,6 +1709,20 @@ Module for SX1278 LoRA radio</description>
 <smd name="14" x="8.6" y="6.43" dx="1.27" dy="0.889" layer="1"/>
 <smd name="15" x="8.6" y="7.7" dx="1.27" dy="0.889" layer="1"/>
 </package>
+<package name="SMA_VERT">
+<description>&lt;b&gt;SMA Vertical Connector&lt;/b&gt;&lt;br /&gt;
+&lt;br /&gt;
+Through-hole right angle SMA connector</description>
+<pad name="P$1" x="0" y="0" drill="1.524"/>
+<pad name="P$2" x="2.54" y="2.54" drill="1.7272"/>
+<pad name="P$3" x="2.54" y="-2.54" drill="1.7272"/>
+<pad name="P$4" x="-2.54" y="-2.54" drill="1.7272"/>
+<pad name="P$5" x="-2.54" y="2.54" drill="1.7272"/>
+<wire x1="-4.064" y1="4.064" x2="-4.064" y2="-4.064" width="0.127" layer="21"/>
+<wire x1="-4.064" y1="-4.064" x2="4.064" y2="-4.064" width="0.127" layer="21"/>
+<wire x1="4.064" y1="-4.064" x2="4.064" y2="4.064" width="0.127" layer="21"/>
+<wire x1="4.064" y1="4.064" x2="-4.064" y2="4.064" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="HX1">
@@ -2353,6 +2367,16 @@ Module for SX1278 LoRA radio</description>
 <pin name="MISO" x="-17.78" y="-5.08" length="short" direction="out"/>
 <pin name="MOSI" x="-17.78" y="-7.62" length="short" direction="in"/>
 <pin name="!SS!" x="-17.78" y="-10.16" length="short" direction="in" function="dot"/>
+</symbol>
+<symbol name="SMA_EDGE">
+<wire x1="0" y1="-2.54" x2="0" y2="-12.7" width="0.254" layer="94"/>
+<circle x="0" y="0" radius="1.1359" width="0.254" layer="94"/>
+<circle x="0" y="0" radius="2.54" width="0.254" layer="94"/>
+<pin name="GND@0" x="-2.54" y="-5.08" visible="off" length="short"/>
+<pin name="SIGNAL" x="5.08" y="0" visible="off" length="middle" rot="R180"/>
+<pin name="GND@1" x="-2.54" y="-7.62" visible="off" length="short"/>
+<pin name="GND@2" x="-2.54" y="-10.16" visible="off" length="short"/>
+<pin name="GND@3" x="-2.54" y="-12.7" visible="off" length="short"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -3016,6 +3040,28 @@ Module for SX1278 LoRA radio</description>
 <connect gate="G$1" pin="MOSI" pad="12"/>
 <connect gate="G$1" pin="SCK" pad="10"/>
 <connect gate="G$1" pin="VCC" pad="8"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="SMA_VERT">
+<description>&lt;b&gt;SMA Connector&lt;/b&gt;&lt;br/&gt;
+&lt;br/&gt;
+SMA connector, edge version is in SFE libraries, this is Amphenol 132134 (DigiKey ACX1230-ND)</description>
+<gates>
+<gate name="G$1" symbol="SMA_EDGE" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SMA_VERT">
+<connects>
+<connect gate="G$1" pin="GND@0" pad="P$5"/>
+<connect gate="G$1" pin="GND@1" pad="P$4"/>
+<connect gate="G$1" pin="GND@2" pad="P$3"/>
+<connect gate="G$1" pin="GND@3" pad="P$2"/>
+<connect gate="G$1" pin="SIGNAL" pad="P$1"/>
 </connects>
 <technologies>
 <technology name=""/>

@@ -664,15 +664,6 @@ We've spent an enormous amount of time creating and checking these footprints an
 &lt;br&gt;&lt;br&gt;
 You are welcome to use this library for commercial purposes. For attribution, we ask that when you begin to sell your device using our footprint, you email us with a link to the product being sold. We want bragging rights that we helped (in a very small part) to create your 8th world wonder. We would like the opportunity to feature your device on our homepage.</description>
 <packages>
-<package name="SMA-EDGE">
-<description>&lt;b&gt;SMA Antenna Connector&lt;/b&gt;&lt;p&gt;
-This is a footprint for an edge mount RF antenna. Works pretty well with SMA type connectors but may also work with other edge mount RF connectors. Keep in mind, these edge mount connectors assume you are using a 0.062" PCB thickness.</description>
-<smd name="GND@0" x="0" y="0" dx="1.524" dy="4.064" layer="1" cream="no"/>
-<smd name="SIG" x="2.54" y="0" dx="1.524" dy="4.064" layer="1" cream="no"/>
-<smd name="GND@1" x="5.08" y="0" dx="1.524" dy="4.064" layer="1" cream="no"/>
-<smd name="GND@2" x="0" y="0" dx="1.524" dy="4.064" layer="16"/>
-<smd name="GND@3" x="5.08" y="0" dx="1.524" dy="4.064" layer="16"/>
-</package>
 <package name="2X8">
 <wire x1="-1.27" y1="-0.635" x2="-0.635" y2="-1.27" width="0.1524" layer="21"/>
 <wire x1="0.635" y1="-1.27" x2="1.27" y2="-0.635" width="0.1524" layer="21"/>
@@ -1909,16 +1900,6 @@ Silk outline shows header location.
 </package>
 </packages>
 <symbols>
-<symbol name="SMA_EDGE">
-<wire x1="0" y1="-2.54" x2="0" y2="-12.7" width="0.254" layer="94"/>
-<circle x="0" y="0" radius="1.1359" width="0.254" layer="94"/>
-<circle x="0" y="0" radius="2.54" width="0.254" layer="94"/>
-<pin name="GND@0" x="-2.54" y="-5.08" visible="off" length="short"/>
-<pin name="SIGNAL" x="5.08" y="0" visible="off" length="middle" rot="R180"/>
-<pin name="GND@1" x="-2.54" y="-7.62" visible="off" length="short"/>
-<pin name="GND@2" x="-2.54" y="-10.16" visible="off" length="short"/>
-<pin name="GND@3" x="-2.54" y="-12.7" visible="off" length="short"/>
-</symbol>
 <symbol name="M2X8">
 <wire x1="-1.27" y1="5.08" x2="-2.54" y2="5.08" width="0.6096" layer="94"/>
 <wire x1="-1.27" y1="7.62" x2="-2.54" y2="7.62" width="0.6096" layer="94"/>
@@ -2018,27 +1999,6 @@ Renamed DAT2 from NC to RSV to remove the implication that you should leave it n
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="SMA_EDGE" prefix="J$">
-<description>&lt;b&gt;SMA Antenna Connector&lt;/b&gt;
-End launch SMA connector. The paste layer has been removed so that the connector can be hand soldered onto the board after reflow.</description>
-<gates>
-<gate name="1" symbol="SMA_EDGE" x="-2.54" y="7.62"/>
-</gates>
-<devices>
-<device name="" package="SMA-EDGE">
-<connects>
-<connect gate="1" pin="GND@0" pad="GND@0"/>
-<connect gate="1" pin="GND@1" pad="GND@1"/>
-<connect gate="1" pin="GND@2" pad="GND@2"/>
-<connect gate="1" pin="GND@3" pad="GND@3"/>
-<connect gate="1" pin="SIGNAL" pad="SIG"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="M08X2" prefix="J" uservalue="yes">
 <description>.1" headers, two rows of 8 each</description>
 <gates>
@@ -2679,6 +2639,20 @@ Module for SX1278 LoRA radio</description>
 <smd name="14" x="8.6" y="6.43" dx="1.27" dy="0.889" layer="1"/>
 <smd name="15" x="8.6" y="7.7" dx="1.27" dy="0.889" layer="1"/>
 </package>
+<package name="SMA_VERT">
+<description>&lt;b&gt;SMA Vertical Connector&lt;/b&gt;&lt;br /&gt;
+&lt;br /&gt;
+Through-hole right angle SMA connector</description>
+<pad name="P$1" x="0" y="0" drill="1.524"/>
+<pad name="P$2" x="2.54" y="2.54" drill="1.7272"/>
+<pad name="P$3" x="2.54" y="-2.54" drill="1.7272"/>
+<pad name="P$4" x="-2.54" y="-2.54" drill="1.7272"/>
+<pad name="P$5" x="-2.54" y="2.54" drill="1.7272"/>
+<wire x1="-4.064" y1="4.064" x2="-4.064" y2="-4.064" width="0.127" layer="21"/>
+<wire x1="-4.064" y1="-4.064" x2="4.064" y2="-4.064" width="0.127" layer="21"/>
+<wire x1="4.064" y1="-4.064" x2="4.064" y2="4.064" width="0.127" layer="21"/>
+<wire x1="4.064" y1="4.064" x2="-4.064" y2="4.064" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="DRF1278F">
@@ -2707,6 +2681,16 @@ Module for SX1278 LoRA radio</description>
 <pin name="MOSI" x="-17.78" y="-7.62" length="short" direction="in"/>
 <pin name="!SS!" x="-17.78" y="-10.16" length="short" direction="in" function="dot"/>
 </symbol>
+<symbol name="SMA_EDGE">
+<wire x1="0" y1="-2.54" x2="0" y2="-12.7" width="0.254" layer="94"/>
+<circle x="0" y="0" radius="1.1359" width="0.254" layer="94"/>
+<circle x="0" y="0" radius="2.54" width="0.254" layer="94"/>
+<pin name="GND@0" x="-2.54" y="-5.08" visible="off" length="short"/>
+<pin name="SIGNAL" x="5.08" y="0" visible="off" length="middle" rot="R180"/>
+<pin name="GND@1" x="-2.54" y="-7.62" visible="off" length="short"/>
+<pin name="GND@2" x="-2.54" y="-10.16" visible="off" length="short"/>
+<pin name="GND@3" x="-2.54" y="-12.7" visible="off" length="short"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="DRF1278F" prefix="U" uservalue="yes">
@@ -2734,6 +2718,28 @@ Module for SX1278 LoRA radio</description>
 <connect gate="G$1" pin="MOSI" pad="12"/>
 <connect gate="G$1" pin="SCK" pad="10"/>
 <connect gate="G$1" pin="VCC" pad="8"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="SMA_VERT">
+<description>&lt;b&gt;SMA Connector&lt;/b&gt;&lt;br/&gt;
+&lt;br/&gt;
+SMA connector, edge version is in SFE libraries, this is Amphenol 132134 (DigiKey ACX1230-ND)</description>
+<gates>
+<gate name="G$1" symbol="SMA_EDGE" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SMA_VERT">
+<connects>
+<connect gate="G$1" pin="GND@0" pad="P$5"/>
+<connect gate="G$1" pin="GND@1" pad="P$4"/>
+<connect gate="G$1" pin="GND@2" pad="P$3"/>
+<connect gate="G$1" pin="GND@3" pad="P$2"/>
+<connect gate="G$1" pin="SIGNAL" pad="P$1"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -3321,7 +3327,6 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 </classes>
 <parts>
 <part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-LETTER" device="NO_PACKAGE"/>
-<part name="J6" library="SparkFun-Connectors" deviceset="SMA_EDGE" device=""/>
 <part name="GND42" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="SUPPLY16" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
 <part name="J3" library="SparkFun-Connectors" deviceset="M08X2" device="" value="IO"/>
@@ -3354,6 +3359,7 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <part name="SUPPLY5" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
 <part name="GND8" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="GND7" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
+<part name="U$3" library="HAB" deviceset="SMA_VERT" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -3379,7 +3385,6 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0"/>
 <instance part="FRAME1" gate="V" x="147.32" y="0"/>
-<instance part="J6" gate="1" x="241.3" y="129.54" rot="MR0"/>
 <instance part="GND42" gate="1" x="233.68" y="50.8"/>
 <instance part="SUPPLY16" gate="G$1" x="139.7" y="177.8"/>
 <instance part="J3" gate="G$1" x="223.52" y="63.5"/>
@@ -3412,6 +3417,7 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <instance part="SUPPLY5" gate="G$1" x="132.08" y="55.88"/>
 <instance part="GND8" gate="1" x="132.08" y="40.64"/>
 <instance part="GND7" gate="1" x="177.8" y="104.14"/>
+<instance part="U$3" gate="G$1" x="241.3" y="129.54" rot="MR0"/>
 </instances>
 <busses>
 </busses>
@@ -3692,22 +3698,22 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 </net>
 <net name="RGND" class="0">
 <segment>
-<pinref part="J6" gate="1" pin="GND@3"/>
-<pinref part="J6" gate="1" pin="GND@2"/>
+<wire x1="243.84" y1="114.3" x2="243.84" y2="116.84" width="0.1524" layer="91"/>
 <wire x1="243.84" y1="116.84" x2="243.84" y2="119.38" width="0.1524" layer="91"/>
-<pinref part="J6" gate="1" pin="GND@1"/>
 <wire x1="243.84" y1="119.38" x2="243.84" y2="121.92" width="0.1524" layer="91"/>
-<junction x="243.84" y="119.38"/>
-<pinref part="J6" gate="1" pin="GND@0"/>
 <wire x1="243.84" y1="121.92" x2="243.84" y2="124.46" width="0.1524" layer="91"/>
-<junction x="243.84" y="121.92"/>
-<wire x1="243.84" y1="116.84" x2="243.84" y2="114.3" width="0.1524" layer="91"/>
-<junction x="243.84" y="116.84"/>
 <wire x1="243.84" y1="114.3" x2="233.68" y2="114.3" width="0.1524" layer="91"/>
 <wire x1="233.68" y1="114.3" x2="233.68" y2="127" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="AGND"/>
 <wire x1="233.68" y1="127" x2="231.14" y2="127" width="0.1524" layer="91"/>
 <label x="236.22" y="114.3" size="1.778" layer="95"/>
+<pinref part="U$3" gate="G$1" pin="GND@0"/>
+<pinref part="U$3" gate="G$1" pin="GND@1"/>
+<junction x="243.84" y="121.92"/>
+<pinref part="U$3" gate="G$1" pin="GND@2"/>
+<junction x="243.84" y="119.38"/>
+<pinref part="U$3" gate="G$1" pin="GND@3"/>
+<junction x="243.84" y="116.84"/>
 </segment>
 </net>
 <net name="VS" class="0">
@@ -3737,8 +3743,8 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <net name="RF_LORA" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="ANT"/>
-<pinref part="J6" gate="1" pin="SIGNAL"/>
 <wire x1="231.14" y1="129.54" x2="236.22" y2="129.54" width="0.1524" layer="91"/>
+<pinref part="U$3" gate="G$1" pin="SIGNAL"/>
 </segment>
 </net>
 <net name="!SD_CS!" class="0">
