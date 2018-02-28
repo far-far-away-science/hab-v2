@@ -2614,132 +2614,114 @@ Renamed DAT2 from NC to RSV to remove the implication that you should leave it n
 &lt;br/&gt;
 Parts for the High Altitude Balloon project that are not standard in EAGLE or in the SparkFun libraries</description>
 <packages>
-<package name="DRF1278F">
-<description>&lt;b&gt;DRF1278F&lt;/b&gt;&lt;br/&gt;
-&lt;br/&gt;
-Module for SX1278 LoRA radio</description>
-<wire x1="8.5" y1="8.5" x2="8.5" y2="-8.5" width="0.127" layer="21"/>
-<wire x1="8.5" y1="-8.5" x2="-8.5" y2="-8.5" width="0.127" layer="21"/>
-<wire x1="-8.5" y1="-8.5" x2="-8.5" y2="8.5" width="0.127" layer="21"/>
-<wire x1="-8.5" y1="8.5" x2="8.5" y2="8.5" width="0.127" layer="21"/>
-<text x="-7.62" y="8.89" size="0.8128" layer="25">&gt;NAME</text>
-<smd name="1" x="-8.6" y="7.7" dx="1.27" dy="0.889" layer="1"/>
-<smd name="2" x="-8.6" y="6.43" dx="1.27" dy="0.889" layer="1"/>
-<smd name="3" x="-8.6" y="5.16" dx="1.27" dy="0.889" layer="1"/>
-<smd name="4" x="-8.6" y="3.89" dx="1.27" dy="0.889" layer="1"/>
-<smd name="5" x="-8.6" y="2.62" dx="1.27" dy="0.889" layer="1"/>
-<smd name="6" x="-8.6" y="1.35" dx="1.27" dy="0.889" layer="1"/>
-<smd name="7" x="-8.6" y="0.08" dx="1.27" dy="0.889" layer="1"/>
-<smd name="8" x="-8.6" y="-1.19" dx="1.27" dy="0.889" layer="1"/>
-<smd name="9" x="-8.6" y="-2.46" dx="1.27" dy="0.889" layer="1"/>
-<smd name="10" x="-8.6" y="-3.73" dx="1.27" dy="0.889" layer="1"/>
-<smd name="11" x="-8.6" y="-5" dx="1.27" dy="0.889" layer="1"/>
-<smd name="12" x="-8.6" y="-6.27" dx="1.27" dy="0.889" layer="1"/>
-<smd name="13" x="-8.6" y="-7.54" dx="1.27" dy="0.889" layer="1"/>
-<smd name="14" x="8.6" y="6.43" dx="1.27" dy="0.889" layer="1"/>
-<smd name="15" x="8.6" y="7.7" dx="1.27" dy="0.889" layer="1"/>
-</package>
-<package name="SMA_VERT">
-<description>&lt;b&gt;SMA Vertical Connector&lt;/b&gt;&lt;br /&gt;
-&lt;br /&gt;
-Through-hole right angle SMA connector</description>
-<pad name="P$1" x="0" y="0" drill="1.524"/>
-<pad name="P$2" x="2.54" y="2.54" drill="1.7272"/>
-<pad name="P$3" x="2.54" y="-2.54" drill="1.7272"/>
-<pad name="P$4" x="-2.54" y="-2.54" drill="1.7272"/>
-<pad name="P$5" x="-2.54" y="2.54" drill="1.7272"/>
-<wire x1="-4.064" y1="4.064" x2="-4.064" y2="-4.064" width="0.127" layer="21"/>
-<wire x1="-4.064" y1="-4.064" x2="4.064" y2="-4.064" width="0.127" layer="21"/>
-<wire x1="4.064" y1="-4.064" x2="4.064" y2="4.064" width="0.127" layer="21"/>
-<wire x1="4.064" y1="4.064" x2="-4.064" y2="4.064" width="0.127" layer="21"/>
+<package name="RA02">
+<description>&lt;b&gt;RA-02 LoRA package&lt;/b&gt;</description>
+<wire x1="8" y1="-8" x2="-8" y2="-8" width="0.127" layer="21"/>
+<wire x1="8" y1="8" x2="-8" y2="8" width="0.127" layer="21"/>
+<smd name="1" x="-8" y="7" dx="3.6" dy="1.2" layer="1"/>
+<smd name="2" x="-8" y="5" dx="3.6" dy="1.2" layer="1"/>
+<smd name="3" x="-8" y="3" dx="3.6" dy="1.2" layer="1"/>
+<smd name="4" x="-8" y="1" dx="3.6" dy="1.2" layer="1"/>
+<smd name="5" x="-8" y="-1" dx="3.6" dy="1.2" layer="1"/>
+<smd name="6" x="-8" y="-3" dx="3.6" dy="1.2" layer="1"/>
+<smd name="7" x="-8" y="-5" dx="3.6" dy="1.2" layer="1"/>
+<smd name="8" x="-8" y="-7" dx="3.6" dy="1.2" layer="1"/>
+<smd name="9" x="8" y="-7" dx="3.6" dy="1.2" layer="1"/>
+<smd name="10" x="8" y="-5" dx="3.6" dy="1.2" layer="1"/>
+<smd name="11" x="8" y="-3" dx="3.6" dy="1.2" layer="1"/>
+<smd name="12" x="8" y="-1" dx="3.6" dy="1.2" layer="1"/>
+<smd name="13" x="8" y="1" dx="3.6" dy="1.2" layer="1"/>
+<smd name="14" x="8" y="3" dx="3.6" dy="1.2" layer="1"/>
+<smd name="15" x="8" y="5" dx="3.6" dy="1.2" layer="1"/>
+<smd name="16" x="8" y="7" dx="3.6" dy="1.2" layer="1"/>
+<wire x1="-8" y1="-3.8" x2="-8" y2="-4.2" width="0.127" layer="21"/>
+<wire x1="-8" y1="-5.8" x2="-8" y2="-6.2" width="0.127" layer="21"/>
+<wire x1="-8" y1="-7.6" x2="-8" y2="-8" width="0.127" layer="21"/>
+<wire x1="8" y1="-7.6" x2="8" y2="-8" width="0.127" layer="21"/>
+<wire x1="-8" y1="-1.8" x2="-8" y2="-2.2" width="0.127" layer="21"/>
+<wire x1="-8" y1="0.2" x2="-8" y2="-0.2" width="0.127" layer="21"/>
+<wire x1="-8" y1="2.2" x2="-8" y2="1.8" width="0.127" layer="21"/>
+<wire x1="-8" y1="4.2" x2="-8" y2="3.8" width="0.127" layer="21"/>
+<wire x1="-8" y1="6.2" x2="-8" y2="5.8" width="0.127" layer="21"/>
+<wire x1="-8" y1="8" x2="-8" y2="7.6" width="0.127" layer="21"/>
+<wire x1="8" y1="8" x2="8" y2="7.6" width="0.127" layer="21"/>
+<wire x1="8" y1="6.2" x2="8" y2="5.8" width="0.127" layer="21"/>
+<wire x1="8" y1="4.2" x2="8" y2="3.8" width="0.127" layer="21"/>
+<wire x1="8" y1="2.2" x2="8" y2="1.8" width="0.127" layer="21"/>
+<wire x1="8" y1="0.2" x2="8" y2="-0.2" width="0.127" layer="21"/>
+<wire x1="8" y1="-1.8" x2="8" y2="-2.2" width="0.127" layer="21"/>
+<wire x1="8" y1="-3.8" x2="8" y2="-4.2" width="0.127" layer="21"/>
+<wire x1="8" y1="-5.8" x2="8" y2="-6.2" width="0.127" layer="21"/>
+<text x="-7.68" y="-10.2" size="1.27" layer="27">&gt;VALUE</text>
+<text x="-3.2" y="8.8" size="1.27" layer="25">&gt;NAME</text>
+<text x="-5.8" y="6.4" size="1.27" layer="21">GND</text>
+<text x="-5.8" y="4.4" size="1.27" layer="21">GND</text>
+<text x="-5.8" y="2.4" size="1.27" layer="21">3.3V</text>
+<text x="-5.8" y="0.4" size="1.27" layer="21">RESET</text>
+<text x="-5.8" y="-1.6" size="1.27" layer="21">DIO0</text>
+<text x="-5.8" y="-3.6" size="1.27" layer="21">DIO1</text>
+<text x="-5.8" y="-5.6" size="1.27" layer="21">DIO2</text>
+<text x="-5.8" y="-7.6" size="1.27" layer="21">DIO3</text>
+<text x="2.2" y="-7.6" size="1.27" layer="21">GND</text>
+<text x="1.6" y="-5.6" size="1.27" layer="21">DIO4</text>
+<text x="1.6" y="-3.6" size="1.27" layer="21">DIO5</text>
+<text x="2.6" y="-1.6" size="1.27" layer="21">SCK</text>
+<text x="1.4" y="0.4" size="1.27" layer="21">MISO</text>
+<text x="1.4" y="2.4" size="1.27" layer="21">MOSI</text>
+<text x="2.6" y="4.4" size="1.27" layer="21">NSS</text>
+<text x="2.2" y="6.2" size="1.27" layer="21">GND</text>
 </package>
 </packages>
 <symbols>
-<symbol name="DRF1278F">
-<description>&lt;b&gt;DRF1278F&lt;/b&gt;&lt;br/&gt;
+<symbol name="RA02">
+<description>&lt;b&gt;RA-02 LoRA&lt;/b&gt;&lt;br/&gt;
 &lt;br/&gt;
-Module for SX1278 LoRA radio</description>
-<wire x1="-15.24" y1="20.32" x2="-15.24" y2="-20.32" width="0.254" layer="94"/>
-<wire x1="-15.24" y1="-20.32" x2="12.7" y2="-20.32" width="0.254" layer="94"/>
-<wire x1="12.7" y1="-20.32" x2="12.7" y2="20.32" width="0.254" layer="94"/>
-<wire x1="12.7" y1="20.32" x2="-15.24" y2="20.32" width="0.254" layer="94"/>
-<text x="-15.24" y="20.32" size="1.778" layer="95">&gt;NAME</text>
-<text x="-15.24" y="-22.86" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="ANT" x="15.24" y="17.78" length="short" direction="pas" rot="R180"/>
-<pin name="AGND" x="15.24" y="15.24" length="short" direction="pwr" rot="R180"/>
-<pin name="!RESET!" x="-17.78" y="17.78" length="short" direction="in" function="dot"/>
-<pin name="DIO0" x="-17.78" y="15.24" length="short"/>
-<pin name="DIO1" x="-17.78" y="12.7" length="short"/>
-<pin name="DIO2" x="-17.78" y="10.16" length="short"/>
-<pin name="DIO3" x="-17.78" y="7.62" length="short"/>
-<pin name="DIO4" x="-17.78" y="5.08" length="short"/>
-<pin name="DIO5" x="-17.78" y="2.54" length="short"/>
-<pin name="VCC" x="-17.78" y="-15.24" length="short" direction="pwr"/>
-<pin name="GND" x="-17.78" y="-17.78" length="short" direction="pwr"/>
-<pin name="SCK" x="-17.78" y="-2.54" length="short" direction="in"/>
-<pin name="MISO" x="-17.78" y="-5.08" length="short" direction="out"/>
-<pin name="MOSI" x="-17.78" y="-7.62" length="short" direction="in"/>
-<pin name="!SS!" x="-17.78" y="-10.16" length="short" direction="in" function="dot"/>
-</symbol>
-<symbol name="SMA_EDGE">
-<wire x1="0" y1="-2.54" x2="0" y2="-12.7" width="0.254" layer="94"/>
-<circle x="0" y="0" radius="1.1359" width="0.254" layer="94"/>
-<circle x="0" y="0" radius="2.54" width="0.254" layer="94"/>
-<pin name="GND@0" x="-2.54" y="-5.08" visible="off" length="short"/>
-<pin name="SIGNAL" x="5.08" y="0" visible="off" length="middle" rot="R180"/>
-<pin name="GND@1" x="-2.54" y="-7.62" visible="off" length="short"/>
-<pin name="GND@2" x="-2.54" y="-10.16" visible="off" length="short"/>
-<pin name="GND@3" x="-2.54" y="-12.7" visible="off" length="short"/>
+RA-02 LoRA module with integrated u.FL connector</description>
+<wire x1="-12.7" y1="20.32" x2="-12.7" y2="-20.32" width="0.254" layer="94"/>
+<wire x1="-12.7" y1="-20.32" x2="15.24" y2="-20.32" width="0.254" layer="94"/>
+<wire x1="15.24" y1="-20.32" x2="15.24" y2="20.32" width="0.254" layer="94"/>
+<wire x1="15.24" y1="20.32" x2="-12.7" y2="20.32" width="0.254" layer="94"/>
+<text x="-12.7" y="20.32" size="1.778" layer="95">&gt;NAME</text>
+<text x="-12.7" y="-22.86" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="!RESET!" x="-15.24" y="17.78" length="short" direction="in" function="dot"/>
+<pin name="DIO0" x="-15.24" y="15.24" length="short"/>
+<pin name="DIO1" x="-15.24" y="12.7" length="short"/>
+<pin name="DIO2" x="-15.24" y="10.16" length="short"/>
+<pin name="DIO3" x="-15.24" y="7.62" length="short"/>
+<pin name="DIO4" x="-15.24" y="5.08" length="short"/>
+<pin name="DIO5" x="-15.24" y="2.54" length="short"/>
+<pin name="VCC" x="-15.24" y="-15.24" length="short" direction="pwr"/>
+<pin name="GND" x="-15.24" y="-17.78" length="short" direction="pwr"/>
+<pin name="SCK" x="-15.24" y="-2.54" length="short" direction="in"/>
+<pin name="MISO" x="-15.24" y="-5.08" length="short" direction="out"/>
+<pin name="MOSI" x="-15.24" y="-7.62" length="short" direction="in"/>
+<pin name="!SS!" x="-15.24" y="-10.16" length="short" direction="in" function="dot"/>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="DRF1278F" prefix="U" uservalue="yes">
-<description>&lt;b&gt;DRF1278F&lt;/b&gt;&lt;br/&gt;
+<deviceset name="RA02">
+<description>&lt;b&gt;RA-02 LoRA&lt;/b&gt;&lt;br/&gt;
 &lt;br/&gt;
-Module for SX1278 LoRA radio</description>
+RA-02 LoRA module with integrated u.FL connector</description>
 <gates>
-<gate name="G$1" symbol="DRF1278F" x="0" y="0"/>
+<gate name="G$1" symbol="RA02" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="DRF1278F">
+<device name="" package="RA02">
 <connects>
-<connect gate="G$1" pin="!RESET!" pad="1"/>
-<connect gate="G$1" pin="!SS!" pad="13"/>
-<connect gate="G$1" pin="AGND" pad="14"/>
-<connect gate="G$1" pin="ANT" pad="15"/>
-<connect gate="G$1" pin="DIO0" pad="2"/>
-<connect gate="G$1" pin="DIO1" pad="3"/>
-<connect gate="G$1" pin="DIO2" pad="4"/>
-<connect gate="G$1" pin="DIO3" pad="5"/>
-<connect gate="G$1" pin="DIO4" pad="6"/>
-<connect gate="G$1" pin="DIO5" pad="7"/>
-<connect gate="G$1" pin="GND" pad="9"/>
-<connect gate="G$1" pin="MISO" pad="11"/>
-<connect gate="G$1" pin="MOSI" pad="12"/>
-<connect gate="G$1" pin="SCK" pad="10"/>
-<connect gate="G$1" pin="VCC" pad="8"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="SMA_VERT">
-<description>&lt;b&gt;SMA Connector&lt;/b&gt;&lt;br/&gt;
-&lt;br/&gt;
-SMA connector, edge version is in SFE libraries, this is Amphenol 132134 (DigiKey ACX1230-ND)</description>
-<gates>
-<gate name="G$1" symbol="SMA_EDGE" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="SMA_VERT">
-<connects>
-<connect gate="G$1" pin="GND@0" pad="P$5"/>
-<connect gate="G$1" pin="GND@1" pad="P$4"/>
-<connect gate="G$1" pin="GND@2" pad="P$3"/>
-<connect gate="G$1" pin="GND@3" pad="P$2"/>
-<connect gate="G$1" pin="SIGNAL" pad="P$1"/>
+<connect gate="G$1" pin="!RESET!" pad="4"/>
+<connect gate="G$1" pin="!SS!" pad="15"/>
+<connect gate="G$1" pin="DIO0" pad="5"/>
+<connect gate="G$1" pin="DIO1" pad="6"/>
+<connect gate="G$1" pin="DIO2" pad="7"/>
+<connect gate="G$1" pin="DIO3" pad="8"/>
+<connect gate="G$1" pin="DIO4" pad="10"/>
+<connect gate="G$1" pin="DIO5" pad="11"/>
+<connect gate="G$1" pin="GND" pad="1 2 9 16"/>
+<connect gate="G$1" pin="MISO" pad="13"/>
+<connect gate="G$1" pin="MOSI" pad="14"/>
+<connect gate="G$1" pin="SCK" pad="12"/>
+<connect gate="G$1" pin="VCC" pad="3"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -3333,7 +3315,6 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <part name="GND33" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="SUPPLY10" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
 <part name="SUPPLY23" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
-<part name="U1" library="HAB" deviceset="DRF1278F" device=""/>
 <part name="J2" library="SparkFun-Connectors" deviceset="MICRO-SD_CARD_SOCKET" device=""/>
 <part name="GND1" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="C1" library="SparkFun-Capacitors" deviceset="0.1UF" device="-0603-25V-(+80/-20%)" value="0.1uF"/>
@@ -3359,7 +3340,7 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <part name="SUPPLY5" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
 <part name="GND8" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="GND7" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="U$3" library="HAB" deviceset="SMA_VERT" device=""/>
+<part name="U1" library="HAB" deviceset="RA02" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -3391,7 +3372,6 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <instance part="GND33" gate="1" x="213.36" y="50.8"/>
 <instance part="SUPPLY10" gate="G$1" x="233.68" y="76.2"/>
 <instance part="SUPPLY23" gate="G$1" x="213.36" y="76.2"/>
-<instance part="U1" gate="G$1" x="215.9" y="111.76"/>
 <instance part="J2" gate="1" x="157.48" y="170.18"/>
 <instance part="GND1" gate="1" x="160.02" y="149.86"/>
 <instance part="C1" gate="G$1" x="139.7" y="157.48"/>
@@ -3417,7 +3397,7 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <instance part="SUPPLY5" gate="G$1" x="132.08" y="55.88"/>
 <instance part="GND8" gate="1" x="132.08" y="40.64"/>
 <instance part="GND7" gate="1" x="177.8" y="104.14"/>
-<instance part="U$3" gate="G$1" x="241.3" y="129.54" rot="MR0"/>
+<instance part="U1" gate="G$1" x="213.36" y="111.76"/>
 </instances>
 <busses>
 </busses>
@@ -3459,11 +3439,11 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <segment>
 <pinref part="GND2" gate="1" pin="GND"/>
 <wire x1="195.58" y1="91.44" x2="195.58" y2="93.98" width="0.1524" layer="91"/>
-<pinref part="U1" gate="G$1" pin="GND"/>
 <wire x1="195.58" y1="93.98" x2="198.12" y2="93.98" width="0.1524" layer="91"/>
 <pinref part="C2" gate="G$1" pin="2"/>
 <wire x1="185.42" y1="91.44" x2="195.58" y2="91.44" width="0.1524" layer="91"/>
 <junction x="195.58" y="91.44"/>
+<pinref part="U1" gate="G$1" pin="GND"/>
 </segment>
 <segment>
 <pinref part="GND3" gate="1" pin="GND"/>
@@ -3534,7 +3514,6 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <segment>
 <pinref part="SUPPLY1" gate="G$1" pin="3.3V"/>
 <wire x1="195.58" y1="144.78" x2="195.58" y2="142.24" width="0.1524" layer="91"/>
-<pinref part="U1" gate="G$1" pin="VCC"/>
 <wire x1="195.58" y1="142.24" x2="195.58" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="195.58" y1="99.06" x2="195.58" y2="96.52" width="0.1524" layer="91"/>
 <wire x1="195.58" y1="96.52" x2="198.12" y2="96.52" width="0.1524" layer="91"/>
@@ -3544,6 +3523,7 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <pinref part="C2" gate="G$1" pin="1"/>
 <wire x1="185.42" y1="99.06" x2="195.58" y2="99.06" width="0.1524" layer="91"/>
 <junction x="195.58" y="99.06"/>
+<pinref part="U1" gate="G$1" pin="VCC"/>
 </segment>
 <segment>
 <pinref part="SUPPLY2" gate="G$1" pin="3.3V"/>
@@ -3657,9 +3637,9 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <label x="127" y="165.1" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="U1" gate="G$1" pin="MISO"/>
 <wire x1="182.88" y1="106.68" x2="198.12" y2="106.68" width="0.1524" layer="91"/>
 <label x="182.88" y="106.68" size="1.778" layer="95"/>
+<pinref part="U1" gate="G$1" pin="MISO"/>
 </segment>
 </net>
 <net name="MOSI" class="0">
@@ -3674,9 +3654,9 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <label x="127" y="170.18" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="U1" gate="G$1" pin="MOSI"/>
 <wire x1="182.88" y1="104.14" x2="198.12" y2="104.14" width="0.1524" layer="91"/>
 <label x="182.88" y="104.14" size="1.778" layer="95"/>
+<pinref part="U1" gate="G$1" pin="MOSI"/>
 </segment>
 </net>
 <net name="SCK" class="0">
@@ -3691,29 +3671,9 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <label x="127" y="167.64" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="U1" gate="G$1" pin="SCK"/>
 <wire x1="182.88" y1="109.22" x2="198.12" y2="109.22" width="0.1524" layer="91"/>
 <label x="182.88" y="109.22" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="RGND" class="0">
-<segment>
-<wire x1="243.84" y1="114.3" x2="243.84" y2="116.84" width="0.1524" layer="91"/>
-<wire x1="243.84" y1="116.84" x2="243.84" y2="119.38" width="0.1524" layer="91"/>
-<wire x1="243.84" y1="119.38" x2="243.84" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="243.84" y1="121.92" x2="243.84" y2="124.46" width="0.1524" layer="91"/>
-<wire x1="243.84" y1="114.3" x2="233.68" y2="114.3" width="0.1524" layer="91"/>
-<wire x1="233.68" y1="114.3" x2="233.68" y2="127" width="0.1524" layer="91"/>
-<pinref part="U1" gate="G$1" pin="AGND"/>
-<wire x1="233.68" y1="127" x2="231.14" y2="127" width="0.1524" layer="91"/>
-<label x="236.22" y="114.3" size="1.778" layer="95"/>
-<pinref part="U$3" gate="G$1" pin="GND@0"/>
-<pinref part="U$3" gate="G$1" pin="GND@1"/>
-<junction x="243.84" y="121.92"/>
-<pinref part="U$3" gate="G$1" pin="GND@2"/>
-<junction x="243.84" y="119.38"/>
-<pinref part="U$3" gate="G$1" pin="GND@3"/>
-<junction x="243.84" y="116.84"/>
+<pinref part="U1" gate="G$1" pin="SCK"/>
 </segment>
 </net>
 <net name="VS" class="0">
@@ -3740,13 +3700,6 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 <label x="132.08" y="73.66" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="RF_LORA" class="0">
-<segment>
-<pinref part="U1" gate="G$1" pin="ANT"/>
-<wire x1="231.14" y1="129.54" x2="236.22" y2="129.54" width="0.1524" layer="91"/>
-<pinref part="U$3" gate="G$1" pin="SIGNAL"/>
-</segment>
-</net>
 <net name="!SD_CS!" class="0">
 <segment>
 <pinref part="J2" gate="1" pin="!CS"/>
@@ -3761,9 +3714,9 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 </net>
 <net name="!LORA_CS!" class="0">
 <segment>
-<pinref part="U1" gate="G$1" pin="!SS!"/>
 <wire x1="182.88" y1="101.6" x2="198.12" y2="101.6" width="0.1524" layer="91"/>
 <label x="182.88" y="101.6" size="1.778" layer="95"/>
+<pinref part="U1" gate="G$1" pin="!SS!"/>
 </segment>
 <segment>
 <wire x1="238.76" y1="68.58" x2="231.14" y2="68.58" width="0.1524" layer="91"/>
@@ -3773,17 +3726,17 @@ NC pin 19. 2-6 &amp; 14-17 not internally connected. May be used for PCB trace r
 </net>
 <net name="!L_INT!" class="0">
 <segment>
-<pinref part="U1" gate="G$1" pin="DIO0"/>
 <wire x1="182.88" y1="127" x2="198.12" y2="127" width="0.1524" layer="91"/>
 <label x="182.88" y="127" size="1.778" layer="95"/>
+<pinref part="U1" gate="G$1" pin="DIO0"/>
 </segment>
 </net>
 <net name="!LORA_RST!" class="0">
 <segment>
-<pinref part="U1" gate="G$1" pin="!RESET!"/>
 <pinref part="R1" gate="G$1" pin="2"/>
 <wire x1="198.12" y1="129.54" x2="190.5" y2="129.54" width="0.1524" layer="91"/>
 <wire x1="190.5" y1="129.54" x2="190.5" y2="132.08" width="0.1524" layer="91"/>
+<pinref part="U1" gate="G$1" pin="!RESET!"/>
 </segment>
 </net>
 <net name="AUX_CL" class="0">
