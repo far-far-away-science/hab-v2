@@ -8724,7 +8724,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="C20" library="SparkFun-Passives" deviceset="CAP" device="0805" value="1.0u"/>
 <part name="GND32" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="R20" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="10K"/>
-<part name="LED1" library="SparkFun-LED" deviceset="LED-TRICOLOR-5050" device="NO_IC" value="COM-10866"/>
+<part name="LED1" library="SparkFun-LED" deviceset="LED-TRICOLOR-5050" device="NO_IC" value="STATUS"/>
 <part name="SUPPLY15" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="R8" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="470"/>
 <part name="R9" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="470"/>
@@ -8811,7 +8811,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="R11" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="3.3K"/>
 <part name="SUPPLY13" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="GND20" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="D2" library="SparkFun-LED" deviceset="LED-GREEN" device="0603" value="GREEN"/>
+<part name="D2" library="SparkFun-LED" deviceset="LED-GREEN" device="0603" value="POWER"/>
 <part name="IC6" library="HAB" deviceset="TPS62140" device="" value="TPS62143"/>
 <part name="C26" library="SparkFun-Passives" deviceset="CAP" device="0805" value="3.3n"/>
 <part name="J7" library="SparkFun-Connectors" deviceset="CONN_08X2" device="" value="STACK1"/>
@@ -9636,11 +9636,6 @@ Ground</text>
 <wire x1="419.1" y1="86.36" x2="429.26" y2="86.36" width="0.1524" layer="91"/>
 <label x="419.1" y="86.36" size="1.778" layer="95"/>
 </segment>
-<segment>
-<pinref part="J8" gate="G$1" pin="3"/>
-<wire x1="419.1" y1="101.6" x2="429.26" y2="101.6" width="0.1524" layer="91"/>
-<label x="419.1" y="101.6" size="1.778" layer="95"/>
-</segment>
 </net>
 <net name="VDDA" class="0">
 <segment>
@@ -9869,6 +9864,11 @@ Ground</text>
 <pinref part="J7" gate="G$1" pin="13"/>
 <wire x1="429.26" y1="119.38" x2="419.1" y2="119.38" width="0.1524" layer="91"/>
 <label x="419.1" y="119.38" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="J8" gate="G$1" pin="3"/>
+<wire x1="419.1" y1="101.6" x2="429.26" y2="101.6" width="0.1524" layer="91"/>
+<label x="419.1" y="101.6" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="SCL" class="0">
