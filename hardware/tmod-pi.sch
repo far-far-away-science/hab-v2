@@ -3485,6 +3485,11 @@ End launch SMA connector. The paste layer has been removed so that the connector
 <junction x="231.14" y="93.98"/>
 <label x="236.22" y="93.98" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="J1" gate="G$1" pin="GP5"/>
+<wire x1="73.66" y1="119.38" x2="81.28" y2="119.38" width="0.1524" layer="91"/>
+<label x="73.66" y="119.38" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="TX" class="0">
 <segment>
